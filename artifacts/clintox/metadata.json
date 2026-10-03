@@ -1,0 +1,44 @@
+{
+  "model_id": "clintox_rf_baseline",
+  "target": "CT_TOX",
+  "algorithm": "RandomForestClassifier",
+  "n_estimators": 300,
+  "class_weight": "balanced",
+  "split_ratio": 0.2,
+  "random_seed": 42,
+  "features": {
+    "type": "morgan",
+    "radius": 2,
+    "n_bits": 2048
+  },
+  "classes": [
+    0,
+    1
+  ],
+  "positive_class_index": 1,
+  "metrics": {
+    "sample_count": 1480,
+    "train_count": 1184,
+    "test_count": 296,
+    "test_positive_count": 22,
+    "test_negative_count": 274,
+    "roc_auc": 0.8517,
+    "pr_auc": 0.2972,
+    "accuracy": 0.9155,
+    "balanced_accuracy": 0.6617,
+    "precision": 0.4211,
+    "recall": 0.3636,
+    "f1": 0.3902,
+    "confusion_matrix": [
+      [
+        263,
+        11
+      ],
+      [
+        14,
+        8
+      ]
+    ]
+  },
+  "status": "APPROVED_FOR_DEMO"
+}

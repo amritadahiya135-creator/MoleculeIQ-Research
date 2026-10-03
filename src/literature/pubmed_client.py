@@ -1,0 +1,149 @@
+"""NCBI E-utilities client for PubMed article retrieval (Module M09)."""
+
+import logging
+import re
+import xml.etree.ElementTree as ET
+from dataclasses import dataclass
+from typing import List, Dict, Any, Optional
+import requests
+import urllib3
+
+# Suppress insecure request warnings if local SSL CA verification falls back
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+logger = logging.getLogger(__name__)
+
+NCBI_ESEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+NCBI_EFETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+
+
+@dataclass(frozen=True)
+class PubMedArticle:
+    """Retrieved scientific publication from PubMed."""
+    pmid: str
+    title: str
+    abstract: str
+    authors: str
+    year: str
+    url: str
+
+
+class PubMedClient:
+    """
+    Client for NCBI Entrez E-utilities supporting rate-limiting and robust SSL fallback.
+    """
+
+    def __init__(self, timeout: int = 15):
+        self.timeout = timeout
+        self._cache: Dict[str, List[PubMedArticle]] = {}
+
+    def _get(self, url: str, params: Dict[str, Any]) -> requests.Response:
+        """Execute HTTP request with SSL verification and graceful fallback."""
+        try:
+            return requests.get(url, params=params, timeout=self.timeout)
+        except requests.exceptions.SSLError:
+            logger.warning("SSL verification failed on NCBI request; retrying with verify=False.")
+            return requests.get(url, params=params, verify=False, timeout=self.timeout)
+
+    def search_articles(self, query: str, max_results: int = 5) -> List[PubMedArticle]:
+        """
+        Search PubMed for articles matching the research query.
+
+        Parameters
+        ----------
+        query : str
+            Biomedical query or chemical compound name.
+        max_results : int, default=5
+            Maximum articles to retrieve.
+
+        Returns
+        -------
+        List[PubMedArticle]
+            List of parsed article records with abstracts.
+        """
+        clean_query = query.strip()
+        if not clean_query:
+            return []
+
+        if clean_query in self._cache:
+            return self._cache[clean_query]
+
+        # Step 1: ESearch to obtain PMIDs
+        search_params = {
+            "db": "pubmed",
+            "term": clean_query,
+            "retmode": "json",
+            "retmax": max_results,
+        }
+
+        try:
+            search_resp = self._get(NCBI_ESEARCH_URL, search_params)
+            search_resp.raise_for_status()
+            search_data = search_resp.json()
+            id_list = search_data.get("esearchresult", {}).get("idlist", [])
+        except Exception as exc:
+            logger.error(f"PubMed search failed for query '{clean_query}': {exc}")
+            return []
+
+        if not id_list:
+            return []
+
+        # Step 2: EFetch to retrieve article XML and abstracts
+        fetch_params = {
+            "db": "pubmed",
+            "id": ",".join(id_list),
+            "retmode": "xml",
+        }
+
+        articles: List[PubMedArticle] = []
+        try:
+            fetch_resp = self._get(NCBI_EFETCH_URL, fetch_params)
+            fetch_resp.raise_for_status()
+            root = ET.fromstring(fetch_resp.content)
+
+            for article_elem in root.findall(".//PubmedArticle"):
+                pmid_elem = article_elem.find(".//MedlineCitation/PMID")
+                pmid = pmid_elem.text if pmid_elem is not None and pmid_elem.text else "Unknown"
+
+                title_elem = article_elem.find(".//ArticleTitle")
+                title = title_elem.text if title_elem is not None and title_elem.text else "No title provided"
+
+                abstract_parts = [
+                    elem.text for elem in article_elem.findall(".//AbstractText") if elem.text
+                ]
+                abstract = " ".join(abstract_parts) if abstract_parts else ""
+
+                # Extract authors
+                author_names = []
+                for author_elem in article_elem.findall(".//AuthorList/Author")[:4]:
+                    last = author_elem.find("LastName")
+                    fore = author_elem.find("ForeName")
+                    if last is not None and last.text:
+                        name = f"{last.text} {fore.text[0] if fore is not None and fore.text else ''}"
+                        author_names.append(name.strip())
+                authors = ", ".join(author_names) if author_names else "Unknown"
+
+                # Extract Year
+                year_elem = article_elem.find(".//Journal/JournalIssue/PubDate/Year")
+                if year_elem is None or not year_elem.text:
+                    year_elem = article_elem.find(".//DateCompleted/Year")
+                year = year_elem.text if year_elem is not None and year_elem.text else "Recent"
+
+                url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
+
+                articles.append(
+                    PubMedArticle(
+                        pmid=pmid,
+                        title=title,
+                        abstract=abstract,
+                        authors=authors,
+                        year=year,
+                        url=url,
+                    )
+                )
+
+        except Exception as exc:
+            logger.error(f"PubMed fetch failed for PMIDs {id_list}: {exc}")
+
+        self._cache[clean_query] = articles
+        return articles

@@ -1,0 +1,39 @@
+{
+  "endpoint": "NR-AR-LBD",
+  "algorithm": "RandomForestClassifier",
+  "n_estimators": 300,
+  "class_weight": "balanced",
+  "split_ratio": 0.2,
+  "random_seed": 42,
+  "classes": [
+    0,
+    1
+  ],
+  "positive_class_index": 1,
+  "metrics": {
+    "endpoint": "NR-AR-LBD",
+    "sample_count": 6751,
+    "train_count": 5400,
+    "test_count": 1351,
+    "test_positive_count": 47,
+    "test_negative_count": 1304,
+    "roc_auc": 0.9051,
+    "pr_auc": 0.5662,
+    "accuracy": 0.9785,
+    "balanced_accuracy": 0.8248,
+    "precision": 0.7045,
+    "recall": 0.6596,
+    "f1": 0.6813,
+    "confusion_matrix": [
+      [
+        1291,
+        13
+      ],
+      [
+        16,
+        31
+      ]
+    ]
+  },
+  "status": "APPROVED_FOR_DEMO"
+}

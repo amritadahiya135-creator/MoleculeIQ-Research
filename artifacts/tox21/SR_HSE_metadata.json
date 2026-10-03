@@ -1,0 +1,39 @@
+{
+  "endpoint": "SR-HSE",
+  "algorithm": "RandomForestClassifier",
+  "n_estimators": 300,
+  "class_weight": "balanced",
+  "split_ratio": 0.2,
+  "random_seed": 42,
+  "classes": [
+    0,
+    1
+  ],
+  "positive_class_index": 1,
+  "metrics": {
+    "endpoint": "SR-HSE",
+    "sample_count": 6460,
+    "train_count": 5168,
+    "test_count": 1292,
+    "test_positive_count": 74,
+    "test_negative_count": 1218,
+    "roc_auc": 0.8113,
+    "pr_auc": 0.3081,
+    "accuracy": 0.9466,
+    "balanced_accuracy": 0.6099,
+    "precision": 0.5862,
+    "recall": 0.2297,
+    "f1": 0.3301,
+    "confusion_matrix": [
+      [
+        1206,
+        12
+      ],
+      [
+        57,
+        17
+      ]
+    ]
+  },
+  "status": "APPROVED_FOR_DEMO"
+}

@@ -1,0 +1,60 @@
+app:
+  name: "MoleculeIQ"
+  version: "1.0.0"
+  description: "AI-Assisted Molecular Screening and Literature Intelligence Platform"
+
+chemistry:
+  fingerprint:
+    type: "morgan"
+    radius: 2
+    n_bits: 2048
+  lipinski:
+    max_mw: 500.0
+    max_logp: 5.0
+    max_hbd: 5
+    max_hba: 10
+    max_rotatable_bonds: 10
+
+models:
+  clintox:
+    target: "CT_TOX"
+    n_estimators: 300
+    class_weight: "balanced"
+    split_ratio: 0.2
+    random_seed: 42
+    artifact_dir: "artifacts/clintox"
+  tox21:
+    endpoints:
+      - "NR-AR"
+      - "NR-AR-LBD"
+      - "NR-AhR"
+      - "NR-Aromatase"
+      - "NR-ER"
+      - "NR-ER-LBD"
+      - "NR-PPAR-gamma"
+      - "SR-ARE"
+      - "SR-ATAD5"
+      - "SR-HSE"
+      - "SR-MMP"
+      - "SR-p53"
+    n_estimators: 300
+    class_weight: "balanced"
+    split_ratio: 0.2
+    random_seed: 42
+    artifact_dir: "artifacts/tox21"
+
+ranking:
+  weight_safety: 0.5
+  weight_druglikeness: 0.3
+  weight_similarity: 0.2
+  druglikeness_pass_score: 100.0
+  druglikeness_fail_score: 40.0
+
+similarity:
+  top_k: 5
+  reference_data_path: "data/reference/approved_drugs.csv"
+
+literature:
+  ncbi_base_url: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+  max_results: 10
+  timeout_seconds: 15

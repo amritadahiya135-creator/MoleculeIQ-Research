@@ -1,0 +1,39 @@
+{
+  "endpoint": "SR-p53",
+  "algorithm": "RandomForestClassifier",
+  "n_estimators": 300,
+  "class_weight": "balanced",
+  "split_ratio": 0.2,
+  "random_seed": 42,
+  "classes": [
+    0,
+    1
+  ],
+  "positive_class_index": 1,
+  "metrics": {
+    "endpoint": "SR-p53",
+    "sample_count": 6767,
+    "train_count": 5413,
+    "test_count": 1354,
+    "test_positive_count": 85,
+    "test_negative_count": 1269,
+    "roc_auc": 0.851,
+    "pr_auc": 0.3601,
+    "accuracy": 0.9394,
+    "balanced_accuracy": 0.6055,
+    "precision": 0.5429,
+    "recall": 0.2235,
+    "f1": 0.3167,
+    "confusion_matrix": [
+      [
+        1253,
+        16
+      ],
+      [
+        66,
+        19
+      ]
+    ]
+  },
+  "status": "APPROVED_FOR_DEMO"
+}

@@ -1,0 +1,319 @@
+{
+  "dataset": "Tox21",
+  "endpoints_trained": [
+    "NR-AR",
+    "NR-AR-LBD",
+    "NR-AhR",
+    "NR-Aromatase",
+    "NR-ER",
+    "NR-ER-LBD",
+    "NR-PPAR-gamma",
+    "SR-ARE",
+    "SR-ATAD5",
+    "SR-HSE",
+    "SR-MMP",
+    "SR-p53"
+  ],
+  "metrics_summary": {
+    "NR-AR": {
+      "endpoint": "NR-AR",
+      "sample_count": 7258,
+      "train_count": 5806,
+      "test_count": 1452,
+      "test_positive_count": 62,
+      "test_negative_count": 1390,
+      "roc_auc": 0.7485,
+      "pr_auc": 0.3979,
+      "accuracy": 0.9614,
+      "balanced_accuracy": 0.6948,
+      "precision": 0.5682,
+      "recall": 0.4032,
+      "f1": 0.4717,
+      "confusion_matrix": [
+        [
+          1371,
+          19
+        ],
+        [
+          37,
+          25
+        ]
+      ]
+    },
+    "NR-AR-LBD": {
+      "endpoint": "NR-AR-LBD",
+      "sample_count": 6751,
+      "train_count": 5400,
+      "test_count": 1351,
+      "test_positive_count": 47,
+      "test_negative_count": 1304,
+      "roc_auc": 0.9051,
+      "pr_auc": 0.5662,
+      "accuracy": 0.9785,
+      "balanced_accuracy": 0.8248,
+      "precision": 0.7045,
+      "recall": 0.6596,
+      "f1": 0.6813,
+      "confusion_matrix": [
+        [
+          1291,
+          13
+        ],
+        [
+          16,
+          31
+        ]
+      ]
+    },
+    "NR-AhR": {
+      "endpoint": "NR-AhR",
+      "sample_count": 6542,
+      "train_count": 5233,
+      "test_count": 1309,
+      "test_positive_count": 154,
+      "test_negative_count": 1155,
+      "roc_auc": 0.9092,
+      "pr_auc": 0.6248,
+      "accuracy": 0.8992,
+      "balanced_accuracy": 0.7712,
+      "precision": 0.5671,
+      "recall": 0.6039,
+      "f1": 0.5849,
+      "confusion_matrix": [
+        [
+          1084,
+          71
+        ],
+        [
+          61,
+          93
+        ]
+      ]
+    },
+    "NR-Aromatase": {
+      "endpoint": "NR-Aromatase",
+      "sample_count": 5815,
+      "train_count": 4652,
+      "test_count": 1163,
+      "test_positive_count": 60,
+      "test_negative_count": 1103,
+      "roc_auc": 0.8546,
+      "pr_auc": 0.5332,
+      "accuracy": 0.9561,
+      "balanced_accuracy": 0.6774,
+      "precision": 0.6286,
+      "recall": 0.3667,
+      "f1": 0.4632,
+      "confusion_matrix": [
+        [
+          1090,
+          13
+        ],
+        [
+          38,
+          22
+        ]
+      ]
+    },
+    "NR-ER": {
+      "endpoint": "NR-ER",
+      "sample_count": 6186,
+      "train_count": 4948,
+      "test_count": 1238,
+      "test_positive_count": 158,
+      "test_negative_count": 1080,
+      "roc_auc": 0.7064,
+      "pr_auc": 0.3527,
+      "accuracy": 0.8425,
+      "balanced_accuracy": 0.6423,
+      "precision": 0.3806,
+      "recall": 0.3734,
+      "f1": 0.377,
+      "confusion_matrix": [
+        [
+          984,
+          96
+        ],
+        [
+          99,
+          59
+        ]
+      ]
+    },
+    "NR-ER-LBD": {
+      "endpoint": "NR-ER-LBD",
+      "sample_count": 6948,
+      "train_count": 5558,
+      "test_count": 1390,
+      "test_positive_count": 70,
+      "test_negative_count": 1320,
+      "roc_auc": 0.8188,
+      "pr_auc": 0.4247,
+      "accuracy": 0.9547,
+      "balanced_accuracy": 0.7259,
+      "precision": 0.5593,
+      "recall": 0.4714,
+      "f1": 0.5116,
+      "confusion_matrix": [
+        [
+          1294,
+          26
+        ],
+        [
+          37,
+          33
+        ]
+      ]
+    },
+    "NR-PPAR-gamma": {
+      "endpoint": "NR-PPAR-gamma",
+      "sample_count": 6443,
+      "train_count": 5154,
+      "test_count": 1289,
+      "test_positive_count": 37,
+      "test_negative_count": 1252,
+      "roc_auc": 0.8116,
+      "pr_auc": 0.2417,
+      "accuracy": 0.9697,
+      "balanced_accuracy": 0.5779,
+      "precision": 0.4286,
+      "recall": 0.1622,
+      "f1": 0.2353,
+      "confusion_matrix": [
+        [
+          1244,
+          8
+        ],
+        [
+          31,
+          6
+        ]
+      ]
+    },
+    "SR-ARE": {
+      "endpoint": "SR-ARE",
+      "sample_count": 5825,
+      "train_count": 4660,
+      "test_count": 1165,
+      "test_positive_count": 188,
+      "test_negative_count": 977,
+      "roc_auc": 0.8183,
+      "pr_auc": 0.5249,
+      "accuracy": 0.8464,
+      "balanced_accuracy": 0.6979,
+      "precision": 0.5263,
+      "recall": 0.4787,
+      "f1": 0.5014,
+      "confusion_matrix": [
+        [
+          896,
+          81
+        ],
+        [
+          98,
+          90
+        ]
+      ]
+    },
+    "SR-ATAD5": {
+      "endpoint": "SR-ATAD5",
+      "sample_count": 7065,
+      "train_count": 5652,
+      "test_count": 1413,
+      "test_positive_count": 53,
+      "test_negative_count": 1360,
+      "roc_auc": 0.9083,
+      "pr_auc": 0.3892,
+      "accuracy": 0.9632,
+      "balanced_accuracy": 0.6092,
+      "precision": 0.5217,
+      "recall": 0.2264,
+      "f1": 0.3158,
+      "confusion_matrix": [
+        [
+          1349,
+          11
+        ],
+        [
+          41,
+          12
+        ]
+      ]
+    },
+    "SR-HSE": {
+      "endpoint": "SR-HSE",
+      "sample_count": 6460,
+      "train_count": 5168,
+      "test_count": 1292,
+      "test_positive_count": 74,
+      "test_negative_count": 1218,
+      "roc_auc": 0.8113,
+      "pr_auc": 0.3081,
+      "accuracy": 0.9466,
+      "balanced_accuracy": 0.6099,
+      "precision": 0.5862,
+      "recall": 0.2297,
+      "f1": 0.3301,
+      "confusion_matrix": [
+        [
+          1206,
+          12
+        ],
+        [
+          57,
+          17
+        ]
+      ]
+    },
+    "SR-MMP": {
+      "endpoint": "SR-MMP",
+      "sample_count": 5804,
+      "train_count": 4643,
+      "test_count": 1161,
+      "test_positive_count": 184,
+      "test_negative_count": 977,
+      "roc_auc": 0.8619,
+      "pr_auc": 0.6092,
+      "accuracy": 0.8691,
+      "balanced_accuracy": 0.7369,
+      "precision": 0.5952,
+      "recall": 0.5435,
+      "f1": 0.5682,
+      "confusion_matrix": [
+        [
+          909,
+          68
+        ],
+        [
+          84,
+          100
+        ]
+      ]
+    },
+    "SR-p53": {
+      "endpoint": "SR-p53",
+      "sample_count": 6767,
+      "train_count": 5413,
+      "test_count": 1354,
+      "test_positive_count": 85,
+      "test_negative_count": 1269,
+      "roc_auc": 0.851,
+      "pr_auc": 0.3601,
+      "accuracy": 0.9394,
+      "balanced_accuracy": 0.6055,
+      "precision": 0.5429,
+      "recall": 0.2235,
+      "f1": 0.3167,
+      "confusion_matrix": [
+        [
+          1253,
+          16
+        ],
+        [
+          66,
+          19
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "endpoint": "NR-ER",
+  "algorithm": "RandomForestClassifier",
+  "n_estimators": 300,
+  "class_weight": "balanced",
+  "split_ratio": 0.2,
+  "random_seed": 42,
+  "classes": [
+    0,
+    1
+  ],
+  "positive_class_index": 1,
+  "metrics": {
+    "endpoint": "NR-ER",
+    "sample_count": 6186,
+    "train_count": 4948,
+    "test_count": 1238,
+    "test_positive_count": 158,
+    "test_negative_count": 1080,
+    "roc_auc": 0.7064,
+    "pr_auc": 0.3527,
+    "accuracy": 0.8425,
+    "balanced_accuracy": 0.6423,
+    "precision": 0.3806,
+    "recall": 0.3734,
+    "f1": 0.377,
+    "confusion_matrix": [
+      [
+        984,
+        96
+      ],
+      [
+        99,
+        59
+      ]
+    ]
+  },
+  "status": "APPROVED_FOR_DEMO"
+}

@@ -1,0 +1,39 @@
+{
+  "endpoint": "SR-MMP",
+  "algorithm": "RandomForestClassifier",
+  "n_estimators": 300,
+  "class_weight": "balanced",
+  "split_ratio": 0.2,
+  "random_seed": 42,
+  "classes": [
+    0,
+    1
+  ],
+  "positive_class_index": 1,
+  "metrics": {
+    "endpoint": "SR-MMP",
+    "sample_count": 5804,
+    "train_count": 4643,
+    "test_count": 1161,
+    "test_positive_count": 184,
+    "test_negative_count": 977,
+    "roc_auc": 0.8619,
+    "pr_auc": 0.6092,
+    "accuracy": 0.8691,
+    "balanced_accuracy": 0.7369,
+    "precision": 0.5952,
+    "recall": 0.5435,
+    "f1": 0.5682,
+    "confusion_matrix": [
+      [
+        909,
+        68
+      ],
+      [
+        84,
+        100
+      ]
+    ]
+  },
+  "status": "APPROVED_FOR_DEMO"
+}

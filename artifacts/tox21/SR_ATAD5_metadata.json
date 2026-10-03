@@ -1,0 +1,39 @@
+{
+  "endpoint": "SR-ATAD5",
+  "algorithm": "RandomForestClassifier",
+  "n_estimators": 300,
+  "class_weight": "balanced",
+  "split_ratio": 0.2,
+  "random_seed": 42,
+  "classes": [
+    0,
+    1
+  ],
+  "positive_class_index": 1,
+  "metrics": {
+    "endpoint": "SR-ATAD5",
+    "sample_count": 7065,
+    "train_count": 5652,
+    "test_count": 1413,
+    "test_positive_count": 53,
+    "test_negative_count": 1360,
+    "roc_auc": 0.9083,
+    "pr_auc": 0.3892,
+    "accuracy": 0.9632,
+    "balanced_accuracy": 0.6092,
+    "precision": 0.5217,
+    "recall": 0.2264,
+    "f1": 0.3158,
+    "confusion_matrix": [
+      [
+        1349,
+        11
+      ],
+      [
+        41,
+        12
+      ]
+    ]
+  },
+  "status": "APPROVED_FOR_DEMO"
+}

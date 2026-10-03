@@ -1,0 +1,39 @@
+{
+  "endpoint": "SR-ARE",
+  "algorithm": "RandomForestClassifier",
+  "n_estimators": 300,
+  "class_weight": "balanced",
+  "split_ratio": 0.2,
+  "random_seed": 42,
+  "classes": [
+    0,
+    1
+  ],
+  "positive_class_index": 1,
+  "metrics": {
+    "endpoint": "SR-ARE",
+    "sample_count": 5825,
+    "train_count": 4660,
+    "test_count": 1165,
+    "test_positive_count": 188,
+    "test_negative_count": 977,
+    "roc_auc": 0.8183,
+    "pr_auc": 0.5249,
+    "accuracy": 0.8464,
+    "balanced_accuracy": 0.6979,
+    "precision": 0.5263,
+    "recall": 0.4787,
+    "f1": 0.5014,
+    "confusion_matrix": [
+      [
+        896,
+        81
+      ],
+      [
+        98,
+        90
+      ]
+    ]
+  },
+  "status": "APPROVED_FOR_DEMO"
+}

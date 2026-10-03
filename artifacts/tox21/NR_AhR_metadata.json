@@ -1,0 +1,39 @@
+{
+  "endpoint": "NR-AhR",
+  "algorithm": "RandomForestClassifier",
+  "n_estimators": 300,
+  "class_weight": "balanced",
+  "split_ratio": 0.2,
+  "random_seed": 42,
+  "classes": [
+    0,
+    1
+  ],
+  "positive_class_index": 1,
+  "metrics": {
+    "endpoint": "NR-AhR",
+    "sample_count": 6542,
+    "train_count": 5233,
+    "test_count": 1309,
+    "test_positive_count": 154,
+    "test_negative_count": 1155,
+    "roc_auc": 0.9092,
+    "pr_auc": 0.6248,
+    "accuracy": 0.8992,
+    "balanced_accuracy": 0.7712,
+    "precision": 0.5671,
+    "recall": 0.6039,
+    "f1": 0.5849,
+    "confusion_matrix": [
+      [
+        1084,
+        71
+      ],
+      [
+        61,
+        93
+      ]
+    ]
+  },
+  "status": "APPROVED_FOR_DEMO"
+}
