@@ -1,20 +1,76 @@
-"""NCBI E-utilities client for PubMed article retrieval (Module M09)."""
-
+import os
+import ssl
 import logging
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional
 import requests
+from requests.adapters import HTTPAdapter
 import urllib3
-
-# Suppress insecure request warnings if local SSL CA verification falls back
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
 
 NCBI_ESEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 NCBI_EFETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+
+
+class SecureSSLContextAdapter(HTTPAdapter):
+    """
+    HTTPAdapter that injects a customized SSLContext equipped with
+    operating system native root certificates and custom enterprise CA bundles.
+    """
+
+    def __init__(self, ssl_context: ssl.SSLContext, **kwargs):
+        self.ssl_context = ssl_context
+        super().__init__(**kwargs)
+
+    def init_poolmanager(self, *args, **kwargs):
+        kwargs["ssl_context"] = self.ssl_context
+        return super().init_poolmanager(*args, **kwargs)
+
+
+def create_secure_pubmed_session() -> requests.Session:
+    """
+    Construct a requests Session with comprehensive SSL certificate validation.
+
+    Loads certificates from:
+      1. Default OpenSSL / certifi trust store.
+      2. Windows native root and CA stores (if running on Windows).
+      3. Custom CA bundle paths defined in REQUESTS_CA_BUNDLE or SSL_CERT_FILE.
+    """
+    session = requests.Session()
+    ctx = ssl.create_default_context()
+
+    # Load native Windows root certificates if available
+    if hasattr(ssl, "enum_certificates"):
+        pem_certs = []
+        for store_name in ("ROOT", "CA"):
+            try:
+                for cert_der, encoding_type, trust in ssl.enum_certificates(store_name):
+                    try:
+                        pem_certs.append(ssl.DER_cert_to_PEM_cert(cert_der))
+                    except Exception:
+                        continue
+            except Exception as exc:
+                logger.debug(f"Could not enumerate Windows cert store '{store_name}': {exc}")
+
+        if pem_certs:
+            try:
+                ctx.load_verify_locations(cadata="\n".join(pem_certs))
+            except Exception as exc:
+                logger.warning(f"Failed to load Windows root certificates into SSL context: {exc}")
+
+    # Load custom CA bundle if defined
+    custom_ca = os.getenv("REQUESTS_CA_BUNDLE") or os.getenv("SSL_CERT_FILE")
+    if custom_ca and os.path.exists(custom_ca):
+        try:
+            ctx.load_verify_locations(cafile=custom_ca)
+        except Exception as exc:
+            logger.warning(f"Failed to load custom CA bundle from '{custom_ca}': {exc}")
+
+    session.mount("https://", SecureSSLContextAdapter(ctx))
+    return session
 
 
 @dataclass(frozen=True)
@@ -30,20 +86,34 @@ class PubMedArticle:
 
 class PubMedClient:
     """
-    Client for NCBI Entrez E-utilities supporting rate-limiting and robust SSL fallback.
+    Client for NCBI Entrez E-utilities supporting rate-limiting and secure SSL verification.
     """
 
-    def __init__(self, timeout: int = 15):
+    def __init__(self, timeout: int = 15, session: Optional[requests.Session] = None):
         self.timeout = timeout
+        self.session = session or create_secure_pubmed_session()
         self._cache: Dict[str, List[PubMedArticle]] = {}
 
     def _get(self, url: str, params: Dict[str, Any]) -> requests.Response:
-        """Execute HTTP request with SSL verification and graceful fallback."""
+        """Execute HTTP request with strict SSL verification and conditional explicit fallback."""
         try:
-            return requests.get(url, params=params, timeout=self.timeout)
-        except requests.exceptions.SSLError:
-            logger.warning("SSL verification failed on NCBI request; retrying with verify=False.")
-            return requests.get(url, params=params, verify=False, timeout=self.timeout)
+            return self.session.get(url, params=params, timeout=self.timeout)
+        except requests.exceptions.SSLError as ssl_err:
+            allow_insecure = os.getenv("MOLECULEIQ_ALLOW_INSECURE_SSL", "0").lower() in ("1", "true", "yes")
+            if allow_insecure:
+                logger.warning(
+                    "SECURITY WARNING: SSL certificate verification failed for NCBI request. "
+                    "Retrying with verify=False because MOLECULEIQ_ALLOW_INSECURE_SSL is explicitly enabled."
+                )
+                with urllib3.warnings.catch_warnings():
+                    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                    return requests.get(url, params=params, verify=False, timeout=self.timeout)
+            logger.error(
+                "SSL certificate verification failed on NCBI request. Insecure fallback is disabled. "
+                "Configure a valid CA bundle via REQUESTS_CA_BUNDLE or explicitly enable "
+                "MOLECULEIQ_ALLOW_INSECURE_SSL=1 if operating in an air-gapped test environment."
+            )
+            raise ssl_err
 
     def search_articles(self, query: str, max_results: int = 5) -> List[PubMedArticle]:
         """

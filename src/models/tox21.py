@@ -23,6 +23,8 @@ from sklearn.metrics import (
 
 from src.chemistry.validation import validate_smiles
 from src.chemistry.fingerprints import generate_morgan_fingerprint
+from src.chemistry.scaffolds import scaffold_train_test_split
+from src.config import TOX21_DATA_PATH, TOX21_ARTIFACT_DIR, resolve_path
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +64,8 @@ class Tox21EndpointMetrics:
 
 
 def train_tox21_all_endpoints(
-    csv_path: str = "data/raw/tox21.csv",
-    output_dir: str = "artifacts/tox21",
+    csv_path: Optional[str] = None,
+    output_dir: Optional[str] = None,
     endpoints: Optional[List[str]] = None,
     n_estimators: int = 300,
     class_weight: str = "balanced",
@@ -71,30 +73,37 @@ def train_tox21_all_endpoints(
     random_seed: int = 42,
     radius: int = 2,
     n_bits: int = 2048,
+    split_type: str = "random",
 ) -> Dict[str, Tox21EndpointMetrics]:
     """
     Train 12 independent binary Random Forest classifiers for all specified Tox21 endpoints.
 
-    Precomputes molecular fingerprints across unique validated molecules once for efficiency,
-    then processes each assay target independently with isolated missing-label exclusion.
+    Parameters
+    ----------
+    split_type : str, default="random"
+        Splitting methodology: "random" (stratified random split) or "scaffold" (Bemis-Murcko scaffold split).
     """
     if endpoints is None:
         endpoints = TOX21_ENDPOINTS
 
-    os.makedirs(output_dir, exist_ok=True)
-    df = pd.read_csv(csv_path)
+    resolved_csv = resolve_path(csv_path or TOX21_DATA_PATH)
+    resolved_output = resolve_path(output_dir or TOX21_ARTIFACT_DIR)
+    os.makedirs(resolved_output, exist_ok=True)
+    df = pd.read_csv(resolved_csv)
 
-    logger.info(f"Ingesting Tox21 dataset from '{csv_path}' with {len(df)} total records...")
+    logger.info(f"Ingesting Tox21 dataset from '{resolved_csv}' with {len(df)} total records...")
 
     # Step 1: Pre-validate and generate fingerprints for all valid SMILES
     valid_mask = []
     fps_list = []
+    canonical_smiles_list = []
 
     for idx, smi in enumerate(df["smiles"]):
         val_res = validate_smiles(str(smi))
-        if not val_res.is_valid:
+        if not val_res.is_valid or not val_res.canonical_smiles:
             valid_mask.append(False)
             fps_list.append(None)
+            canonical_smiles_list.append(None)
             continue
 
         try:
@@ -106,9 +115,11 @@ def train_tox21_all_endpoints(
             )
             valid_mask.append(True)
             fps_list.append(fp_res.numpy_vector)
+            canonical_smiles_list.append(val_res.canonical_smiles)
         except Exception:
             valid_mask.append(False)
             fps_list.append(None)
+            canonical_smiles_list.append(None)
 
     valid_mask = np.array(valid_mask, dtype=bool)
     logger.info(f"Validated {np.sum(valid_mask)} / {len(df)} molecules in Tox21.")
@@ -116,6 +127,7 @@ def train_tox21_all_endpoints(
     all_metrics: Dict[str, Tox21EndpointMetrics] = {}
     summary: Dict[str, Any] = {
         "dataset": "Tox21",
+        "split_type": split_type,
         "endpoints_trained": [],
         "metrics_summary": {},
     }
@@ -135,8 +147,10 @@ def train_tox21_all_endpoints(
             logger.warning(f"Insufficient samples ({n_samples}) for endpoint '{endpoint}'. Skipping.")
             continue
 
-        X_ep = np.array([fps_list[i] for i in np.where(not_na_mask)[0]], dtype=np.int8)
+        ep_indices = np.where(not_na_mask)[0]
+        X_ep = np.array([fps_list[i] for i in ep_indices], dtype=np.int8)
         y_ep = ep_series.values[not_na_mask].astype(int)
+        ep_smiles = [canonical_smiles_list[i] for i in ep_indices]
 
         n_pos = int(np.sum(y_ep == 1))
         n_neg = int(np.sum(y_ep == 0))
@@ -145,14 +159,23 @@ def train_tox21_all_endpoints(
             logger.warning(f"Extreme class sparsity for '{endpoint}' (pos={n_pos}, neg={n_neg}). Skipping.")
             continue
 
-        # Stratified train/test split
-        X_train, X_test, y_train, y_test = train_test_split(
-            X_ep,
-            y_ep,
-            test_size=split_ratio,
-            random_state=random_seed,
-            stratify=y_ep,
-        )
+        if split_type == "scaffold":
+            train_idx, test_idx = scaffold_train_test_split(
+                ep_smiles,
+                test_size=split_ratio,
+                random_state=random_seed,
+            )
+            X_train, X_test = X_ep[train_idx], X_ep[test_idx]
+            y_train, y_test = y_ep[train_idx], y_ep[test_idx]
+        else:
+            # Stratified train/test split
+            X_train, X_test, y_train, y_test = train_test_split(
+                X_ep,
+                y_ep,
+                test_size=split_ratio,
+                random_state=random_seed,
+                stratify=y_ep,
+            )
 
         clf = RandomForestClassifier(
             n_estimators=n_estimators,
@@ -202,8 +225,8 @@ def train_tox21_all_endpoints(
         model_filename = f"{safe_ep_name}_model.joblib"
         meta_filename = f"{safe_ep_name}_metadata.json"
 
-        model_path = os.path.join(output_dir, model_filename)
-        meta_path = os.path.join(output_dir, meta_filename)
+        model_path = os.path.join(resolved_output, model_filename)
+        meta_path = os.path.join(resolved_output, meta_filename)
 
         metadata = {
             "endpoint": endpoint,
@@ -211,6 +234,7 @@ def train_tox21_all_endpoints(
             "n_estimators": int(n_estimators),
             "class_weight": class_weight,
             "split_ratio": float(split_ratio),
+            "split_type": split_type,
             "random_seed": int(random_seed),
             "classes": [int(c) for c in clf.classes_],
             "positive_class_index": int(pos_idx),
@@ -224,11 +248,59 @@ def train_tox21_all_endpoints(
 
         summary["endpoints_trained"].append(endpoint)
         summary["metrics_summary"][endpoint] = asdict(metrics)
-        logger.info(f"Tox21 endpoint '{endpoint}' saved. ROC-AUC: {roc_auc:.4f}, PR-AUC: {pr_auc:.4f}")
+        logger.info(f"Tox21 endpoint '{endpoint}' ({split_type} split) saved. ROC-AUC: {roc_auc:.4f}, PR-AUC: {pr_auc:.4f}")
 
     # Save aggregate summary
-    summary_path = os.path.join(output_dir, "summary.json")
+    summary_path = os.path.join(resolved_output, "summary.json")
     with open(summary_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
 
     return all_metrics
+
+
+def evaluate_tox21_dual_benchmarks(
+    csv_path: Optional[str] = None,
+    output_dir: Optional[str] = None,
+    endpoints: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """
+    Execute and record dual benchmarks across selected Tox21 endpoints.
+    """
+    if endpoints is None:
+        # Default representative subset covering nuclear receptors and stress response
+        endpoints = ["NR-AR-LBD", "NR-AhR", "SR-MMP", "SR-p53"]
+
+    resolved_output = resolve_path(output_dir or TOX21_ARTIFACT_DIR)
+
+    # 1. Evaluate on scaffold split
+    scaffold_metrics = train_tox21_all_endpoints(
+        csv_path=csv_path,
+        output_dir=resolved_output,
+        endpoints=endpoints,
+        split_type="scaffold",
+    )
+
+    # 2. Re-evaluate and persist random split baseline (ensuring primary models remain on baseline)
+    random_metrics = train_tox21_all_endpoints(
+        csv_path=csv_path,
+        output_dir=resolved_output,
+        endpoints=endpoints,
+        split_type="random",
+    )
+
+    comparison = {
+        "dataset": "Tox21",
+        "endpoints_evaluated": endpoints,
+        "random_split": {ep: asdict(m) for ep, m in random_metrics.items()},
+        "scaffold_split": {ep: asdict(m) for ep, m in scaffold_metrics.items()},
+        "methodological_notice": (
+            "Random split evaluates chemical interpolation within known scaffolds; "
+            "Bemis-Murcko scaffold split evaluates out-of-scaffold generalization to novel chemotypes."
+        ),
+    }
+
+    benchmark_path = os.path.join(resolved_output, "scaffold_benchmark.json")
+    with open(benchmark_path, "w", encoding="utf-8") as f:
+        json.dump(comparison, f, indent=2)
+
+    return comparison

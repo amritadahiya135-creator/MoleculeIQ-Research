@@ -12,6 +12,7 @@ from rdkit.Chem.Draw import rdMolDraw2D
 
 from src.chemistry.validation import validate_smiles
 from src.chemistry.fingerprints import generate_morgan_fingerprint, FingerprintResult
+from src.config import CLINTOX_ARTIFACT_DIR, resolve_path
 
 logger = logging.getLogger(__name__)
 
@@ -52,8 +53,8 @@ class ClinToxExplainer:
     SHAP TreeExplainer wrapper for the ClinTox Random Forest classifier.
     """
 
-    def __init__(self, model_path: str = "artifacts/clintox/model.joblib"):
-        self.model_path = model_path
+    def __init__(self, model_path: Optional[str] = None):
+        self.model_path = model_path if model_path is not None else str(CLINTOX_ARTIFACT_DIR / "model.joblib")
         self._model = None
         self._explainer = None
 

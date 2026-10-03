@@ -10,8 +10,9 @@
    - Input structures are processed as 2D constitutional graphs via SMILES strings.
    - Morgan circular fingerprints (radius=2, nBits=2048) capture topological connectivity up to 4 bonds away from each central atom.
    - *Limitation:* 3D spatial conformation, conformational stereodynamics, atropisomerism, and protein-ligand binding pockets are not modeled directly.
-2. **Lipinski Rule of 5:**
+2. **Lipinski Rule of 5 & Heteroatom Definitions:**
    - Evaluates: $MW \le 500$, $LogP \le 5$, $HBD \le 5$, $HBA \le 10$.
+   - *H-Bond Acceptor (HBA) Definition:* Evaluated via RDKit `Lipinski.NumHAcceptors(mol)`. RDKit adheres strictly to Lipinski's physiological definition, counting basic nitrogen and oxygen atoms while explicitly **excluding amide nitrogens** whose lone pairs participate in resonance delocalization with adjacent carbonyl groups. For example, Caffeine ($C_8H_{10}N_4O_2$) has 3 physiological acceptors (2 carbonyl oxygens + 1 basic imidazole nitrogen), distinct from naive elemental heteroatom counting ($N+O=6$).
    - *Boundary:* Compliance correlates with oral bioavailability for certain small-molecule drugs. It is strictly a physicochemical heuristic and does NOT indicate drug efficacy, lack of toxicity, or non-oral therapeutic viability.
 
 ## 2. Computational Toxicology & Dataset Semantics

@@ -36,6 +36,8 @@ In vitro bioassay pathway activation screening across 7 Nuclear Receptor (NR) pa
 
 ## 4. Evaluated Test Metrics Summary
 
+### Primary Stratified Random Split (Baseline)
+
 | Endpoint | Total Usable Samples | Test ROC-AUC | Test PR-AUC | Balanced Accuracy | Test Positive Fraction |
 |----------|----------------------|--------------|-------------|-------------------|------------------------|
 | `NR-AR` | 7,258 | **0.7485** | 0.3979 | 0.6948 | 4.2% |
@@ -51,6 +53,19 @@ In vitro bioassay pathway activation screening across 7 Nuclear Receptor (NR) pa
 | `SR-MMP` | 5,804 | **0.8619** | 0.6092 | 0.7369 | 15.8% |
 | `SR-p53` | 6,767 | **0.8510** | 0.3601 | 0.6055 | 6.2% |
 
-## 5. Scientific Limitations
-1. In vitro cell-based reporter assay signal: Indicates specific luciferase or enzyme perturbation, not physiological organ failure.
-2. Cytotoxicity interference: High compound concentrations can disrupt cell viability, causing false-positive or false-negative readouts in reporter assays.
+### Dual Benchmark Comparison: Stratified Random vs. Bemis-Murcko Scaffold Split
+
+Evaluated on key representative nuclear receptor and stress response pathways (stored in `artifacts/tox21/scaffold_benchmark.json`):
+
+| Endpoint | Biological Target | Random Split ROC-AUC | Scaffold Split ROC-AUC | Random Split PR-AUC | Scaffold Split PR-AUC |
+|---|---|---|---|---|---|
+| `NR-AR-LBD` | Androgen Receptor (LBD) | **0.9051** | **0.7836** | 0.5662 | 0.2818 |
+| `NR-AhR` | Aryl Hydrocarbon Receptor | **0.9092** | **0.8839** | 0.6248 | 0.4631 |
+| `SR-MMP` | Mitochondrial Membrane Disruption | **0.8619** | **0.8488** | 0.6092 | 0.4476 |
+| `SR-p53` | p53 DNA Damage Response | **0.8510** | **0.7719** | 0.3601 | 0.2641 |
+
+## 5. Scientific Limitations & Scaffold Generalization Notice
+1. **Out-of-Scaffold Performance:** In vitro pathway classification shows modest reduction on novel chemical scaffolds (e.g. `NR-AR-LBD` ROC-AUC shifts from 0.9051 to 0.7836), yet models maintain strong discriminatory power above random across all tested pathways ($ROC\text{-}AUC \ge 0.77$).
+2. **In vitro cell-based reporter assay signal:** Indicates specific luciferase or enzyme perturbation, not physiological organ failure.
+3. **Cytotoxicity interference:** High compound concentrations can disrupt cell viability, causing false-positive or false-negative readouts in reporter assays.
+4. **Assay Noise:** Class imbalances and assay cross-reactivities in high-throughput chemical screening libraries introduce non-systematic variance.

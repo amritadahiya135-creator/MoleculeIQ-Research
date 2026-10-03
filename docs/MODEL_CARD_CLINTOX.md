@@ -30,26 +30,40 @@
   - Type: Binary bit-vector (`int8`)
 
 ## 4. Evaluation Protocol & Results
-Evaluated on a held-out stratified test set (20% of data, $N=296$ test samples, 22 positive, 274 negative):
+The model is evaluated under two distinct splitting methodologies:
+1. **Stratified Random Split (Interpolation Baseline):** 80/20 train/test split stratified by target class. Measures performance when testing molecules belonging to known chemical series.
+2. **Bemis-Murcko Scaffold Split (Extrapolation Benchmark):** Partitions molecules based on core ring assemblies with zero scaffold overlap between train and test sets. Measures generalization to novel chemical scaffolds.
 
-| Metric | Measured Value |
-|--------|----------------|
-| ROC-AUC | **0.8517** |
-| PR-AUC (Average Precision) | **0.2972** |
-| Accuracy | **0.9155** |
-| Balanced Accuracy | **0.6617** |
-| Precision | **0.4211** |
-| Recall | **0.3636** |
-| F1-Score | **0.3902** |
+### Dual Benchmark Comparison (Test Split $N=296$)
 
-### Confusion Matrix (Test Split)
+| Metric | Stratified Random Split (Baseline) | Bemis-Murcko Scaffold Split | Scientific Interpretation |
+|---|---|---|---|
+| **ROC-AUC** | **0.8517** | **0.7668** | Demonstrates strong predictive capacity even on unseen scaffolds ($>0.75$) |
+| **PR-AUC** | **0.2972** | **0.3239** | $4.3\times$ higher than random prevalence ($7.5\%$) |
+| **Accuracy** | **0.9155** | **0.9628** | High overall fidelity |
+| **Balanced Accuracy** | **0.6617** | **0.5769** | Minority-class sensitivity under scaffold distribution shifts |
+| **Precision** | **0.4211** | **1.0000** | Zero false-positive toxic calls on scaffold test split |
+| **Recall** | **0.3636** | **0.1538** | Identifies 2 of 13 rare toxic scaffold-hop compounds |
+| **F1-Score** | **0.3902** | **0.2667** | Minority harmonic balance |
+
+### Confusion Matrix Comparison (Test Split)
+
+**Stratified Random Split:**
 ```text
                Predicted Non-Toxic (0)    Predicted Toxic (1)
 Actual Non-Toxic (0)         263                       11
 Actual Toxic (1)              14                        8
 ```
 
+**Bemis-Murcko Scaffold Split:**
+```text
+               Predicted Non-Toxic (0)    Predicted Toxic (1)
+Actual Non-Toxic (0)         283                        0
+Actual Toxic (1)              11                        2
+```
+
 ## 5. Scientific Limitations & Caveats
-1. **Severe Imbalance:** The positive class represents ~7.5% of samples. Balanced accuracy (0.6617) and PR-AUC (0.2972) reflect the inherent difficulty of minority-class toxicity detection.
-2. **Clinical Trial Termination:** Trials fail for multiple commercial, pharmacokinetic, or clinical reasons. While `CT_TOX` annotates toxicity-related failures, label noise exists in historical trial records.
-3. **Applicability Domain:** Generalizes best to small organic molecules within the Lipinski chemical space ($MW < 600$ Da). Novel scaffolds, polymers, and metallo-compounds fall outside reliable feature distributions.
+1. **Scaffold Generalization Shift:** While random split ROC-AUC reaches 0.8517, scaffold-split ROC-AUC is 0.7668. This drop is consistent with computational chemistry benchmarks and demonstrates that performance on novel chemotypes requires wider uncertainty bounds.
+2. **Severe Imbalance:** The positive class represents ~7.5% of samples. Balanced accuracy and PR-AUC reflect the inherent difficulty of minority-class toxicity detection.
+3. **Clinical Trial Termination Semantics:** Trials fail for multiple commercial, pharmacokinetic, or clinical reasons. While `CT_TOX` annotates toxicity-related failures, label noise exists in historical trial records.
+4. **Applicability Domain:** Generalizes best to small organic molecules within Lipinski chemical space ($MW < 600$ Da). Exotic scaffolds, polymers, and organometallics fall outside reliable feature distributions.

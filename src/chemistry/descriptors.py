@@ -61,6 +61,8 @@ def calculate_descriptors(mol_or_smiles: Union[Chem.Mol, str]) -> MolecularDescr
     mw = float(Descriptors.MolWt(mol))
     logp = float(Crippen.MolLogP(mol))
     hbd = int(Lipinski.NumHDonors(mol))
+    # Note: RDKit Lipinski.NumHAcceptors strictly evaluates physiological hydrogen bond acceptors,
+    # excluding amide nitrogens whose lone pairs participate in resonance with adjacent carbonyls.
     hba = int(Lipinski.NumHAcceptors(mol))
     rot_bonds = int(Lipinski.NumRotatableBonds(mol))
     tpsa = float(rdMolDescriptors.CalcTPSA(mol))

@@ -1,0 +1,53 @@
+{
+  "dataset": "ClinTox",
+  "target": "CT_TOX",
+  "random_split": {
+    "sample_count": 1480,
+    "train_count": 1184,
+    "test_count": 296,
+    "test_positive_count": 22,
+    "test_negative_count": 274,
+    "roc_auc": 0.8517,
+    "pr_auc": 0.2972,
+    "accuracy": 0.9155,
+    "balanced_accuracy": 0.6617,
+    "precision": 0.4211,
+    "recall": 0.3636,
+    "f1": 0.3902,
+    "confusion_matrix": [
+      [
+        263,
+        11
+      ],
+      [
+        14,
+        8
+      ]
+    ]
+  },
+  "scaffold_split": {
+    "sample_count": 1480,
+    "train_count": 1184,
+    "test_count": 296,
+    "test_positive_count": 13,
+    "test_negative_count": 283,
+    "roc_auc": 0.7668,
+    "pr_auc": 0.3239,
+    "accuracy": 0.9628,
+    "balanced_accuracy": 0.5769,
+    "precision": 1.0,
+    "recall": 0.1538,
+    "f1": 0.2667,
+    "confusion_matrix": [
+      [
+        283,
+        0
+      ],
+      [
+        11,
+        2
+      ]
+    ]
+  },
+  "methodological_notice": "Random split evaluates chemical interpolation within known scaffolds; Bemis-Murcko scaffold split evaluates out-of-scaffold generalization to novel chemotypes."
+}

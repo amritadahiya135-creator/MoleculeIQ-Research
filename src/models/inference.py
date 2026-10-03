@@ -11,6 +11,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 from src.chemistry.validation import validate_smiles
 from src.chemistry.fingerprints import generate_morgan_fingerprint
+from src.config import CLINTOX_ARTIFACT_DIR, TOX21_ARTIFACT_DIR, resolve_path
 
 logger = logging.getLogger(__name__)
 
@@ -55,11 +56,11 @@ class ToxicityInferenceService:
 
     def __init__(
         self,
-        clintox_artifact_dir: str = "artifacts/clintox",
-        tox21_artifact_dir: str = "artifacts/tox21",
+        clintox_artifact_dir: Optional[str] = None,
+        tox21_artifact_dir: Optional[str] = None,
     ):
-        self.clintox_artifact_dir = clintox_artifact_dir
-        self.tox21_artifact_dir = tox21_artifact_dir
+        self.clintox_artifact_dir = clintox_artifact_dir if clintox_artifact_dir is not None else str(CLINTOX_ARTIFACT_DIR)
+        self.tox21_artifact_dir = tox21_artifact_dir if tox21_artifact_dir is not None else str(TOX21_ARTIFACT_DIR)
         self._clintox_model: Optional[RandomForestClassifier] = None
         self._clintox_meta: Optional[Dict[str, Any]] = None
         self._tox21_models: Dict[str, RandomForestClassifier] = {}

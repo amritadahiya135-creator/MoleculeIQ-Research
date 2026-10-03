@@ -1,0 +1,214 @@
+{
+  "dataset": "Tox21",
+  "endpoints_evaluated": [
+    "NR-AR-LBD",
+    "NR-AhR",
+    "SR-MMP",
+    "SR-p53"
+  ],
+  "random_split": {
+    "NR-AR-LBD": {
+      "endpoint": "NR-AR-LBD",
+      "sample_count": 6751,
+      "train_count": 5400,
+      "test_count": 1351,
+      "test_positive_count": 47,
+      "test_negative_count": 1304,
+      "roc_auc": 0.9051,
+      "pr_auc": 0.5662,
+      "accuracy": 0.9785,
+      "balanced_accuracy": 0.8248,
+      "precision": 0.7045,
+      "recall": 0.6596,
+      "f1": 0.6813,
+      "confusion_matrix": [
+        [
+          1291,
+          13
+        ],
+        [
+          16,
+          31
+        ]
+      ]
+    },
+    "NR-AhR": {
+      "endpoint": "NR-AhR",
+      "sample_count": 6542,
+      "train_count": 5233,
+      "test_count": 1309,
+      "test_positive_count": 154,
+      "test_negative_count": 1155,
+      "roc_auc": 0.9092,
+      "pr_auc": 0.6248,
+      "accuracy": 0.8992,
+      "balanced_accuracy": 0.7712,
+      "precision": 0.5671,
+      "recall": 0.6039,
+      "f1": 0.5849,
+      "confusion_matrix": [
+        [
+          1084,
+          71
+        ],
+        [
+          61,
+          93
+        ]
+      ]
+    },
+    "SR-MMP": {
+      "endpoint": "SR-MMP",
+      "sample_count": 5804,
+      "train_count": 4643,
+      "test_count": 1161,
+      "test_positive_count": 184,
+      "test_negative_count": 977,
+      "roc_auc": 0.8619,
+      "pr_auc": 0.6092,
+      "accuracy": 0.8691,
+      "balanced_accuracy": 0.7369,
+      "precision": 0.5952,
+      "recall": 0.5435,
+      "f1": 0.5682,
+      "confusion_matrix": [
+        [
+          909,
+          68
+        ],
+        [
+          84,
+          100
+        ]
+      ]
+    },
+    "SR-p53": {
+      "endpoint": "SR-p53",
+      "sample_count": 6767,
+      "train_count": 5413,
+      "test_count": 1354,
+      "test_positive_count": 85,
+      "test_negative_count": 1269,
+      "roc_auc": 0.851,
+      "pr_auc": 0.3601,
+      "accuracy": 0.9394,
+      "balanced_accuracy": 0.6055,
+      "precision": 0.5429,
+      "recall": 0.2235,
+      "f1": 0.3167,
+      "confusion_matrix": [
+        [
+          1253,
+          16
+        ],
+        [
+          66,
+          19
+        ]
+      ]
+    }
+  },
+  "scaffold_split": {
+    "NR-AR-LBD": {
+      "endpoint": "NR-AR-LBD",
+      "sample_count": 6751,
+      "train_count": 5400,
+      "test_count": 1351,
+      "test_positive_count": 30,
+      "test_negative_count": 1321,
+      "roc_auc": 0.7836,
+      "pr_auc": 0.2818,
+      "accuracy": 0.9785,
+      "balanced_accuracy": 0.6633,
+      "precision": 0.5263,
+      "recall": 0.3333,
+      "f1": 0.4082,
+      "confusion_matrix": [
+        [
+          1312,
+          9
+        ],
+        [
+          20,
+          10
+        ]
+      ]
+    },
+    "NR-AhR": {
+      "endpoint": "NR-AhR",
+      "sample_count": 6542,
+      "train_count": 5233,
+      "test_count": 1309,
+      "test_positive_count": 94,
+      "test_negative_count": 1215,
+      "roc_auc": 0.8839,
+      "pr_auc": 0.4631,
+      "accuracy": 0.932,
+      "balanced_accuracy": 0.6591,
+      "precision": 0.5424,
+      "recall": 0.3404,
+      "f1": 0.4183,
+      "confusion_matrix": [
+        [
+          1188,
+          27
+        ],
+        [
+          62,
+          32
+        ]
+      ]
+    },
+    "SR-MMP": {
+      "endpoint": "SR-MMP",
+      "sample_count": 5804,
+      "train_count": 4643,
+      "test_count": 1161,
+      "test_positive_count": 126,
+      "test_negative_count": 1035,
+      "roc_auc": 0.8488,
+      "pr_auc": 0.4476,
+      "accuracy": 0.8941,
+      "balanced_accuracy": 0.6409,
+      "precision": 0.5195,
+      "recall": 0.3175,
+      "f1": 0.3941,
+      "confusion_matrix": [
+        [
+          998,
+          37
+        ],
+        [
+          86,
+          40
+        ]
+      ]
+    },
+    "SR-p53": {
+      "endpoint": "SR-p53",
+      "sample_count": 6767,
+      "train_count": 5413,
+      "test_count": 1354,
+      "test_positive_count": 89,
+      "test_negative_count": 1265,
+      "roc_auc": 0.8164,
+      "pr_auc": 0.3343,
+      "accuracy": 0.9387,
+      "balanced_accuracy": 0.5598,
+      "precision": 0.6875,
+      "recall": 0.1236,
+      "f1": 0.2095,
+      "confusion_matrix": [
+        [
+          1260,
+          5
+        ],
+        [
+          78,
+          11
+        ]
+      ]
+    }
+  },
+  "methodological_notice": "Random split evaluates chemical interpolation within known scaffolds; Bemis-Murcko scaffold split evaluates out-of-scaffold generalization to novel chemotypes."
+}

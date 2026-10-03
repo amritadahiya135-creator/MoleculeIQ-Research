@@ -23,6 +23,8 @@ from sklearn.metrics import (
 
 from src.chemistry.validation import validate_smiles
 from src.chemistry.fingerprints import generate_morgan_fingerprint
+from src.chemistry.scaffolds import scaffold_train_test_split
+from src.config import CLINTOX_DATA_PATH, CLINTOX_ARTIFACT_DIR, resolve_path
 
 logger = logging.getLogger(__name__)
 
@@ -133,35 +135,46 @@ def prepare_clintox_dataset(
 
 
 def train_clintox_model(
-    data_path: str = "data/raw/clintox.csv",
-    output_dir: str = "artifacts/clintox",
+    data_path: Optional[str] = None,
+    output_dir: Optional[str] = None,
     n_estimators: int = 300,
     class_weight: str = "balanced",
     split_ratio: float = 0.2,
     random_seed: int = 42,
     radius: int = 2,
     n_bits: int = 2048,
+    split_type: str = "random",
 ) -> ClinToxTrainingResult:
     """
-    Train and evaluate the baseline ClinTox Random Forest classifier.
+    Train and evaluate the ClinTox Random Forest classifier under specified split regime.
 
-    Follows the exact PRD/SRD baseline specifications:
-      - Estimators: 300
-      - Class weight: 'balanced'
-      - Split: 80/20 Stratified Random Split, random_state=42
-      - Features: Morgan 2048-bit radius=2
+    Parameters
+    ----------
+    split_type : str, default="random"
+        Splitting methodology: "random" (stratified random split) or "scaffold" (Bemis-Murcko scaffold split).
     """
-    os.makedirs(output_dir, exist_ok=True)
-    X, y, df_clean = prepare_clintox_dataset(csv_path=data_path, radius=radius, n_bits=n_bits)
+    resolved_data = resolve_path(data_path or CLINTOX_DATA_PATH)
+    resolved_output = resolve_path(output_dir or CLINTOX_ARTIFACT_DIR)
+    os.makedirs(resolved_output, exist_ok=True)
+    X, y, df_clean = prepare_clintox_dataset(csv_path=resolved_data, radius=radius, n_bits=n_bits)
 
-    # Stratified 80/20 split
-    X_train, X_test, y_train, y_test = train_test_split(
-        X,
-        y,
-        test_size=split_ratio,
-        random_state=random_seed,
-        stratify=y,
-    )
+    if split_type == "scaffold":
+        train_idx, test_idx = scaffold_train_test_split(
+            df_clean["canonical_smiles"].tolist(),
+            test_size=split_ratio,
+            random_state=random_seed,
+        )
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
+    else:
+        # Default stratified random split
+        X_train, X_test, y_train, y_test = train_test_split(
+            X,
+            y,
+            test_size=split_ratio,
+            random_state=random_seed,
+            stratify=y,
+        )
 
     # Train Random Forest classifier
     clf = RandomForestClassifier(
@@ -212,6 +225,7 @@ def train_clintox_model(
         "n_estimators": n_estimators,
         "class_weight": class_weight,
         "split_ratio": split_ratio,
+        "split_type": split_type,
         "random_seed": random_seed,
         "features": {
             "type": "morgan",
@@ -224,14 +238,17 @@ def train_clintox_model(
         "status": "APPROVED_FOR_DEMO",
     }
 
-    model_path = os.path.join(output_dir, "model.joblib")
-    meta_path = os.path.join(output_dir, "metadata.json")
+    model_path = os.path.join(resolved_output, "model.joblib")
+    meta_path = os.path.join(resolved_output, "metadata.json")
 
     joblib.dump(clf, model_path)
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2)
 
-    logger.info(f"ClinTox model saved to {model_path}. ROC-AUC: {roc_auc:.4f}, PR-AUC: {pr_auc:.4f}")
+    logger.info(
+        f"ClinTox model ({split_type} split) saved to {model_path}. "
+        f"ROC-AUC: {roc_auc:.4f}, PR-AUC: {pr_auc:.4f}"
+    )
 
     return ClinToxTrainingResult(
         model=clf,
@@ -240,3 +257,51 @@ def train_clintox_model(
         artifact_path=model_path,
         metadata_path=meta_path,
     )
+
+
+def evaluate_clintox_dual_benchmarks(
+    data_path: Optional[str] = None,
+    output_dir: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Execute and record dual benchmarks: Stratified Random Split vs. Bemis-Murcko Scaffold Split.
+    """
+    resolved_output = resolve_path(output_dir or CLINTOX_ARTIFACT_DIR)
+
+    # 1. Random split baseline
+    res_random = train_clintox_model(
+        data_path=data_path,
+        output_dir=resolved_output,
+        split_type="random",
+    )
+
+    # 2. Scaffold split benchmark
+    res_scaffold = train_clintox_model(
+        data_path=data_path,
+        output_dir=resolved_output,
+        split_type="scaffold",
+    )
+
+    # Re-save primary production model as random split baseline
+    res_final = train_clintox_model(
+        data_path=data_path,
+        output_dir=resolved_output,
+        split_type="random",
+    )
+
+    dual_comparison = {
+        "dataset": "ClinTox",
+        "target": "CT_TOX",
+        "random_split": asdict(res_random.metrics),
+        "scaffold_split": asdict(res_scaffold.metrics),
+        "methodological_notice": (
+            "Random split evaluates chemical interpolation within known scaffolds; "
+            "Bemis-Murcko scaffold split evaluates out-of-scaffold generalization to novel chemotypes."
+        ),
+    }
+
+    benchmark_path = os.path.join(resolved_output, "scaffold_benchmark.json")
+    with open(benchmark_path, "w", encoding="utf-8") as f:
+        json.dump(dual_comparison, f, indent=2)
+
+    return dual_comparison

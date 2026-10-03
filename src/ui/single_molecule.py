@@ -102,6 +102,7 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
                     "Threshold": ["<= 500 Da", "<= 5.0", "<= 5", "<= 10", "<= 10", "Optimal < 140 Å²", "0 Violations"],
                 }
                 st.dataframe(pd.DataFrame(desc_data), use_container_width=True, hide_index=True)
+                st.caption("ℹ️ **HBA Definition:** Evaluated using RDKit's physiological Lipinski rule (excludes resonance-delocalized amide nitrogens).")
 
         st.divider()
 

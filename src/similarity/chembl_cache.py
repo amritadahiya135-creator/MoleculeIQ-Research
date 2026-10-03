@@ -6,10 +6,15 @@ from typing import List, Dict, Any, Optional
 import pandas as pd
 from src.chemistry.validation import validate_smiles
 from src.chemistry.descriptors import calculate_descriptors
+from src.config import (
+    REFERENCE_CACHE_PATH as DEFAULT_REF_CACHE_PATH,
+    CLINTOX_DATA_PATH as DEFAULT_CLINTOX_PATH,
+    resolve_path,
+)
 
 logger = logging.getLogger(__name__)
 
-REFERENCE_CACHE_PATH = "data/reference/approved_drugs.csv"
+REFERENCE_CACHE_PATH = str(DEFAULT_REF_CACHE_PATH)
 
 # Essential well-characterized pharmaceutical reference compounds for gold-standard anchoring
 ANCHOR_DRUGS = [
@@ -29,15 +34,17 @@ ANCHOR_DRUGS = [
 
 
 def build_approved_reference_cache(
-    clintox_path: str = "data/raw/clintox.csv",
-    output_path: str = REFERENCE_CACHE_PATH,
+    clintox_path: Optional[str] = None,
+    output_path: Optional[str] = None,
 ) -> pd.DataFrame:
     """
     Construct and persist the curated reference small-molecule library.
 
     Combines canonical FDA-approved small molecules from ClinTox and anchored approved drugs.
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    clintox_resolved = resolve_path(clintox_path or DEFAULT_CLINTOX_PATH)
+    output_resolved = resolve_path(output_path or DEFAULT_REF_CACHE_PATH)
+    os.makedirs(os.path.dirname(output_resolved), exist_ok=True)
     records: List[Dict[str, Any]] = []
     seen_canonical = set()
 
@@ -91,13 +98,14 @@ def build_approved_reference_cache(
                 continue
 
     ref_df = pd.DataFrame(records)
-    ref_df.to_csv(output_path, index=False)
-    logger.info(f"Built reference library with {len(ref_df)} approved small molecules at '{output_path}'.")
+    ref_df.to_csv(output_resolved, index=False)
+    logger.info(f"Built reference library with {len(ref_df)} approved small molecules at '{output_resolved}'.")
     return ref_df
 
 
-def load_or_create_reference_cache(cache_path: str = REFERENCE_CACHE_PATH) -> pd.DataFrame:
+def load_or_create_reference_cache(cache_path: Optional[str] = None) -> pd.DataFrame:
     """Load cached reference library or build it on the fly if missing."""
-    if os.path.exists(cache_path):
-        return pd.read_csv(cache_path)
-    return build_approved_reference_cache(output_path=cache_path)
+    target_path = resolve_path(cache_path or DEFAULT_REF_CACHE_PATH)
+    if os.path.exists(target_path):
+        return pd.read_csv(target_path)
+    return build_approved_reference_cache(output_path=target_path)
