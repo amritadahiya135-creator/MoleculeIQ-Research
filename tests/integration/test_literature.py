@@ -1,6 +1,7 @@
-"""Integration tests for PubMed literature retrieval and semantic sentence ranking (Module M09)."""
-
 import pytest
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 from src.literature.pubmed_client import PubMedArticle
 from src.literature.retrieval import (
     LiteratureAssistantService,
