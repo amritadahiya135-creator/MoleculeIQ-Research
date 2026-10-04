@@ -1,47 +1,40 @@
-# Release Notes: MoleculeIQ v1.0.0
+# MoleculeIQ Release Notes
 
-**Release Date:** 2026-10-03  
-**Status:** Verification Complete — Demonstrable Research Prototype  
-**Baseline Directive:** Directive Version 4.0  
-**PRD / SRD:** PRD v1.0, SRD v1.0  
+## Version 5.0 (Research Prototype Release Candidate)
+
+**Release Date:** 2026-10-04  
+**Release Verdict:** RESEARCH PROTOTYPE RELEASE CANDIDATE  
+**Directive Version:** Master Directive V5.0 (Autonomous Scientific Verification, Advanced Engineering & Release)  
 
 ---
 
-## Highlights of Release v1.0.0
+### Highlights of Release 5.0
 
-### 1. Robust Cheminformatics Engine (Modules M01, M02, M03)
-- Molecular syntax validation, SMILES canonicalization, formula generation, and heavy atom counting.
-- Full physicochemical descriptors calculation: Molecular Weight, LogP, H-Bond Donors, H-Bond Acceptors, Rotatable Bonds, TPSA.
-- Lipinski Rule of 5 evaluation with transparent violation annotations.
-- Standardized 2048-bit Morgan circular fingerprints (radius=2) with atom environment bit mapping for XAI.
+#### 1. Scientific & Methodological Rigor
+* **ClinTox Deduplication:** Canonicalized and deduplicated the ClinTox dataset down to 1,461 unique chemical structures, eliminating duplicate SMILES and cross-split stereoisomer leakage.
+* **Platt Probability Calibration:** Implemented cross-validated Platt scaling on the ClinTox classifier, achieving Brier reliability score of **0.0522**, Expected Calibration Error (ECE) of **0.1604**, and test PR-AUC of **0.5099**.
+* **Bemis-Murcko Scaffold Benchmarking:** Documented realistic generalization drop between random splits and scaffold splits (ClinTox ROC-AUC drops from 0.89 to 0.771 on unseen molecular scaffolds; Tox21 scaffold benchmarks established across 12 targets).
+* **Dynamic Applicability Domain:** Integrated training-library Tanimoto boundary evaluation that transparently flags compounds operating `WITHIN_DOMAIN`, `NEAR_BOUNDARY`, or `OUTSIDE_DOMAIN`.
 
-### 2. Machine Learning Predictive Toxicology (Modules M04, M05)
-- **ClinTox Baseline:** Random Forest classifier trained on MoleculeNet ClinTox dataset (`CT_TOX` target) achieving held-out ROC-AUC of **0.8517** and PR-AUC of **0.2972**.
-- **Tox21 12-Endpoint Suite:** 12 independent Random Forest classifiers trained with strict missing-assay isolation, achieving ROC-AUCs up to **0.9092** (`NR-AhR`) and **0.9083** (`SR-ATAD5`).
-- Dynamic positive class mapping verifying `model.classes_` to eliminate probability inversion risks.
+#### 2. Core Cheminformatics Modernization
+* **Modern RDKit Morgan Generator:** Refactored fingerprint generation to utilize `rdkit.Chem.rdFingerprintGenerator.GetMorganGenerator` with bit-for-bit verified fallback to `AllChem.GetMorganFingerprintAsBitVect`, eliminating deprecation warnings.
+* **C++ Parser Protection:** Added strict input length boundaries (max 4,000 characters) in SMILES validation to protect against C++ stack overflow crashes on pathologically large inputs.
+* **Edge Case Verification:** Verified correct handling of zwitterions, charged species, inorganic salts, disconnected fragments, macrocycles, and stereoisomers.
 
-### 3. Chemical Similarity & Prioritization (Modules M06, M07)
-- In-memory Tanimoto similarity search on 2048-bit Morgan fingerprints against a curated library of approved small molecules.
-- Deterministic, multi-criteria prioritization formula: $R = 0.5S + 0.3D + 0.2M$ ($S$: Safety, $D$: Lipinski, $M$: Reference Similarity).
-- Interactive weight sensitivity analysis evaluating ranking stability across candidate perturbations.
+#### 3. Cryptographic Artifact Integrity & MLOps
+* **SHA-256 Manifest:** Generated cryptographic checksums manifest (`artifacts/checksums.sha256`) covering all 31 model `.joblib`, metadata `.json`, and reference `.npz` files.
+* **Automated Tamper Detection:** Implemented `src/utils/integrity.py` with automated verification running during CI and test execution to detect tampering or silent bit rot.
 
-### 4. Explainable AI & Substructure Mapping (Module M08)
-- Integration with SHAP `TreeExplainer` on ClinTox Random Forest model.
-- Extraction of active fingerprint bits with direction of influence (risk increasing vs. decreasing).
-- Topological mapping of active bits to molecular atoms with 2D SVG vector highlights.
+#### 4. Application Security & Defensive Guardrails
+* **CSV Formula Injection Defense:** Implemented cell sanitization in `src/utils/security.py` neutralizing characters that trigger spreadsheet formula/DDE execution (`=`, `+`, `-`, `@`, `\t`, `\r`) with leading single quotes.
+* **Batch Screening Guardrails:** Enforced explicit limit of 5,000 compounds per batch submission with immediate, friendly user advisory.
+* **Path Traversal Guards:** Implemented `safe_join_path` preventing directory traversal in file resolution.
 
-### 5. Literature Intelligence Assistant (Module M09)
-- Programmatic retrieval of peer-reviewed articles from NCBI PubMed via E-utilities.
-- Sentence-level segmentation and semantic cosine relevance ranking with source article provenance (PMID, title, authors, year, direct links).
+#### 5. Release Engineering & Containerization
+* **Hardened Production Dockerfile:** Multi-stage image running Python 3.12-slim, non-root `moleculeiq` application user, RDKit X11/cairo libraries, and container health checks.
+* **GitHub Actions CI Workflow:** Multi-version test matrix (Python 3.11, 3.12) validating artifact hashes, unit tests, integration workflows, and performance smoke tests.
 
-### 6. Interactive Scientific Workspace (Module M10)
-- Streamlit application supporting:
-  - Overview and Scientific Boundaries.
-  - Single Molecule Analysis (Workflow A).
-  - Batch Molecular Screening with CSV upload/download and fault isolation (Workflow B).
-  - Model Insights & Metrics (Workflow C).
-  - Literature Intelligence (Workflow D).
-- Clean scientific styling, transparent limitation disclosures, and data tables.
+---
 
-### 7. Multi-Layer Testing & Verification
-- 37 automated tests across Unit, Integration, and End-to-End suites with 100% pass rate.
+### Previous Releases
+* **v1.0.0 (2026-10-03):** Initial demonstrable prototype with baseline Random Forest models, basic Streamlit UI, and literature assistant.

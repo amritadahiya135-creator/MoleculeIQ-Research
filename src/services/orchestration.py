@@ -140,6 +140,12 @@ class ScreeningOrchestrator:
         """
         now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
         total = len(smiles_list)
+        if total > 5000:
+            raise ValueError(
+                f"Batch size ({total}) exceeds maximum supported limit of 5,000 molecules. "
+                "Please partition the library into smaller sub-batches."
+            )
+
         records: List[BatchCandidateRecord] = []
         valid_count = 0
         invalid_count = 0

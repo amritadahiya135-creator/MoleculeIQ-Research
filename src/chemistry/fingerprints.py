@@ -67,12 +67,23 @@ def generate_morgan_fingerprint(
     # Generate explicit circular fingerprint with atom environment mapping
     blocker = Chem.rdBase.BlockLogs()
     try:
-        fp_bitvect = AllChem.GetMorganFingerprintAsBitVect(
-            mol,
-            radius=radius,
-            nBits=n_bits,
-            bitInfo=bit_info if return_bit_info else None,
-        )
+        if hasattr(Chem, "rdFingerprintGenerator"):
+            gen = Chem.rdFingerprintGenerator.GetMorganGenerator(radius=radius, fpSize=n_bits)
+            if return_bit_info:
+                ao = Chem.rdFingerprintGenerator.AdditionalOutput()
+                ao.AllocateBitInfoMap()
+                fp_bitvect = gen.GetFingerprint(mol, additionalOutput=ao)
+                raw_info = ao.GetBitInfoMap()
+                bit_info = {int(k): [tuple(x) for x in v] for k, v in raw_info.items()}
+            else:
+                fp_bitvect = gen.GetFingerprint(mol)
+        else:
+            fp_bitvect = AllChem.GetMorganFingerprintAsBitVect(
+                mol,
+                radius=radius,
+                nBits=n_bits,
+                bitInfo=bit_info if return_bit_info else None,
+            )
     finally:
         del blocker
 

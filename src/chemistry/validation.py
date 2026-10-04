@@ -56,6 +56,15 @@ def validate_smiles(smiles: str) -> MoleculeValidationResult:
             error_message="SMILES string is empty or contains only whitespace.",
         )
 
+    if len(clean_smiles) > 4000:
+        return MoleculeValidationResult(
+            original_smiles=smiles,
+            canonical_smiles=None,
+            is_valid=False,
+            error_code="E-001_MAX_LENGTH_EXCEEDED",
+            error_message=f"SMILES length ({len(clean_smiles)}) exceeds maximum allowed length of 4000 characters.",
+        )
+
     # Disable RDKit C++ stderr spam temporarily during validation
     blocker = rdBase.BlockLogs()
     try:

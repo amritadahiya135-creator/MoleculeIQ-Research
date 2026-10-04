@@ -93,6 +93,11 @@ class ToxicityInferenceService:
                 )
 
             self._clintox_model = joblib.load(model_path)
+            if hasattr(self._clintox_model, "calibrated_classifiers_"):
+                for cc in self._clintox_model.calibrated_classifiers_:
+                    if hasattr(cc, "estimator") and hasattr(cc.estimator, "n_jobs"):
+                        cc.estimator.n_jobs = 1
+
             with open(meta_path, "r", encoding="utf-8") as f:
                 self._clintox_meta = json.load(f)
 
@@ -100,6 +105,8 @@ class ToxicityInferenceService:
             if os.path.exists(uncal_path):
                 try:
                     self._uncalibrated_model = joblib.load(uncal_path)
+                    if hasattr(self._uncalibrated_model, "n_jobs"):
+                        self._uncalibrated_model.n_jobs = 1
                 except Exception as exc:
                     logger.warning(f"Failed loading uncalibrated ClinTox model: {exc}")
 
@@ -107,6 +114,7 @@ class ToxicityInferenceService:
             if os.path.exists(fps_path):
                 try:
                     self._training_fps = np.load(fps_path)["fingerprints"]
+                    self._train_sums = np.sum(self._training_fps, axis=1)
                 except Exception as exc:
                     logger.warning(f"Failed loading ClinTox training fingerprints: {exc}")
 
@@ -125,6 +133,8 @@ class ToxicityInferenceService:
 
         try:
             model = joblib.load(model_path)
+            if hasattr(model, "n_jobs"):
+                model.n_jobs = 1
             with open(meta_path, "r", encoding="utf-8") as f:
                 meta = json.load(f)
             self._tox21_models[endpoint] = model
@@ -164,7 +174,10 @@ class ToxicityInferenceService:
             else:
                 return "UNAVAILABLE", None, None
 
-        train_sums = np.sum(self._training_fps, axis=1)
+        if getattr(self, "_train_sums", None) is None:
+            self._train_sums = np.sum(self._training_fps, axis=1)
+
+        train_sums = self._train_sums
         intersection = np.dot(self._training_fps, query_fp_vec)
         query_sum = np.sum(query_fp_vec)
         union = train_sums + query_sum - intersection

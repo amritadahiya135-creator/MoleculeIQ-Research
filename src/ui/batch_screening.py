@@ -6,6 +6,7 @@ import pandas as pd
 
 from src.services.orchestration import ScreeningOrchestrator
 from src.ui.components import render_header, render_metric_card
+from src.utils.security import sanitize_dataframe_for_csv, MAX_BATCH_ROWS
 
 SAMPLE_BATCH_CSV = """name,smiles
 Aspirin,CC(=O)Oc1ccccc1C(=O)O
@@ -48,6 +49,12 @@ def render_batch_screening_view(orchestrator: ScreeningOrchestrator):
     if uploaded_file is not None:
         try:
             df_input = pd.read_csv(uploaded_file)
+            if len(df_input) > MAX_BATCH_ROWS:
+                st.error(
+                    f"Uploaded file contains {len(df_input)} rows, exceeding the maximum safe limit "
+                    f"of {MAX_BATCH_ROWS} compounds. Please upload a smaller library batch."
+                )
+                return
             st.success(f"Loaded CSV with {len(df_input)} rows and columns: {list(df_input.columns)}")
         except Exception as exc:
             st.error(f"Failed to read CSV file: {exc}")
@@ -122,8 +129,9 @@ def render_batch_screening_view(orchestrator: ScreeningOrchestrator):
                 hide_index=True,
             )
 
-            # Export Button
-            csv_export = batch_res.results_dataframe.to_csv(index=False)
+            # Export Button (Sanitized against formula injection CWE-1236)
+            sanitized_df = sanitize_dataframe_for_csv(batch_res.results_dataframe)
+            csv_export = sanitized_df.to_csv(index=False)
             st.download_button(
                 label="Download Full Enriched Screening Results (CSV)",
                 data=csv_export,
