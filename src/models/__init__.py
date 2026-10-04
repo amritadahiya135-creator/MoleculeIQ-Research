@@ -1,6 +1,11 @@
 """Predictive models and inference engine for computational toxicology."""
 
-from src.models.clintox import train_clintox_model, prepare_clintox_dataset, ClinToxEvaluationMetrics
+from src.models.clintox import (
+    train_clintox_model,
+    prepare_clintox_dataset,
+    audit_clintox_duplicates,
+    ClinToxEvaluationMetrics,
+)
 from src.models.tox21 import train_tox21_all_endpoints, Tox21EndpointMetrics, TOX21_ENDPOINTS
 from src.models.inference import (
     ToxicityInferenceService,
@@ -12,6 +17,7 @@ from src.models.inference import (
 __all__ = [
     "train_clintox_model",
     "prepare_clintox_dataset",
+    "audit_clintox_duplicates",
     "ClinToxEvaluationMetrics",
     "train_tox21_all_endpoints",
     "Tox21EndpointMetrics",

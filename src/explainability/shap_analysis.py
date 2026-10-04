@@ -60,9 +60,21 @@ class ClinToxExplainer:
 
     def _ensure_loaded(self):
         if self._model is None:
-            if not os.path.exists(self.model_path):
-                raise FileNotFoundError(f"ClinTox model artifact not found at '{self.model_path}'.")
-            self._model = joblib.load(self.model_path)
+            # Check for uncalibrated tree ensemble in the same directory if available
+            model_dir = os.path.dirname(self.model_path)
+            uncal_path = os.path.join(model_dir, "uncalibrated_model.joblib")
+            if os.path.exists(uncal_path):
+                self._model = joblib.load(uncal_path)
+            else:
+                if not os.path.exists(self.model_path):
+                    raise FileNotFoundError(f"ClinTox model artifact not found at '{self.model_path}'.")
+                loaded = joblib.load(self.model_path)
+                if hasattr(loaded, "estimator"):
+                    self._model = loaded.estimator
+                elif hasattr(loaded, "calibrated_classifiers_") and len(loaded.calibrated_classifiers_) > 0:
+                    self._model = loaded.calibrated_classifiers_[0].estimator
+                else:
+                    self._model = loaded
             self._explainer = shap.TreeExplainer(self._model)
 
     def explain_molecule(

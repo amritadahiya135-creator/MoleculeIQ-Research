@@ -1,7 +1,10 @@
 {
-  "model_id": "clintox_rf_baseline",
+  "model_id": "clintox_rf_calibrated",
   "target": "CT_TOX",
   "algorithm": "RandomForestClassifier",
+  "calibrated": true,
+  "calibration_method": "sigmoid",
+  "duplicate_policy": "conservative_toxic",
   "n_estimators": 300,
   "class_weight": "balanced",
   "split_ratio": 0.2,
@@ -18,27 +21,59 @@
   ],
   "positive_class_index": 1,
   "metrics": {
-    "sample_count": 1480,
-    "train_count": 1184,
-    "test_count": 296,
+    "sample_count": 1461,
+    "train_count": 1168,
+    "test_count": 293,
     "test_positive_count": 22,
-    "test_negative_count": 274,
-    "roc_auc": 0.8517,
-    "pr_auc": 0.2972,
-    "accuracy": 0.9155,
-    "balanced_accuracy": 0.6617,
-    "precision": 0.4211,
-    "recall": 0.3636,
-    "f1": 0.3902,
+    "test_negative_count": 271,
+    "roc_auc": 0.8507,
+    "pr_auc": 0.5099,
+    "accuracy": 0.9317,
+    "balanced_accuracy": 0.5663,
+    "precision": 0.75,
+    "recall": 0.1364,
+    "f1": 0.2308,
     "confusion_matrix": [
       [
-        263,
-        11
+        270,
+        1
       ],
       [
-        14,
-        8
+        19,
+        3
       ]
+    ],
+    "brier_score": 0.0522,
+    "log_loss": 0.1969,
+    "expected_calibration_error": 0.1604,
+    "calibrated": true,
+    "calibration_method": "sigmoid",
+    "duplicate_policy": "conservative_toxic",
+    "conflicts_resolved_count": 19
+  },
+  "duplicate_report": {
+    "total_raw": 1484,
+    "invalid_count": 4,
+    "unique_canonical": 1461,
+    "duplicate_groups_count": 19,
+    "conflicts_resolved_count": 19,
+    "duplicate_policy": "conservative_toxic",
+    "retained_compounds": 1461,
+    "retained_positives": 112,
+    "retained_negatives": 1349
+  },
+  "calibration_curve": {
+    "prob_pred": [
+      0.0569,
+      0.3083,
+      0.4666,
+      0.6527
+    ],
+    "prob_true": [
+      0.0433,
+      0.5556,
+      0.5,
+      1.0
     ]
   },
   "status": "APPROVED_FOR_DEMO"

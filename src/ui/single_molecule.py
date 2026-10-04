@@ -134,7 +134,21 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
 
                 st.markdown(f"**Predicted Class:** <span style='color:{label_color}; font-weight:700;'>{pred_label}</span>", unsafe_allow_html=True)
                 st.progress(p_tox)
-                st.caption(f"Estimated Probability of Trial Failure: **{p_tox*100:.1f}%** | Threshold: 50%")
+                prob_desc = f"Calibrated Probability of Trial Failure: **{p_tox*100:.1f}%**"
+                if getattr(res.clintox, "uncalibrated_probability", None) is not None:
+                    prob_desc += f" *(Uncalibrated RF Index: {res.clintox.uncalibrated_probability*100:.1f}%)*"
+                st.caption(f"{prob_desc} | Decision Threshold: 50%")
+
+                # Dynamic Applicability Domain Display
+                ad_stat = getattr(res.clintox, "applicability_domain_status", "WITHIN_DOMAIN")
+                ad_score = getattr(res.clintox, "applicability_score", None)
+                score_str = f" (Max Tanimoto: {ad_score:.2f})" if ad_score is not None else ""
+                ad_color = "#16a34a" if ad_stat == "WITHIN_DOMAIN" else ("#d97706" if ad_stat == "NEAR_BOUNDARY" else "#dc2626")
+                st.markdown(f"**Applicability Domain:** <span style='color:{ad_color}; font-weight:600;'>{ad_stat}{score_str}</span>", unsafe_allow_html=True)
+
+                if getattr(res.clintox, "applicability_warning", None):
+                    st.warning(res.clintox.applicability_warning)
+
                 st.info(f"Target: `{res.clintox.task_definition}`")
 
         with col_tox21:

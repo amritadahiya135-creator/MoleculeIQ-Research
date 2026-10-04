@@ -25,8 +25,11 @@ class ClinToxPrediction:
     model_version: str
     task_definition: str
     status: str
+    applicability_domain_status: str = "WITHIN_DOMAIN"
+    applicability_score: Optional[float] = None
     applicability_warning: Optional[str] = None
     error_message: Optional[str] = None
+    uncalibrated_probability: Optional[float] = None
 
 
 @dataclass(frozen=True)
@@ -61,7 +64,9 @@ class ToxicityInferenceService:
     ):
         self.clintox_artifact_dir = clintox_artifact_dir if clintox_artifact_dir is not None else str(CLINTOX_ARTIFACT_DIR)
         self.tox21_artifact_dir = tox21_artifact_dir if tox21_artifact_dir is not None else str(TOX21_ARTIFACT_DIR)
-        self._clintox_model: Optional[RandomForestClassifier] = None
+        self._clintox_model: Optional[Any] = None
+        self._uncalibrated_model: Optional[Any] = None
+        self._training_fps: Optional[np.ndarray] = None
         self._clintox_meta: Optional[Dict[str, Any]] = None
         self._tox21_models: Dict[str, RandomForestClassifier] = {}
         self._tox21_metas: Dict[str, Dict[str, Any]] = {}
@@ -77,7 +82,7 @@ class ToxicityInferenceService:
             return False
         return any(f.endswith("_model.joblib") for f in os.listdir(self.tox21_artifact_dir))
 
-    def _load_clintox(self) -> Tuple[RandomForestClassifier, Dict[str, Any]]:
+    def _load_clintox(self) -> Tuple[Any, Dict[str, Any]]:
         if self._clintox_model is None:
             model_path = os.path.join(self.clintox_artifact_dir, "model.joblib")
             meta_path = os.path.join(self.clintox_artifact_dir, "metadata.json")
@@ -90,6 +95,20 @@ class ToxicityInferenceService:
             self._clintox_model = joblib.load(model_path)
             with open(meta_path, "r", encoding="utf-8") as f:
                 self._clintox_meta = json.load(f)
+
+            uncal_path = os.path.join(self.clintox_artifact_dir, "uncalibrated_model.joblib")
+            if os.path.exists(uncal_path):
+                try:
+                    self._uncalibrated_model = joblib.load(uncal_path)
+                except Exception as exc:
+                    logger.warning(f"Failed loading uncalibrated ClinTox model: {exc}")
+
+            fps_path = os.path.join(self.clintox_artifact_dir, "training_fingerprints.npz")
+            if os.path.exists(fps_path):
+                try:
+                    self._training_fps = np.load(fps_path)["fingerprints"]
+                except Exception as exc:
+                    logger.warning(f"Failed loading ClinTox training fingerprints: {exc}")
 
         return self._clintox_model, self._clintox_meta  # type: ignore
 
@@ -115,6 +134,59 @@ class ToxicityInferenceService:
             logger.error(f"Failed to load Tox21 model for '{endpoint}': {exc}")
             return None
 
+    def assess_applicability_domain(
+        self, query_fp_vec: np.ndarray
+    ) -> Tuple[str, Optional[float], Optional[str]]:
+        """
+        Assess chemical applicability domain via Tanimoto distance to training set library.
+
+        Parameters
+        ----------
+        query_fp_vec : np.ndarray
+            1D Morgan fingerprint array of query molecule (2048 bits).
+
+        Returns
+        -------
+        status : str
+            "WITHIN_DOMAIN", "NEAR_BOUNDARY", "OUTSIDE_DOMAIN", or "UNAVAILABLE".
+        score : Optional[float]
+            Maximum Tanimoto similarity to any training set compound.
+        warning : Optional[str]
+            Contextual advisory if query molecule is near or outside domain boundaries.
+        """
+        if self._training_fps is None:
+            fps_path = os.path.join(self.clintox_artifact_dir, "training_fingerprints.npz")
+            if os.path.exists(fps_path):
+                try:
+                    self._training_fps = np.load(fps_path)["fingerprints"]
+                except Exception:
+                    return "UNAVAILABLE", None, None
+            else:
+                return "UNAVAILABLE", None, None
+
+        train_sums = np.sum(self._training_fps, axis=1)
+        intersection = np.dot(self._training_fps, query_fp_vec)
+        query_sum = np.sum(query_fp_vec)
+        union = train_sums + query_sum - intersection
+        sims = np.where(union > 0, intersection / union, 0.0)
+        max_tanimoto = float(np.max(sims))
+
+        if max_tanimoto >= 0.40:
+            return "WITHIN_DOMAIN", round(max_tanimoto, 4), None
+        elif max_tanimoto >= 0.25:
+            warning = (
+                f"Near applicability domain boundary (max Tanimoto to training set: {max_tanimoto:.2f}). "
+                "Few close structural analogues in training set; prediction carries higher uncertainty."
+            )
+            return "NEAR_BOUNDARY", round(max_tanimoto, 4), warning
+        else:
+            warning = (
+                f"Outside applicability domain (max Tanimoto to training set: {max_tanimoto:.2f} < 0.25). "
+                "Molecule possesses a novel chemotype or alien scaffold unrepresented in training data; "
+                "prediction is an extrapolation."
+            )
+            return "OUTSIDE_DOMAIN", round(max_tanimoto, 4), warning
+
     def predict_clintox(self, smiles_or_fp: Any) -> ClinToxPrediction:
         """
         Execute ClinTox clinical trial toxicity probability prediction.
@@ -134,6 +206,7 @@ class ToxicityInferenceService:
                 model_version="unavailable",
                 task_definition="Clinical trial failure due to toxicity (CT_TOX)",
                 status="UNAVAILABLE",
+                applicability_domain_status="UNAVAILABLE",
                 error_message=str(exc),
             )
 
@@ -147,6 +220,7 @@ class ToxicityInferenceService:
                     model_version=meta.get("model_id", "v1"),
                     task_definition="Clinical trial failure due to toxicity (CT_TOX)",
                     status="INVALID_INPUT",
+                    applicability_domain_status="UNAVAILABLE",
                     error_message=val_res.error_message,
                 )
             fp_res = generate_morgan_fingerprint(val_res.canonical_smiles, radius=2, n_bits=2048)
@@ -161,6 +235,7 @@ class ToxicityInferenceService:
                 model_version=meta.get("model_id", "v1"),
                 task_definition="Clinical trial failure due to toxicity (CT_TOX)",
                 status="INVALID_INPUT",
+                applicability_domain_status="UNAVAILABLE",
                 error_message="Input must be SMILES or numpy array",
             )
 
@@ -170,14 +245,29 @@ class ToxicityInferenceService:
         prob_toxic = float(probs[pos_idx])
         pred_class = int(prob_toxic >= 0.5)
 
+        # Uncalibrated probability lookup if base tree model exists
+        uncal_prob = None
+        if self._uncalibrated_model is not None:
+            try:
+                uncal_probs = self._uncalibrated_model.predict_proba(X)[0]
+                uncal_prob = round(float(uncal_probs[pos_idx]), 4)
+            except Exception:
+                uncal_prob = None
+
+        # Dynamic applicability domain evaluation
+        ad_status, ad_score, ad_warning = self.assess_applicability_domain(X[0])
+
         return ClinToxPrediction(
             probability=round(prob_toxic, 4),
             predicted_class=pred_class,
             is_toxic=(pred_class == 1),
-            model_version=meta.get("model_id", "clintox_rf_v1"),
+            model_version=meta.get("model_id", "clintox_rf_calibrated"),
             task_definition="Clinical trial failure due to toxicity (CT_TOX)",
             status="SUCCESS",
-            applicability_warning=None,
+            applicability_domain_status=ad_status,
+            applicability_score=ad_score,
+            applicability_warning=ad_warning,
+            uncalibrated_probability=uncal_prob,
         )
 
     def predict_tox21(self, smiles_or_fp: Any) -> Tox21MultiPrediction:

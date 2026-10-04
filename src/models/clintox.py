@@ -1,14 +1,16 @@
-"""ClinTox dataset ingestion, training pipeline, and evaluation (Module M04)."""
+"""ClinTox dataset ingestion, deduplication, calibration, training, and evaluation (Module M04)."""
 
 import os
 import json
 import logging
-from dataclasses import dataclass, asdict
-from typing import Dict, Any, Tuple, Optional
+from dataclasses import dataclass, asdict, field
+from typing import Dict, Any, Tuple, Optional, List, Union
+from collections import defaultdict
 import numpy as np
 import pandas as pd
 import joblib
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.calibration import CalibratedClassifierCV, calibration_curve
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
     roc_auc_score,
@@ -19,6 +21,8 @@ from sklearn.metrics import (
     recall_score,
     f1_score,
     confusion_matrix,
+    brier_score_loss,
+    log_loss,
 )
 
 from src.chemistry.validation import validate_smiles
@@ -31,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ClinToxEvaluationMetrics:
-    """Evaluation metrics on held-out stratified test dataset."""
+    """Evaluation metrics on held-out test dataset."""
     sample_count: int
     train_count: int
     test_count: int
@@ -45,25 +49,113 @@ class ClinToxEvaluationMetrics:
     recall: float
     f1: float
     confusion_matrix: list  # [[TN, FP], [FN, TP]]
+    brier_score: float = 0.0
+    log_loss: float = 0.0
+    expected_calibration_error: float = 0.0
+    calibrated: bool = False
+    calibration_method: Optional[str] = None
+    duplicate_policy: str = "conservative_toxic"
+    conflicts_resolved_count: int = 0
 
 
 @dataclass
 class ClinToxTrainingResult:
     """Artifact bundle returned after training ClinTox classifier."""
-    model: RandomForestClassifier
+    model: Any
     metrics: ClinToxEvaluationMetrics
     metadata: Dict[str, Any]
     artifact_path: str
     metadata_path: str
 
 
+def audit_clintox_duplicates(csv_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Audit ClinTox dataset for duplicate canonical SMILES and conflicting target labels.
+
+    Parameters
+    ----------
+    csv_path : Optional[str]
+        Path to raw ClinTox CSV. Defaults to CLINTOX_DATA_PATH.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Audit dictionary with duplicate groups, conflicting labels, and row index mappings.
+    """
+    resolved_path = resolve_path(csv_path or CLINTOX_DATA_PATH)
+    if not os.path.exists(resolved_path):
+        raise FileNotFoundError(f"ClinTox CSV dataset not found at '{resolved_path}'.")
+
+    df = pd.read_csv(resolved_path)
+    if "CT_TOX" not in df.columns or "smiles" not in df.columns:
+        raise ValueError(f"ClinTox CSV must contain 'smiles' and 'CT_TOX' columns. Found: {df.columns.tolist()}")
+
+    canon_map: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    invalid_rows = []
+
+    for idx, row in df.iterrows():
+        smi = str(row["smiles"])
+        val_res = validate_smiles(smi)
+        if not val_res.is_valid:
+            invalid_rows.append({"index": idx, "smiles": smi, "error": val_res.error_message})
+            continue
+
+        fda = row.get("FDA_APPROVED", 0)
+        try:
+            fda_val = int(fda) if pd.notna(fda) else 0
+        except (ValueError, TypeError):
+            fda_val = 0
+
+        target = row["CT_TOX"]
+        try:
+            target_val = int(target) if pd.notna(target) else None
+        except (ValueError, TypeError):
+            target_val = None
+
+        if target_val is None or target_val not in (0, 1):
+            continue
+
+        canon_map[val_res.canonical_smiles].append({
+            "index": idx,
+            "raw_smiles": smi,
+            "FDA_APPROVED": fda_val,
+            "CT_TOX": target_val,
+        })
+
+    duplicate_groups = {}
+    conflicting_groups = {}
+    consistent_groups = {}
+
+    for c_smi, entries in canon_map.items():
+        if len(entries) > 1:
+            duplicate_groups[c_smi] = entries
+            labels = set(e["CT_TOX"] for e in entries)
+            if len(labels) > 1:
+                conflicting_groups[c_smi] = entries
+            else:
+                consistent_groups[c_smi] = entries
+
+    report = {
+        "total_raw_rows": len(df),
+        "invalid_smiles_count": len(invalid_rows),
+        "unique_canonical_smiles": len(canon_map),
+        "duplicate_groups_count": len(duplicate_groups),
+        "conflicting_groups_count": len(conflicting_groups),
+        "consistent_duplicate_groups_count": len(consistent_groups),
+        "conflicting_groups": conflicting_groups,
+        "invalid_rows": invalid_rows,
+    }
+    return report
+
+
 def prepare_clintox_dataset(
     csv_path: str = "data/raw/clintox.csv",
     radius: int = 2,
     n_bits: int = 2048,
+    duplicate_policy: str = "conservative_toxic",
 ) -> Tuple[np.ndarray, np.ndarray, pd.DataFrame]:
     """
-    Ingest, validate, and featurize the ClinTox benchmark dataset.
+    Ingest, validate, deduplicate, and featurize the ClinTox benchmark dataset.
 
     Parameters
     ----------
@@ -73,6 +165,11 @@ def prepare_clintox_dataset(
         Morgan fingerprint circular radius.
     n_bits : int
         Number of fingerprint bits.
+    duplicate_policy : str, default="conservative_toxic"
+        Policy for resolving conflicting labels across duplicate canonical SMILES:
+        - "conservative_toxic": Precautionary screening; assign CT_TOX=1 if any observation failed.
+        - "drop_conflicts": Exclude all contradictory groups to maintain strict label purity.
+        - "majority_vote": Round average of conflicting labels.
 
     Returns
     -------
@@ -81,26 +178,39 @@ def prepare_clintox_dataset(
     y : np.ndarray
         Shape (N_valid,), binary CT_TOX target labels.
     df_clean : pd.DataFrame
-        Sanitized dataframe with validation metadata.
+        Sanitized dataframe with validation and deduplication metadata.
     """
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"ClinTox CSV dataset not found at '{csv_path}'.")
+    resolved_path = resolve_path(csv_path)
+    if not os.path.exists(resolved_path):
+        raise FileNotFoundError(f"ClinTox CSV dataset not found at '{resolved_path}'.")
 
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(resolved_path)
     if "CT_TOX" not in df.columns or "smiles" not in df.columns:
         raise ValueError(f"ClinTox CSV must contain 'smiles' and 'CT_TOX' columns. Found: {df.columns.tolist()}")
 
-    valid_indices = []
-    fps = []
-    labels = []
-    canonical_smiles_list = []
+    supported_policies = ("conservative_toxic", "drop_conflicts", "majority_vote")
+    if duplicate_policy not in supported_policies:
+        raise ValueError(
+            f"Unsupported duplicate_policy '{duplicate_policy}'. Choose from {supported_policies}."
+        )
+
+    # 1. Group records by canonical SMILES
+    canon_map: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    invalid_count = 0
 
     for idx, row in df.iterrows():
         smi = str(row["smiles"])
         val_res = validate_smiles(smi)
         if not val_res.is_valid:
             logger.warning(f"Row {idx}: skipping invalid SMILES '{smi}': {val_res.error_message}")
+            invalid_count += 1
             continue
+
+        fda = row.get("FDA_APPROVED", 0)
+        try:
+            fda_val = int(fda) if pd.notna(fda) else 0
+        except (ValueError, TypeError):
+            fda_val = 0
 
         target = row["CT_TOX"]
         if pd.isna(target):
@@ -113,24 +223,91 @@ def prepare_clintox_dataset(
         except (ValueError, TypeError):
             continue
 
+        canon_map[val_res.canonical_smiles].append({
+            "source_idx": idx,
+            "raw_smiles": smi,
+            "FDA_APPROVED": fda_val,
+            "CT_TOX": target_int,
+        })
+
+    # 2. Deterministic deduplication & conflict resolution
+    cleaned_rows = []
+    fps = []
+    labels = []
+    conflicts_resolved_count = 0
+    duplicate_groups_count = 0
+
+    for c_smi, entries in canon_map.items():
+        is_dup = len(entries) > 1
+        if is_dup:
+            duplicate_groups_count += 1
+
+        tox_labels = [e["CT_TOX"] for e in entries]
+        unique_tox = set(tox_labels)
+        is_conflict = len(unique_tox) > 1
+
+        if is_conflict:
+            conflicts_resolved_count += 1
+            if duplicate_policy == "drop_conflicts":
+                logger.info(f"Deduplication: dropped conflicting group '{c_smi}' with labels {tox_labels}")
+                continue
+            elif duplicate_policy == "conservative_toxic":
+                # Precautionary toxic screening: trial failure anywhere flags risk
+                resolved_tox = 1
+            elif duplicate_policy == "majority_vote":
+                resolved_tox = int(round(np.mean(tox_labels)))
+            else:
+                resolved_tox = 1
+        else:
+            resolved_tox = tox_labels[0]
+
+        # Consolidated FDA approval flag: approved in any source record
+        fda_approved_max = int(max(e["FDA_APPROVED"] for e in entries))
+        source_indices = [e["source_idx"] for e in entries]
+        raw_smiles_list = [e["raw_smiles"] for e in entries]
+
+        # Generate Morgan fingerprint for unique canonical structure
         fp_res = generate_morgan_fingerprint(
-            val_res.canonical_smiles,
+            c_smi,
             radius=radius,
             n_bits=n_bits,
             return_bit_info=False,
         )
 
-        valid_indices.append(idx)
         fps.append(fp_res.numpy_vector)
-        labels.append(target_int)
-        canonical_smiles_list.append(val_res.canonical_smiles)
+        labels.append(resolved_tox)
+        cleaned_rows.append({
+            "smiles": c_smi,
+            "canonical_smiles": c_smi,
+            "CT_TOX": resolved_tox,
+            "FDA_APPROVED": fda_approved_max,
+            "source_indices": source_indices,
+            "raw_smiles": raw_smiles_list,
+            "is_duplicate": is_dup,
+            "is_conflict": is_conflict,
+        })
 
     X = np.array(fps, dtype=np.int8)
     y = np.array(labels, dtype=np.int32)
-    df_clean = df.loc[valid_indices].copy()
-    df_clean["canonical_smiles"] = canonical_smiles_list
+    df_clean = pd.DataFrame(cleaned_rows)
 
-    logger.info(f"ClinTox prepared: {len(y)} valid compounds ({np.sum(y == 1)} toxic, {np.sum(y == 0)} non-toxic).")
+    report = {
+        "total_raw": len(df),
+        "invalid_count": invalid_count,
+        "unique_canonical": len(canon_map),
+        "duplicate_groups_count": duplicate_groups_count,
+        "conflicts_resolved_count": conflicts_resolved_count,
+        "duplicate_policy": duplicate_policy,
+        "retained_compounds": len(y),
+        "retained_positives": int(np.sum(y == 1)),
+        "retained_negatives": int(np.sum(y == 0)),
+    }
+    df_clean.attrs["duplicate_report"] = report
+
+    logger.info(
+        f"ClinTox prepared (policy={duplicate_policy}): {len(y)} unique compounds "
+        f"({np.sum(y == 1)} toxic, {np.sum(y == 0)} non-toxic). Resolved {conflicts_resolved_count} conflicts."
+    )
     return X, y, df_clean
 
 
@@ -144,19 +321,47 @@ def train_clintox_model(
     radius: int = 2,
     n_bits: int = 2048,
     split_type: str = "random",
+    duplicate_policy: str = "conservative_toxic",
+    calibration_method: Optional[str] = "sigmoid",
 ) -> ClinToxTrainingResult:
     """
-    Train and evaluate the ClinTox Random Forest classifier under specified split regime.
+    Train, calibrate, evaluate, and serialize the ClinTox classifier.
 
     Parameters
     ----------
+    data_path : Optional[str]
+        Path to raw ClinTox CSV.
+    output_dir : Optional[str]
+        Directory to save model artifacts.
+    n_estimators : int
+        Number of trees in Random Forest.
+    class_weight : str
+        Class weight setting (e.g. 'balanced').
+    split_ratio : float
+        Fraction reserved for test split.
+    random_seed : int
+        Random seed for reproducibility.
+    radius : int
+        Morgan fingerprint radius.
+    n_bits : int
+        Morgan fingerprint bit length.
     split_type : str, default="random"
-        Splitting methodology: "random" (stratified random split) or "scaffold" (Bemis-Murcko scaffold split).
+        Splitting regime: "random" (stratified random split) or "scaffold" (Bemis-Murcko).
+    duplicate_policy : str, default="conservative_toxic"
+        Duplicate conflict resolution policy: "conservative_toxic", "drop_conflicts", or "majority_vote".
+    calibration_method : Optional[str], default="sigmoid"
+        Probability calibration method: "sigmoid" (Platt scaling), "isotonic", or None.
     """
     resolved_data = resolve_path(data_path or CLINTOX_DATA_PATH)
     resolved_output = resolve_path(output_dir or CLINTOX_ARTIFACT_DIR)
     os.makedirs(resolved_output, exist_ok=True)
-    X, y, df_clean = prepare_clintox_dataset(csv_path=resolved_data, radius=radius, n_bits=n_bits)
+
+    X, y, df_clean = prepare_clintox_dataset(
+        csv_path=resolved_data,
+        radius=radius,
+        n_bits=n_bits,
+        duplicate_policy=duplicate_policy,
+    )
 
     if split_type == "scaffold":
         train_idx, test_idx = scaffold_train_test_split(
@@ -166,30 +371,48 @@ def train_clintox_model(
         )
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
+        df_train = df_clean.iloc[train_idx].copy()
     else:
         # Default stratified random split
-        X_train, X_test, y_train, y_test = train_test_split(
+        idx_arr = np.arange(len(y))
+        X_train, X_test, y_train, y_test, idx_train, idx_test = train_test_split(
             X,
             y,
+            idx_arr,
             test_size=split_ratio,
             random_state=random_seed,
             stratify=y,
         )
+        df_train = df_clean.iloc[idx_train].copy()
 
-    # Train Random Forest classifier
-    clf = RandomForestClassifier(
+    # Train base Random Forest classifier
+    base_clf = RandomForestClassifier(
         n_estimators=n_estimators,
         class_weight=class_weight,
         random_state=random_seed,
         n_jobs=-1,
     )
-    clf.fit(X_train, y_train)
+    base_clf.fit(X_train, y_train)
 
-    # Explicit positive class index lookup
-    positive_class_idx = int(np.where(clf.classes_ == 1)[0][0])
+    # Positive class index in base model
+    positive_class_idx = int(np.where(base_clf.classes_ == 1)[0][0])
 
-    # Predict on held-out test split
-    y_test_probs = clf.predict_proba(X_test)[:, positive_class_idx]
+    # Probability calibration (fitted strictly on training partition only)
+    if calibration_method is not None and calibration_method in ("sigmoid", "isotonic"):
+        cal_clf = CalibratedClassifierCV(
+            estimator=base_clf,
+            method=calibration_method,
+            cv=5,
+        )
+        cal_clf.fit(X_train, y_train)
+        serving_model = cal_clf
+        is_calibrated = True
+    else:
+        serving_model = base_clf
+        is_calibrated = False
+
+    # Predict on held-out test split using the serving model
+    y_test_probs = serving_model.predict_proba(X_test)[:, positive_class_idx]
     y_test_preds = (y_test_probs >= 0.5).astype(int)
 
     # Compute comprehensive evaluation metrics
@@ -201,6 +424,15 @@ def train_clintox_model(
     rec = float(recall_score(y_test, y_test_preds, zero_division=0))
     f1 = float(f1_score(y_test, y_test_preds, zero_division=0))
     cm = confusion_matrix(y_test, y_test_preds).tolist()
+    brier = float(brier_score_loss(y_test, y_test_probs))
+    ll = float(log_loss(y_test, y_test_probs))
+
+    # Calibration error computation
+    prob_true, prob_pred = calibration_curve(y_test, y_test_probs, n_bins=5)
+    ece = float(np.mean(np.abs(prob_true - prob_pred)))
+
+    dup_report = df_clean.attrs.get("duplicate_report", {})
+    conflicts_resolved = dup_report.get("conflicts_resolved_count", 0)
 
     metrics = ClinToxEvaluationMetrics(
         sample_count=len(y),
@@ -216,12 +448,22 @@ def train_clintox_model(
         recall=round(rec, 4),
         f1=round(f1, 4),
         confusion_matrix=cm,
+        brier_score=round(brier, 4),
+        log_loss=round(ll, 4),
+        expected_calibration_error=round(ece, 4),
+        calibrated=is_calibrated,
+        calibration_method=calibration_method if is_calibrated else None,
+        duplicate_policy=duplicate_policy,
+        conflicts_resolved_count=conflicts_resolved,
     )
 
     metadata = {
-        "model_id": "clintox_rf_baseline",
+        "model_id": "clintox_rf_calibrated" if is_calibrated else "clintox_rf_baseline",
         "target": "CT_TOX",
         "algorithm": "RandomForestClassifier",
+        "calibrated": is_calibrated,
+        "calibration_method": calibration_method if is_calibrated else None,
+        "duplicate_policy": duplicate_policy,
         "n_estimators": n_estimators,
         "class_weight": class_weight,
         "split_ratio": split_ratio,
@@ -232,26 +474,46 @@ def train_clintox_model(
             "radius": radius,
             "n_bits": n_bits,
         },
-        "classes": clf.classes_.tolist(),
+        "classes": [0, 1],
         "positive_class_index": positive_class_idx,
         "metrics": asdict(metrics),
+        "duplicate_report": dup_report,
+        "calibration_curve": {
+            "prob_pred": np.round(prob_pred, 4).tolist(),
+            "prob_true": np.round(prob_true, 4).tolist(),
+        },
         "status": "APPROVED_FOR_DEMO",
     }
 
+    # Save artifacts:
+    # 1. Serving model (calibrated if enabled)
     model_path = os.path.join(resolved_output, "model.joblib")
-    meta_path = os.path.join(resolved_output, "metadata.json")
+    joblib.dump(serving_model, model_path)
 
-    joblib.dump(clf, model_path)
+    # 2. Base uncalibrated tree ensemble (for TreeSHAP explainability)
+    uncal_model_path = os.path.join(resolved_output, "uncalibrated_model.joblib")
+    joblib.dump(base_clf, uncal_model_path)
+
+    # 3. Training fingerprints and canonical smiles (for Applicability Domain verification)
+    train_fps_path = os.path.join(resolved_output, "training_fingerprints.npz")
+    np.savez_compressed(
+        train_fps_path,
+        fingerprints=X_train,
+        smiles=df_train["canonical_smiles"].values,
+    )
+
+    # 4. Comprehensive metadata
+    meta_path = os.path.join(resolved_output, "metadata.json")
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2)
 
     logger.info(
-        f"ClinTox model ({split_type} split) saved to {model_path}. "
-        f"ROC-AUC: {roc_auc:.4f}, PR-AUC: {pr_auc:.4f}"
+        f"ClinTox model saved to {model_path}. "
+        f"ROC-AUC: {roc_auc:.4f}, PR-AUC: {pr_auc:.4f}, Brier: {brier:.4f}, ECE: {ece:.4f}"
     )
 
     return ClinToxTrainingResult(
-        model=clf,
+        model=serving_model,
         metrics=metrics,
         metadata=metadata,
         artifact_path=model_path,
@@ -262,6 +524,8 @@ def train_clintox_model(
 def evaluate_clintox_dual_benchmarks(
     data_path: Optional[str] = None,
     output_dir: Optional[str] = None,
+    duplicate_policy: str = "conservative_toxic",
+    calibration_method: Optional[str] = "sigmoid",
 ) -> Dict[str, Any]:
     """
     Execute and record dual benchmarks: Stratified Random Split vs. Bemis-Murcko Scaffold Split.
@@ -273,6 +537,8 @@ def evaluate_clintox_dual_benchmarks(
         data_path=data_path,
         output_dir=resolved_output,
         split_type="random",
+        duplicate_policy=duplicate_policy,
+        calibration_method=calibration_method,
     )
 
     # 2. Scaffold split benchmark
@@ -280,18 +546,24 @@ def evaluate_clintox_dual_benchmarks(
         data_path=data_path,
         output_dir=resolved_output,
         split_type="scaffold",
+        duplicate_policy=duplicate_policy,
+        calibration_method=calibration_method,
     )
 
-    # Re-save primary production model as random split baseline
+    # 3. Re-save primary production model as random split baseline
     res_final = train_clintox_model(
         data_path=data_path,
         output_dir=resolved_output,
         split_type="random",
+        duplicate_policy=duplicate_policy,
+        calibration_method=calibration_method,
     )
 
     dual_comparison = {
         "dataset": "ClinTox",
         "target": "CT_TOX",
+        "duplicate_policy": duplicate_policy,
+        "calibration_method": calibration_method,
         "random_split": asdict(res_random.metrics),
         "scaffold_split": asdict(res_scaffold.metrics),
         "methodological_notice": (
