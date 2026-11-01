@@ -7,6 +7,15 @@ from src.literature.retrieval import (
     RankedSentence,
     LITERATURE_DISCLAIMER,
 )
+from src.literature.direction import (
+    classify_claim_polarity,
+    PolarityAnnotation,
+    POLARITY_AFFIRMATIVE,
+    POLARITY_NEGATED,
+    POLARITY_UNCERTAIN,
+    POLARITY_LABELS,
+    POLARITY_UI_LABELS,
+)
 
 __all__ = [
     "PubMedClient",
@@ -15,4 +24,11 @@ __all__ = [
     "LiteratureSearchResult",
     "RankedSentence",
     "LITERATURE_DISCLAIMER",
+    "classify_claim_polarity",
+    "PolarityAnnotation",
+    "POLARITY_AFFIRMATIVE",
+    "POLARITY_NEGATED",
+    "POLARITY_UNCERTAIN",
+    "POLARITY_LABELS",
+    "POLARITY_UI_LABELS",
 ]

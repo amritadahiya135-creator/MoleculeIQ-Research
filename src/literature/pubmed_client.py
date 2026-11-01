@@ -93,6 +93,7 @@ class PubMedClient:
         self.timeout = timeout
         self.session = session or create_secure_pubmed_session()
         self._cache: Dict[str, List[PubMedArticle]] = {}
+        self.last_error: Optional[str] = None
 
     def _get(self, url: str, params: Dict[str, Any]) -> requests.Response:
         """Execute HTTP request with strict SSL verification and conditional explicit fallback."""
@@ -131,6 +132,7 @@ class PubMedClient:
         List[PubMedArticle]
             List of parsed article records with abstracts.
         """
+        self.last_error = None
         clean_query = query.strip()
         if not clean_query:
             return []
@@ -152,6 +154,7 @@ class PubMedClient:
             search_data = search_resp.json()
             id_list = search_data.get("esearchresult", {}).get("idlist", [])
         except Exception as exc:
+            self.last_error = f"{type(exc).__name__}: {exc}"
             logger.error(f"PubMed search failed for query '{clean_query}': {exc}")
             return []
 
@@ -173,31 +176,52 @@ class PubMedClient:
 
             for article_elem in root.findall(".//PubmedArticle"):
                 pmid_elem = article_elem.find(".//MedlineCitation/PMID")
-                pmid = pmid_elem.text if pmid_elem is not None and pmid_elem.text else "Unknown"
+                pmid = pmid_elem.text.strip() if pmid_elem is not None and pmid_elem.text else "Unknown"
 
                 title_elem = article_elem.find(".//ArticleTitle")
-                title = title_elem.text if title_elem is not None and title_elem.text else "No title provided"
+                title = "".join(title_elem.itertext()).strip() if title_elem is not None else "No title provided"
+                if not title:
+                    title = "No title provided"
 
-                abstract_parts = [
-                    elem.text for elem in article_elem.findall(".//AbstractText") if elem.text
-                ]
-                abstract = " ".join(abstract_parts) if abstract_parts else ""
+                # Extract primary abstract; fallback to OtherAbstract only if primary is absent
+                abstract_elems = article_elem.findall(".//MedlineCitation/Article/Abstract/AbstractText")
+                if not abstract_elems:
+                    abstract_elems = article_elem.findall(".//Abstract/AbstractText")
+                if not abstract_elems:
+                    abstract_elems = article_elem.findall(".//OtherAbstract/AbstractText")
+
+                abstract_parts = []
+                for elem in abstract_elems:
+                    txt = "".join(elem.itertext()).strip()
+                    if txt:
+                        abstract_parts.append(txt)
+                abstract = " ".join(abstract_parts)
 
                 # Extract authors
                 author_names = []
                 for author_elem in article_elem.findall(".//AuthorList/Author")[:4]:
                     last = author_elem.find("LastName")
                     fore = author_elem.find("ForeName")
-                    if last is not None and last.text:
-                        name = f"{last.text} {fore.text[0] if fore is not None and fore.text else ''}"
-                        author_names.append(name.strip())
-                authors = ", ".join(author_names) if author_names else "Unknown"
+                    last_text = last.text.strip() if last is not None and last.text else ""
+                    fore_text = fore.text.strip() if fore is not None and fore.text else ""
+                    if last_text:
+                        initial = fore_text[0] if fore_text else ""
+                        name = f"{last_text} {initial}".strip()
+                        author_names.append(name)
+                authors = ", ".join(author_names) if author_names else "Unknown Authors"
 
                 # Extract Year
                 year_elem = article_elem.find(".//Journal/JournalIssue/PubDate/Year")
-                if year_elem is None or not year_elem.text:
+                if year_elem is None or not (year_elem.text and year_elem.text.strip()):
                     year_elem = article_elem.find(".//DateCompleted/Year")
-                year = year_elem.text if year_elem is not None and year_elem.text else "Recent"
+                if year_elem is None or not (year_elem.text and year_elem.text.strip()):
+                    year_elem = article_elem.find(".//Journal/JournalIssue/PubDate/MedlineDate")
+
+                if year_elem is not None and year_elem.text and year_elem.text.strip():
+                    year_match = re.search(r"\b(19\d\d|20\d\d)\b", year_elem.text.strip())
+                    year = year_match.group(1) if year_match else year_elem.text.strip()[:4]
+                else:
+                    year = "Undated"
 
                 url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
 
@@ -213,6 +237,7 @@ class PubMedClient:
                 )
 
         except Exception as exc:
+            self.last_error = f"{type(exc).__name__}: {exc}"
             logger.error(f"PubMed fetch failed for PMIDs {id_list}: {exc}")
 
         self._cache[clean_query] = articles

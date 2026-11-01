@@ -1,0 +1,243 @@
+{
+  "schema_version": "1.0.0",
+  "dataset_name": "MoleculeIQ Authentic PubMed Benchmark Manifest",
+  "created_at_utc": "2026-10-19T13:49:48.313722+00:00",
+  "total_queries": 3,
+  "total_articles": 18,
+  "unique_pmids": 18,
+  "queries": [
+    {
+      "query_id": "Q1_METFORMIN_LACTIC_ACIDOSIS",
+      "query_text": "metformin lactic acidosis",
+      "max_records": 6
+    },
+    {
+      "query_id": "Q2_ASPIRIN_CARDIOTOXICITY",
+      "query_text": "aspirin cardiotoxicity",
+      "max_records": 6
+    },
+    {
+      "query_id": "Q3_PARACETAMOL_HEPATOTOXICITY",
+      "query_text": "paracetamol hepatotoxicity",
+      "max_records": 6
+    }
+  ],
+  "articles": [
+    {
+      "query_id": "Q1_METFORMIN_LACTIC_ACIDOSIS",
+      "query_text": "metformin lactic acidosis",
+      "pmid": "42834623",
+      "title": "Successful treatment of metformin-associated lactic acidosis without hemodialysis.",
+      "authors": "Sophark P, Jaruratanasirikul S, Dissaneewate P, Vachvanichsanong P",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42834623/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 1738,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q1_METFORMIN_LACTIC_ACIDOSIS",
+      "query_text": "metformin lactic acidosis",
+      "pmid": "42789768",
+      "title": "Concurrent metformin-associated lactic acidosis and euglycemic diabetic ketoacidosis from tirzepatide starvation ketosis.",
+      "authors": "Epitropoulos F, Brijawi O, Ghuman K, Van Beusekom W",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42789768/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 1404,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q1_METFORMIN_LACTIC_ACIDOSIS",
+      "query_text": "metformin lactic acidosis",
+      "pmid": "42730466",
+      "title": "Severe Metformin Intoxication Resulting in Extreme Lactic Acidosis.",
+      "authors": "Koz\u00e1rov\u00e1 M, Kozelov\u00e1 Z, Pere\u010dinsk\u00fd S, \u0160vec D",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42730466/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 1627,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q1_METFORMIN_LACTIC_ACIDOSIS",
+      "query_text": "metformin lactic acidosis",
+      "pmid": "42696402",
+      "title": "Metformin-Associated Lactic Acidosis and Relative Euglycemic Ketoacidosis Precipitated by a Glucagon-Like Peptide-1 Receptor Agonist: A Case Report and Literature Review.",
+      "authors": "Adnani H, Ladiwala Z, Lee M, Patel A",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42696402/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 1545,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q1_METFORMIN_LACTIC_ACIDOSIS",
+      "query_text": "metformin lactic acidosis",
+      "pmid": "42545322",
+      "title": "Metformin's disruption of gluconeogenesis in type 2 diabetes impairments of the cori and alanine cycles as hidden drivers of metabolic waste accumulation, NF-\u03baBHIF-1\u03b1-mediated low-grade inflammation, and multisystem dysfunction.",
+      "authors": "Akl M, Ahmed A",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42545322/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 1783,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q1_METFORMIN_LACTIC_ACIDOSIS",
+      "query_text": "metformin lactic acidosis",
+      "pmid": "42377238",
+      "title": "Atypical Presentation of Metformin-associated Lactic Acidosis: A Case Report.",
+      "authors": "Welsch E, Evans J, Yoxall A, Culhane A",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42377238/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 1682,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q2_ASPIRIN_CARDIOTOXICITY",
+      "query_text": "aspirin cardiotoxicity",
+      "pmid": "42756119",
+      "title": "A narrative review of emerging chemoprotective agents for chemotherapy-induced toxicity: nanoformulated natural products, dual COX-2/TNF-\u03b1 inhibitors, and Nrf2 modulators.",
+      "authors": "Ezerioha C, Uahomo P, Chidi-Ezerioha P, Akpan G",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42756119/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 2791,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q2_ASPIRIN_CARDIOTOXICITY",
+      "query_text": "aspirin cardiotoxicity",
+      "pmid": "42211159",
+      "title": "Polycythemia Vera and Cardiovascular Disease: A Mini Review.",
+      "authors": "Mukai M, Aikawa T, Matsue Y, Minamino T",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42211159/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 964,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q2_ASPIRIN_CARDIOTOXICITY",
+      "query_text": "aspirin cardiotoxicity",
+      "pmid": "42131099",
+      "title": "Case Report: A case analysis of antitumor therapy and cardiovascular safety management in a breast cancer patient with multiple cardiovascular diseases.",
+      "authors": "Long M, Ding B",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42131099/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 1621,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q2_ASPIRIN_CARDIOTOXICITY",
+      "query_text": "aspirin cardiotoxicity",
+      "pmid": "41040531",
+      "title": "Cardiovascular comorbidities and cancer-directed therapies in Hispanic breast cancer patients: a two-center analysis from the Southwestern U.S.",
+      "authors": "Escobar Gil T, Sherry E, Borja Montes O, Millhuff A",
+      "year": "2025",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41040531/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 1680,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q2_ASPIRIN_CARDIOTOXICITY",
+      "query_text": "aspirin cardiotoxicity",
+      "pmid": "40364115",
+      "title": "Risk Factors and Prevention of Cancer and CVDs: A Chicken and Egg Situation.",
+      "authors": "Abrignani M, Luc\u00e0 F, Abrignani V, Nucara M",
+      "year": "2025",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40364115/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 2831,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q2_ASPIRIN_CARDIOTOXICITY",
+      "query_text": "aspirin cardiotoxicity",
+      "pmid": "39357328",
+      "title": "Aspirin reduces Ponatinib-induced cardiovascular toxic phenotypes and death in zebrafish.",
+      "authors": "Yu R, Ai N, Huang C, Wang D",
+      "year": "2024",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39357328/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 1572,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q3_PARACETAMOL_HEPATOTOXICITY",
+      "query_text": "paracetamol hepatotoxicity",
+      "pmid": "42893945",
+      "title": "TMEM121 aggravates acetaminophen-induced pyroptosis in hepatocellular carcinoma cells by activating the NLRP3/caspase-1/GSDMD pathway.",
+      "authors": "He G, Yang W, Wu L, Liang J",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42893945/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 2057,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q3_PARACETAMOL_HEPATOTOXICITY",
+      "query_text": "paracetamol hepatotoxicity",
+      "pmid": "42883291",
+      "title": "Hepatoprotective Effects of Flavonoids Against Acetaminophen Toxicity.",
+      "authors": "Panesar A, Aslam R, Jahan N, Luk C",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42883291/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 1366,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q3_PARACETAMOL_HEPATOTOXICITY",
+      "query_text": "paracetamol hepatotoxicity",
+      "pmid": "42850550",
+      "title": "An Organoid-Based Assay for Evaluating Oxidative Stress-Reactive Fluorescent Probes Using the CERO 3D Bioreactor in a Mouse Hepatic Oxidative Injury Model.",
+      "authors": "Bryan E, Dilek O",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42850550/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 1351,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q3_PARACETAMOL_HEPATOTOXICITY",
+      "query_text": "paracetamol hepatotoxicity",
+      "pmid": "42811846",
+      "title": "Effect of Moringa Oleifera Leaf Extract on Paracetamol Induced Liver Damage in Wistar Albino Male Rats.",
+      "authors": "Chowdhury R, Begum M, Chowdhury R, Akther F",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42811846/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 3366,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q3_PARACETAMOL_HEPATOTOXICITY",
+      "query_text": "paracetamol hepatotoxicity",
+      "pmid": "42807834",
+      "title": "Hippocampal NLRP3 Inflammasome Drives Anxiety- and Depressive-Like Behaviors Following Drug-Induced Liver Injury.",
+      "authors": "Zhang H, Zhuang J, Ma R, Wang S",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42807834/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 1360,
+      "has_complete_abstract": true
+    },
+    {
+      "query_id": "Q3_PARACETAMOL_HEPATOTOXICITY",
+      "query_text": "paracetamol hepatotoxicity",
+      "pmid": "42781941",
+      "title": "Age-related patterns in paediatric paracetamol poisoning: a retrospective cohort study, 2015-2025.",
+      "authors": "\u00c1lvarez-Montero M, Due\u00f1as-L\u00f3pez F, Pardo-Puras R, de Miguel Lavisier B",
+      "year": "2026",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42781941/",
+      "retrieval_timestamp": "2026-10-19T13:49:48.313722+00:00",
+      "abstract_character_length": 2315,
+      "has_complete_abstract": true
+    }
+  ]
+}

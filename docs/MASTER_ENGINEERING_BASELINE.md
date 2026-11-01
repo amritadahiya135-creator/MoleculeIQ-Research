@@ -1,28 +1,28 @@
 # MoleculeIQ — Master Engineering Baseline Report
 
-**Document Identifier:** `MEB-V5.0-2026-01`  
-**Date:** October 4, 2026  
-**Auditor / Engineering Role:** Master Forensic Engineering Team (Principal Software Architect, ML Systems Engineer, Computational Chemist, Security & DevOps Engineer)  
-**Target Repository:** MoleculeIQ (`c:\Users\AMRITA\OneDrive\Desktop\moleculeiq`)  
-**Baseline Git Commit:** `9934604`  
+**Document Identifier:** `MEB-V5.0-2026-01`<br>
+**Date:** October 4, 2026<br>
+**Auditor / Engineering Role:** Master Forensic Engineering Team (Principal Software Architect, ML Systems Engineer, Computational Chemist, Security & DevOps Engineer)<br>
+**Target Repository:** MoleculeIQ<br>
+**Baseline Git Commit:** `9934604`<br>
 
 ---
 
 ## 1. Forensic Repository Inventory
 
 ### 1.1 Source Code Architecture
-The repository is structured into modular Python packages anchored by [`src/config.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/config.py):
+The repository is structured into modular Python packages anchored by [`src/config.py`](../src/config.py):
 
 | Package / Module | Primary File | Primary Responsibilities | Current Operational Status |
 | :--- | :--- | :--- | :---: |
-| **Chemistry Engine** | [`src/chemistry/validation.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/validation.py)<br>[`src/chemistry/descriptors.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/descriptors.py)<br>[`src/chemistry/fingerprints.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/fingerprints.py)<br>[`src/chemistry/scaffolds.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/scaffolds.py) | RDKit structure parsing, Lipinski & QED descriptors, 2048-bit Morgan ECFP4 generation, Bemis–Murcko scaffold decomposition. | **VERIFIED & OPERATIONAL** |
-| **Model Pipelines** | [`src/models/clintox.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/clintox.py)<br>[`src/models/tox21.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/tox21.py)<br>[`src/models/inference.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/inference.py) | ClinTox deduplication (`conservative_toxic`), Platt probability calibration, Tox21 12-endpoint multi-models, dynamic applicability domain. | **VERIFIED & OPERATIONAL** |
-| **Explainability** | [`src/explainability/shap_analysis.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/explainability/shap_analysis.py) | TreeSHAP feature attributions on base tree ensemble, atom environment mapping, 2D SVG substructure highlights. | **VERIFIED & OPERATIONAL** |
-| **Similarity Search** | [`src/similarity/chembl_cache.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/similarity/chembl_cache.py)<br>[`src/similarity/index.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/similarity/index.py) | In-memory Tanimoto similarity search over 20 approved reference therapeutics. | **VERIFIED & OPERATIONAL** |
-| **Ranking Engine** | [`src/ranking/scoring.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/ranking/scoring.py) | Multi-objective linear composite prioritization heuristic ($R = 0.5S + 0.3D + 0.2M$). | **VERIFIED & OPERATIONAL** |
-| **Literature Intelligence** | [`src/literature/pubmed_client.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/literature/pubmed_client.py)<br>[`src/literature/retrieval.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/literature/retrieval.py) | PubMed E-utilities client with native Windows TLS root certificates and fallback, abstract parsing, cosine semantic ranking. | **VERIFIED & OPERATIONAL** |
-| **Application Services** | [`src/services/contracts.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/services/contracts.py)<br>[`src/services/orchestration.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/services/orchestration.py) | Strongly-typed DTOs, fault-tolerant workflow orchestration, batch fault isolation. | **VERIFIED & OPERATIONAL** |
-| **Presentation Layer** | [`app.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/app.py)<br>[`src/ui/`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/ui/) | Streamlit multipage application: Single Molecule, Batch Screening, Model Insights, Literature Assistant. | **VERIFIED & OPERATIONAL** |
+| **Chemistry Engine** | [`src/chemistry/validation.py`](../src/chemistry/validation.py)<br>[`src/chemistry/descriptors.py`](../src/chemistry/descriptors.py)<br>[`src/chemistry/fingerprints.py`](../src/chemistry/fingerprints.py)<br>[`src/chemistry/scaffolds.py`](../src/chemistry/scaffolds.py) | RDKit structure parsing, Lipinski & QED descriptors, 2048-bit Morgan ECFP4 generation, Bemis–Murcko scaffold decomposition. | **VERIFIED & OPERATIONAL** |
+| **Model Pipelines** | [`src/models/clintox.py`](../src/models/clintox.py)<br>[`src/models/tox21.py`](../src/models/tox21.py)<br>[`src/models/inference.py`](../src/models/inference.py) | ClinTox deduplication (`conservative_toxic`), Platt probability calibration, Tox21 12-endpoint multi-models, dynamic applicability domain. | **VERIFIED & OPERATIONAL** |
+| **Explainability** | [`src/explainability/shap_analysis.py`](../src/explainability/shap_analysis.py) | TreeSHAP feature attributions on base tree ensemble, atom environment mapping, 2D SVG substructure highlights. | **VERIFIED & OPERATIONAL** |
+| **Similarity Search** | [`src/similarity/chembl_cache.py`](../src/similarity/chembl_cache.py)<br>[`src/similarity/index.py`](../src/similarity/index.py) | In-memory Tanimoto similarity search over 20 approved reference therapeutics. | **VERIFIED & OPERATIONAL** |
+| **Ranking Engine** | [`src/ranking/scoring.py`](../src/ranking/scoring.py) | Multi-objective linear composite prioritization heuristic ($R = 0.5S + 0.3D + 0.2M$). | **VERIFIED & OPERATIONAL** |
+| **Literature Intelligence** | [`src/literature/pubmed_client.py`](../src/literature/pubmed_client.py)<br>[`src/literature/retrieval.py`](../src/literature/retrieval.py) | PubMed E-utilities client with native Windows TLS root certificates and fallback, abstract parsing, cosine semantic ranking. | **VERIFIED & OPERATIONAL** |
+| **Application Services** | [`src/services/contracts.py`](../src/services/contracts.py)<br>[`src/services/orchestration.py`](../src/services/orchestration.py) | Strongly-typed DTOs, fault-tolerant workflow orchestration, batch fault isolation. | **VERIFIED & OPERATIONAL** |
+| **Presentation Layer** | [`app.py`](../app.py)<br>[`src/ui/`](../src/ui) | Streamlit multipage application: Single Molecule, Batch Screening, Model Insights, Literature Assistant. | **VERIFIED & OPERATIONAL** |
 
 ---
 
@@ -30,13 +30,13 @@ The repository is structured into modular Python packages anchored by [`src/conf
 
 | Artifact / Dataset | Location | Properties | Verification Status |
 | :--- | :--- | :--- | :---: |
-| **ClinTox Calibrated Model** | [`artifacts/clintox/model.joblib`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/artifacts/clintox/model.joblib) | `CalibratedClassifierCV` (sigmoid, 5-fold CV) | **VALID (Brier 0.0522, ECE 0.1604)** |
-| **ClinTox Base RF Model** | [`artifacts/clintox/uncalibrated_model.joblib`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/artifacts/clintox/uncalibrated_model.joblib) | `RandomForestClassifier` (300 trees, `balanced`) | **VALID (TreeSHAP compatible)** |
-| **ClinTox Training Library** | [`artifacts/clintox/training_fingerprints.npz`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/artifacts/clintox/training_fingerprints.npz) | 1,168 packed 2048-bit Morgan vectors + SMILES | **VALID (Applicability Domain ready)** |
-| **Tox21 12-Endpoint Models** | [`artifacts/tox21/*_model.joblib`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/artifacts/tox21/) | 12 individual binary classifiers | **VALID (All 12 endpoints load)** |
-| **Reference Compounds** | [`data/reference/approved_drugs.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/reference/approved_drugs.csv) | 20 FDA-approved benchmark drugs | **VALID (Fingerprint index cached)** |
-| **Raw ClinTox Dataset** | [`data/raw/clintox.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/clintox.csv) | 1,484 raw rows; 19 conflicting pairs | **PRESERVED & AUDITED** |
-| **Raw Tox21 Dataset** | [`data/raw/tox21.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/tox21.csv) | 7,831 raw rows; 12 bioassay targets | **PRESERVED & AUDITED** |
+| **ClinTox Calibrated Model** | [`artifacts/clintox/model.joblib`](../artifacts/clintox/model.joblib) | `CalibratedClassifierCV` (sigmoid, 5-fold CV) | **VALID (Brier 0.0522, ECE 0.1604)** |
+| **ClinTox Base RF Model** | [`artifacts/clintox/uncalibrated_model.joblib`](../artifacts/clintox/uncalibrated_model.joblib) | `RandomForestClassifier` (300 trees, `balanced`) | **VALID (TreeSHAP compatible)** |
+| **ClinTox Training Library** | [`artifacts/clintox/training_fingerprints.npz`](../artifacts/clintox/training_fingerprints.npz) | 1,168 packed 2048-bit Morgan vectors + SMILES | **VALID (Applicability Domain ready)** |
+| **Tox21 12-Endpoint Models** | [`artifacts/tox21/*_model.joblib`](../artifacts/tox21) | 12 individual binary classifiers | **VALID (All 12 endpoints load)** |
+| **Reference Compounds** | [`data/reference/approved_drugs.csv`](../data/reference/approved_drugs.csv) | 20 FDA-approved benchmark drugs | **VALID (Fingerprint index cached)** |
+| **Raw ClinTox Dataset** | [`data/raw/clintox.csv`](../data/raw/clintox.csv) | 1,484 raw rows; 19 conflicting pairs | **PRESERVED & AUDITED** |
+| **Raw Tox21 Dataset** | [`data/raw/tox21.csv`](../data/raw/tox21.csv) | 7,831 raw rows; 12 bioassay targets | **PRESERVED & AUDITED** |
 
 ---
 

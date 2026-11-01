@@ -50,3 +50,15 @@ class TestBatchScreeningWorkflow:
         assert len(reloaded_df) == 4
         assert "Overall_Priority_Score" in reloaded_df.columns
         assert "Top_Reference_Drug" in reloaded_df.columns
+        assert "Applicability_Domain_Status" in reloaded_df.columns
+        assert "Applicability_Domain_Score" in reloaded_df.columns
+        assert "Applicability_Warning" in reloaded_df.columns
+
+        # Verify domain exposure on valid candidates
+        asp_row = valid_rows[valid_rows["Name"] == "Aspirin"].iloc[0]
+        assert asp_row["Applicability_Domain_Status"] == "WITHIN_DOMAIN"
+        assert asp_row["Applicability_Domain_Score"] == 1.0
+
+        # Verify domain status on invalid rows
+        bad_row = invalid_rows.iloc[0]
+        assert bad_row["Applicability_Domain_Status"] == "UNAVAILABLE"

@@ -20,7 +20,7 @@
 
 ### Step 1: Clone Repository
 ```bash
-git clone https://github.com/moleculeiq/moleculeiq.git
+git clone https://github.com/amritadahiya135-creator/moleculeiq.git
 cd moleculeiq
 ```
 
@@ -50,18 +50,34 @@ pip install -r requirements.txt
 > sudo apt-get update && sudo apt-get install -y libxrender1 libxext6 libsm6
 > ```
 
-### Step 4: Verify Artifact Cryptographic Integrity
+### Step 4: Download or Verify Model Release Assets
+Model weights and fingerprint arrays (~405 MB total) are distributed as versioned GitHub Release assets rather than bloated in Git history. Verify existing local assets or download from the latest release:
+```bash
+# Verify existing local model artifacts
+python scripts/download_release_artifacts.py --verify-only
+
+# Or download and extract models from the latest release
+python scripts/download_release_artifacts.py --tag v5.0.0
+```
+
+### Step 5: Hydrate Authentic PubMed Literature Benchmark (Optional)
+To run the full literature retrieval benchmark without bundling copyrighted journal abstracts in Git:
+```bash
+python scripts/hydrate_pubmed_benchmark.py
+```
+
+### Step 6: Verify Artifact Cryptographic Integrity (SHA-256)
 To guarantee that model weights, calibration records, and reference caches have not experienced data corruption or bit rot, run the SHA-256 integrity verification:
 ```bash
 python -c "from src.utils.integrity import verify_artifact_checksums; res = verify_artifact_checksums(); print(res); assert res.is_valid"
 ```
 
-### Step 5: Run Verification Test Suite
+### Step 7: Run Verification Test Suite
 ```bash
-python -m pytest tests/unit/ tests/integration/ tests/system/ -v
+python -m pytest tests/unit/ tests/integration/ tests/e2e/ -v
 ```
 
-### Step 6: Launch the Streamlit Web Application
+### Step 8: Launch the Streamlit Web Application
 ```bash
 streamlit run app.py
 ```

@@ -1,0 +1,264 @@
+{
+  "benchmark_name": "MoleculeIQ Authentic PubMed Benchmark Enhanced (Phase D.4)",
+  "evaluation_timestamp_utc": "2026-10-19T14:30:00Z",
+  "ranking_engine": "scikit-learn TF-IDF Semantic Cosine Engine with Curated Synonym Expansion, Biomedical Morphology, and Concept Conjunction Bonus",
+  "enhancement_configuration": {
+    "curated_synonyms": true,
+    "biomedical_morphology": true,
+    "concept_conjunction_bonus": true,
+    "conjunction_bonus_weight": 0.05
+  },
+  "network_access": "OFFLINE_FROZEN_BENCHMARK",
+  "total_queries": 3,
+  "total_pool_sentences": 198,
+  "total_pool_relevant": 99,
+  "aggregate_metrics": {
+    "macro_averages": {
+      "mrr": 1.0,
+      "precision_at_5_fixed": 1.0,
+      "precision_at_k_variable": 1.0,
+      "recall_at_5": 0.168,
+      "ndcg_at_5_exponential": 0.975,
+      "ndcg_at_5_linear": 0.9854,
+      "zero_overlap_filter_rate": 0.8766,
+      "duplicate_return_rate": 0.0
+    },
+    "micro_averages": {
+      "precision_at_5_pooled": 1.0,
+      "recall_at_5_pooled": 0.1515
+    }
+  },
+  "query_breakdown": [
+    {
+      "query_id": "Q1_METFORMIN_LACTIC_ACIDOSIS",
+      "query_text": "metformin lactic acidosis",
+      "engine_used": "Biomedical TF-IDF Conjunction Engine",
+      "status": "SUCCESS",
+      "pool_total_sentences": 55,
+      "pool_relevant_sentences": 42,
+      "pool_relevance_prevalence": 0.7636,
+      "returned_total_sentences": 8,
+      "top5_metrics": {
+        "reciprocal_rank": 1.0,
+        "precision_at_5_fixed": 1.0,
+        "precision_at_k_variable": 1.0,
+        "recall_at_5": 0.119,
+        "ndcg_at_5_exponential": 1.0,
+        "ndcg_at_5_linear": 1.0,
+        "duplicate_rate": 0.0
+      },
+      "zero_overlap_filter_rate": 0.8545,
+      "top5_sentences": [
+        {
+          "rank": 1,
+          "pmid": "42834623",
+          "relevance_score": 0.3325,
+          "cosine_score": 0.2825,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "Metformin-associated lactic acidosis (MALA) is a rare but potentially life-threatening condition.",
+          "rationale": "Defines metformin-associated lactic acidosis (MALA) as a life-threatening adverse condition."
+        },
+        {
+          "rank": 2,
+          "pmid": "42696402",
+          "relevance_score": 0.2377,
+          "cosine_score": 0.1877,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "Metformin-associated lactic acidosis (MALA) is an uncommon but often fatal complication of metformin therapy (incidence less than 10 per 100,000 patient-years; with a 30-50% mortality).",
+          "rationale": "Defines MALA incidence (<10/100,000 patient-years) and high clinical mortality (30-50%)."
+        },
+        {
+          "rank": 3,
+          "pmid": "42730466",
+          "relevance_score": 0.2001,
+          "cosine_score": 0.1501,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "In conclusion, massive metformin overdose may lead to life-threatening lactic acidosis, multi-organ dysfunction, and circulatory collapse.",
+          "rationale": "Major toxicological takeaway confirming that severe acute biguanide ingestions can provoke critical metabolic decompensation and multiorgan failure."
+        },
+        {
+          "rank": 4,
+          "pmid": "42789768",
+          "relevance_score": 0.1954,
+          "cosine_score": 0.1454,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "We describe a case of concurrent metformin-associated lactic acidosis (MALA) and euglycemic diabetic ketoacidosis (EDKA) in a 64-year-old woman with type 2 diabetes mellitus (T2DM) treated with metformin and tirzepatide who presented with shock, encephalopathy, and severe high anion gap metabolic acidosis after two weeks of markedly reduced oral intake following tirzepatide dose escalation.",
+          "rationale": "Describes concurrent MALA and ketoacidosis in patient receiving metformin and tirzepatide."
+        },
+        {
+          "rank": 5,
+          "pmid": "42730466",
+          "relevance_score": 0.1895,
+          "cosine_score": 0.1395,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "The aim of this report is to present a case of massive intentional metformin overdose resulting in extreme metformin-associated lactic acidosis (MALA), acute kidney injury, recurrent cardiac arrest requiring cardiopulmonary resuscitation (CPR), and successful recovery including complete resolution of the transient sensorineural hearing loss following aggressive multidisciplinary management with extracorporeal elimination therapy.",
+          "rationale": "Primary report objective outlining an intentional acute biguanide poisoning culminating in severe hyperlactatemia and circulatory arrest."
+        }
+      ]
+    },
+    {
+      "query_id": "Q2_ASPIRIN_CARDIOTOXICITY",
+      "query_text": "aspirin cardiotoxicity",
+      "engine_used": "Biomedical TF-IDF Conjunction Engine",
+      "status": "SUCCESS",
+      "pool_total_sentences": 67,
+      "pool_relevant_sentences": 20,
+      "pool_relevance_prevalence": 0.2985,
+      "returned_total_sentences": 8,
+      "top5_metrics": {
+        "reciprocal_rank": 1.0,
+        "precision_at_5_fixed": 1.0,
+        "precision_at_k_variable": 1.0,
+        "recall_at_5": 0.25,
+        "ndcg_at_5_exponential": 0.925,
+        "ndcg_at_5_linear": 0.9563,
+        "duplicate_rate": 0.0
+      },
+      "zero_overlap_filter_rate": 0.8806,
+      "top5_sentences": [
+        {
+          "rank": 1,
+          "pmid": "39357328",
+          "relevance_score": 0.3799,
+          "cosine_score": 0.3299,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "To investigate the effects of Aspirin on Ponatinib-induced cardiovascular toxicity in zebrafish.",
+          "rationale": "Direct objective investigating aspirin's protective efficacy against ponatinib cardiovascular toxicity."
+        },
+        {
+          "rank": 2,
+          "pmid": "39357328",
+          "relevance_score": 0.3515,
+          "cosine_score": 0.3015,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "Our findings suggest that Aspirin exhibits the potential to reduce Ponatinib-induced cardiovascular toxicity.",
+          "rationale": "Study conclusion indicating the therapeutic utility of aspirin in mitigating kinase inhibitor vascular injury."
+        },
+        {
+          "rank": 3,
+          "pmid": "39357328",
+          "relevance_score": 0.2811,
+          "cosine_score": 0.2311,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "Compared with other antithrombotic drugs, a COX-1 inhibitor Aspirin more effectively reduced ponatinib-induced cardiovascular toxicity events and improved the survival rate of zebrafish larvae.",
+          "rationale": "Comparative experimental observation showing aspirin counteracted ponatinib-induced circulatory toxicity and mortality."
+        },
+        {
+          "rank": 4,
+          "pmid": "42211159",
+          "relevance_score": 0.2316,
+          "cosine_score": 0.1816,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "Modern treatment approaches, including therapeutic phlebotomy, low-dose aspirin, and cytoreductive therapies (hydroxyurea, interferon-α formulations, and ruxolitinib), have reduced blood cell counts and thrombotic risk, yet concerns about treatment-associated cardiovascular toxicity have emerged.",
+          "rationale": "Connects standard polycythemia regimens including antiplatelet and marrow-suppressive agents with emerging cardiac issues."
+        },
+        {
+          "rank": 5,
+          "pmid": "41040531",
+          "relevance_score": 0.2071,
+          "cosine_score": 0.2071,
+          "conjunction_bonus": 0.0,
+          "gold_grade": 2,
+          "binary_label": 1,
+          "sentence": "All patients with CVD were receiving aspirin.",
+          "rationale": "Documents 100% aspirin utilization among cancer patients with established cardiovascular disease."
+        }
+      ]
+    },
+    {
+      "query_id": "Q3_PARACETAMOL_HEPATOTOXICITY",
+      "query_text": "paracetamol hepatotoxicity",
+      "engine_used": "Biomedical TF-IDF Conjunction Engine",
+      "status": "SUCCESS",
+      "pool_total_sentences": 76,
+      "pool_relevant_sentences": 37,
+      "pool_relevance_prevalence": 0.4868,
+      "returned_total_sentences": 8,
+      "top5_metrics": {
+        "reciprocal_rank": 1.0,
+        "precision_at_5_fixed": 1.0,
+        "precision_at_k_variable": 1.0,
+        "recall_at_5": 0.1351,
+        "ndcg_at_5_exponential": 1.0,
+        "ndcg_at_5_linear": 1.0,
+        "duplicate_rate": 0.0
+      },
+      "zero_overlap_filter_rate": 0.8947,
+      "top5_sentences": [
+        {
+          "rank": 1,
+          "pmid": "42883291",
+          "relevance_score": 0.3574,
+          "cosine_score": 0.3074,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "Currently, N-acetylcysteine (NAC) is the standard first-line treatment for APAP-induced liver injury (AILI).",
+          "rationale": "Identifies N-acetylcysteine as the established standard antidote in acute acetaminophen-mediated hepatotoxicity."
+        },
+        {
+          "rank": 2,
+          "pmid": "42893945",
+          "relevance_score": 0.3211,
+          "cosine_score": 0.2711,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "Acetaminophen (APAP) is a widely used analgesic and antipyretic drug, but overdose causes severe acute liver injury.",
+          "rationale": "Introductory definition stating that excessive acetaminophen ingestions produce profound hepatocellular necrosis."
+        },
+        {
+          "rank": 3,
+          "pmid": "42807834",
+          "relevance_score": 0.2991,
+          "cosine_score": 0.2491,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "Moreover, N-acetylcysteine, an agent against APAP-induced hepatotoxicity, inhibited NLRP3 inflammasome activation and alleviated anxiety- and depressive-like behaviors in DILI mice.",
+          "rationale": "Identifies N-acetylcysteine as an agent against APAP hepatotoxicity that inhibits inflammasome activation and alleviates behavioral deficits in mice."
+        },
+        {
+          "rank": 4,
+          "pmid": "42811846",
+          "relevance_score": 0.2741,
+          "cosine_score": 0.2241,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "Paracetamol is a common analgesics and antipyretic drug but at overdose can cause severe hepatotoxicity.",
+          "rationale": "Direct clinical statement: paracetamol overdose causes severe hepatotoxicity."
+        },
+        {
+          "rank": 5,
+          "pmid": "42883291",
+          "relevance_score": 0.274,
+          "cosine_score": 0.224,
+          "conjunction_bonus": 0.05,
+          "gold_grade": 3,
+          "binary_label": 1,
+          "sentence": "Acetaminophen (APAP) is a common analgesic and antipyretic agent; however, overdose can cause severe liver injury requiring transplantation or resulting in death.",
+          "rationale": "Defines extreme acetaminophen toxicity leading to end-stage hepatic damage, graft replacement, or fatality."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4984 @@
+{
+  "report_id": "clintox_scaffold_generalization_multiseed_evaluation_v1",
+  "timestamp_iso": "2026-10-20T10:08:42Z",
+  "status": "COMPLETED",
+  "protocol_metadata": {
+    "dataset": "ClinTox",
+    "target_endpoint": "CT_TOX",
+    "duplicate_policy": "conservative_toxic",
+    "n_raw_records": 1484,
+    "n_invalid_excluded": 4,
+    "n_duplicates_resolved": 19,
+    "n_unique_canonical_samples": 1461,
+    "n_positives": 112,
+    "n_negatives": 1349,
+    "cohort_prevalence": 0.07666,
+    "n_cyclic_compounds": 1332,
+    "n_acyclic_compounds": 129,
+    "grouping_strategy": "murcko_cyclic_acyclic_generic",
+    "prespecified_seeds": [
+      42,
+      1042,
+      2042
+    ],
+    "n_splits_per_seed": 5,
+    "total_evaluations_per_regime": 15,
+    "base_algorithm": "RandomForestClassifier(n_estimators=300, class_weight='balanced')",
+    "probability_calibration_protocol": "UNAVAILABLE_STAGE1_SCOPE: Evaluates uncalibrated tree-ensemble voting probabilities. Post-hoc probability calibration metrics are marked as UNAVAILABLE because internal random-fold calibration does NOT establish valid calibration on out-of-scaffold chemotypes, and nested scaffold-grouped calibration is outside Stage 1 scope (STAGE1_CALIBRATION_SCOPE_NOTE).",
+    "features": "Morgan circular fingerprints (radius=2, n_bits=2048, binary int8)",
+    "scaffold_cluster_bootstrap_replicates": 500,
+    "environment": {
+      "python_version": "3.12.6",
+      "platform": "Windows-11-10.0.22631-SP0",
+      "numpy_version": "2.4.3",
+      "pandas_version": "3.0.6"
+    }
+  },
+  "scientific_caveats": [
+    "Folds and seeds reuse the same dataset (N=1,461, 112 positives) and are NOT independent biological cohorts.",
+    "Repeated cross-validation quantifies partition variance, not external biological validity.",
+    "This model is an exploratory research and educational prioritization tool, not a validated clinical safety determination.",
+    "High ROC-AUC does not guarantee reliable detection of toxicity on novel chemotypes at specific operational thresholds."
+  ],
+  "summary_comparison": {
+    "scaffold_grouped_pooled_roc_auc_mean": 0.84733,
+    "scaffold_grouped_pooled_roc_auc_sd": 0.009262,
+    "stratified_random_pooled_roc_auc_mean": 0.841022,
+    "stratified_random_pooled_roc_auc_sd": 0.015942,
+    "delta_roc_auc_scaffold_minus_random": 0.006308,
+    "scaffold_grouped_pooled_pr_auc_mean": 0.376201,
+    "scaffold_grouped_pooled_pr_auc_sd": 0.018388,
+    "stratified_random_pooled_pr_auc_mean": 0.377556,
+    "stratified_random_pooled_pr_auc_sd": 0.033354,
+    "delta_pr_auc_scaffold_minus_random": -0.001355
+  },
+  "scaffold_grouped_analysis": {
+    "regime": "scaffold_grouped",
+    "n_seeds": 3,
+    "seeds": [
+      42,
+      1042,
+      2042
+    ],
+    "n_splits_per_seed": 5,
+    "total_folds_evaluated": 15,
+    "across_seed_pooled_oof_summary": {
+      "roc_auc": {
+        "per_seed": {
+          "42": 0.837191,
+          "1042": 0.849452,
+          "2042": 0.855346
+        },
+        "mean": 0.84733,
+        "sd": 0.009262,
+        "min": 0.837191,
+        "max": 0.855346
+      },
+      "pr_auc": {
+        "per_seed": {
+          "42": 0.35569,
+          "1042": 0.3817,
+          "2042": 0.391212
+        },
+        "mean": 0.376201,
+        "sd": 0.018388,
+        "min": 0.35569,
+        "max": 0.391212
+      },
+      "pr_auc_lift": {
+        "per_seed": {
+          "42": 0.27903,
+          "1042": 0.30504,
+          "2042": 0.314552
+        },
+        "mean": 0.299541,
+        "sd": 0.018388,
+        "min": 0.27903,
+        "max": 0.314552
+      },
+      "pr_auc_ratio": {
+        "per_seed": {
+          "42": 4.639845,
+          "1042": 4.979139,
+          "2042": 5.103221
+        },
+        "mean": 4.907402,
+        "sd": 0.239873,
+        "min": 4.639845,
+        "max": 5.103221
+      },
+      "brier_score": {
+        "per_seed": {
+          "42": 0.066151,
+          "1042": 0.064447,
+          "2042": 0.064579
+        },
+        "mean": 0.065059,
+        "sd": 0.000948,
+        "min": 0.064447,
+        "max": 0.066151
+      },
+      "brier_skill_score": {
+        "per_seed": {
+          "42": 0.065437,
+          "1042": 0.089514,
+          "2042": 0.087642
+        },
+        "mean": 0.080864,
+        "sd": 0.013393,
+        "min": 0.065437,
+        "max": 0.089514
+      },
+      "log_loss": {
+        "per_seed": {
+          "42": 0.26709,
+          "1042": 0.263264,
+          "2042": 0.262806
+        },
+        "mean": 0.264387,
+        "sd": 0.002352,
+        "min": 0.262806,
+        "max": 0.26709
+      }
+    },
+    "per_seed_evaluations": {
+      "42": {
+        "seed": 42,
+        "regime": "scaffold_grouped",
+        "n_splits": 5,
+        "split_integrity_verified": true,
+        "folds": [
+          {
+            "fold_index": 0,
+            "fold_seed": 4200,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 735,
+            "n_test_groups": 138,
+            "n_test_singletons": 132,
+            "fit_and_eval_seconds": 3.98,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.840825,
+              "pr_auc": 0.401915,
+              "pr_auc_lift": 0.326572,
+              "pr_auc_ratio": 5.334507,
+              "brier_score": 0.062162,
+              "brier_skill_score": 0.107708,
+              "log_loss": 0.229666,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 267,
+                "fp": 3,
+                "fn": 18,
+                "tp": 4,
+                "confusion_matrix": [
+                  [
+                    267,
+                    3
+                  ],
+                  [
+                    18,
+                    4
+                  ]
+                ],
+                "precision": 0.571429,
+                "recall": 0.181818,
+                "specificity": 0.988889,
+                "f1": 0.275862,
+                "balanced_accuracy": 0.585354,
+                "accuracy": 0.928082
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 116,
+                "fp": 154,
+                "fn": 1,
+                "tp": 21,
+                "confusion_matrix": [
+                  [
+                    116,
+                    154
+                  ],
+                  [
+                    1,
+                    21
+                  ]
+                ],
+                "precision": 0.12,
+                "recall": 0.954545,
+                "specificity": 0.42963,
+                "f1": 0.213198,
+                "balanced_accuracy": 0.692088,
+                "accuracy": 0.469178
+              }
+            }
+          },
+          {
+            "fold_index": 1,
+            "fold_seed": 4201,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 687,
+            "n_test_groups": 186,
+            "n_test_singletons": 140,
+            "fit_and_eval_seconds": 3.84,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.882576,
+              "pr_auc": 0.537592,
+              "pr_auc_lift": 0.46225,
+              "pr_auc_ratio": 7.135316,
+              "brier_score": 0.061175,
+              "brier_skill_score": 0.121885,
+              "log_loss": 0.239694,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 264,
+                "fp": 6,
+                "fn": 12,
+                "tp": 10,
+                "confusion_matrix": [
+                  [
+                    264,
+                    6
+                  ],
+                  [
+                    12,
+                    10
+                  ]
+                ],
+                "precision": 0.625,
+                "recall": 0.454545,
+                "specificity": 0.977778,
+                "f1": 0.526316,
+                "balanced_accuracy": 0.716162,
+                "accuracy": 0.938356
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 76,
+                "fp": 194,
+                "fn": 1,
+                "tp": 21,
+                "confusion_matrix": [
+                  [
+                    76,
+                    194
+                  ],
+                  [
+                    1,
+                    21
+                  ]
+                ],
+                "precision": 0.097674,
+                "recall": 0.954545,
+                "specificity": 0.281481,
+                "f1": 0.177215,
+                "balanced_accuracy": 0.618013,
+                "accuracy": 0.332192
+              }
+            }
+          },
+          {
+            "fold_index": 2,
+            "fold_seed": 4202,
+            "n_train": 1168,
+            "n_test": 293,
+            "train_positives": 89,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076199,
+            "test_positives": 23,
+            "test_negatives": 270,
+            "test_prevalence": 0.078498,
+            "n_train_groups": 689,
+            "n_test_groups": 184,
+            "n_test_singletons": 137,
+            "fit_and_eval_seconds": 4.39,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 293,
+              "n_positives": 23,
+              "n_negatives": 270,
+              "prevalence": 0.078498,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.789775,
+              "pr_auc": 0.286842,
+              "pr_auc_lift": 0.208343,
+              "pr_auc_ratio": 3.654113,
+              "brier_score": 0.06997,
+              "brier_skill_score": 0.03271,
+              "log_loss": 0.359779,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 268,
+                "fp": 2,
+                "fn": 21,
+                "tp": 2,
+                "confusion_matrix": [
+                  [
+                    268,
+                    2
+                  ],
+                  [
+                    21,
+                    2
+                  ]
+                ],
+                "precision": 0.5,
+                "recall": 0.086957,
+                "specificity": 0.992593,
+                "f1": 0.148148,
+                "balanced_accuracy": 0.539775,
+                "accuracy": 0.921502
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076199,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 103,
+                "fp": 167,
+                "fn": 1,
+                "tp": 22,
+                "confusion_matrix": [
+                  [
+                    103,
+                    167
+                  ],
+                  [
+                    1,
+                    22
+                  ]
+                ],
+                "precision": 0.116402,
+                "recall": 0.956522,
+                "specificity": 0.381481,
+                "f1": 0.207547,
+                "balanced_accuracy": 0.669002,
+                "accuracy": 0.426621
+              }
+            }
+          },
+          {
+            "fold_index": 3,
+            "fold_seed": 4203,
+            "n_train": 1168,
+            "n_test": 293,
+            "train_positives": 89,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076199,
+            "test_positives": 23,
+            "test_negatives": 270,
+            "test_prevalence": 0.078498,
+            "n_train_groups": 690,
+            "n_test_groups": 183,
+            "n_test_singletons": 134,
+            "fit_and_eval_seconds": 4.33,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 293,
+              "n_positives": 23,
+              "n_negatives": 270,
+              "prevalence": 0.078498,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.822786,
+              "pr_auc": 0.316591,
+              "pr_auc_lift": 0.238093,
+              "pr_auc_ratio": 4.033095,
+              "brier_score": 0.068224,
+              "brier_skill_score": 0.056848,
+              "log_loss": 0.252241,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 268,
+                "fp": 2,
+                "fn": 19,
+                "tp": 4,
+                "confusion_matrix": [
+                  [
+                    268,
+                    2
+                  ],
+                  [
+                    19,
+                    4
+                  ]
+                ],
+                "precision": 0.666667,
+                "recall": 0.173913,
+                "specificity": 0.992593,
+                "f1": 0.275862,
+                "balanced_accuracy": 0.583253,
+                "accuracy": 0.928328
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076199,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 89,
+                "fp": 181,
+                "fn": 2,
+                "tp": 21,
+                "confusion_matrix": [
+                  [
+                    89,
+                    181
+                  ],
+                  [
+                    2,
+                    21
+                  ]
+                ],
+                "precision": 0.10396,
+                "recall": 0.913043,
+                "specificity": 0.32963,
+                "f1": 0.186667,
+                "balanced_accuracy": 0.621337,
+                "accuracy": 0.375427
+              }
+            }
+          },
+          {
+            "fold_index": 4,
+            "fold_seed": 4204,
+            "n_train": 1170,
+            "n_test": 291,
+            "train_positives": 90,
+            "train_negatives": 1080,
+            "train_prevalence": 0.076923,
+            "test_positives": 22,
+            "test_negatives": 269,
+            "test_prevalence": 0.075601,
+            "n_train_groups": 691,
+            "n_test_groups": 182,
+            "n_test_singletons": 139,
+            "fit_and_eval_seconds": 3.98,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 291,
+              "n_positives": 22,
+              "n_negatives": 269,
+              "prevalence": 0.075601,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.869973,
+              "pr_auc": 0.32919,
+              "pr_auc_lift": 0.253588,
+              "pr_auc_ratio": 4.35428,
+              "brier_score": 0.069215,
+              "brier_skill_score": 0.009597,
+              "log_loss": 0.253756,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 262,
+                "fp": 7,
+                "fn": 20,
+                "tp": 2,
+                "confusion_matrix": [
+                  [
+                    262,
+                    7
+                  ],
+                  [
+                    20,
+                    2
+                  ]
+                ],
+                "precision": 0.222222,
+                "recall": 0.090909,
+                "specificity": 0.973978,
+                "f1": 0.129032,
+                "balanced_accuracy": 0.532443,
+                "accuracy": 0.907216
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076923,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 67,
+                "fp": 202,
+                "fn": 0,
+                "tp": 22,
+                "confusion_matrix": [
+                  [
+                    67,
+                    202
+                  ],
+                  [
+                    0,
+                    22
+                  ]
+                ],
+                "precision": 0.098214,
+                "recall": 1.0,
+                "specificity": 0.249071,
+                "f1": 0.178862,
+                "balanced_accuracy": 0.624535,
+                "accuracy": 0.305842
+              }
+            }
+          }
+        ],
+        "fold_dispersion": {
+          "roc_auc": {
+            "metric_name": "roc_auc",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.841187,
+            "sd": 0.03716,
+            "min": 0.789775,
+            "max": 0.882576,
+            "fold_values": [
+              0.840825,
+              0.882576,
+              0.789775,
+              0.822786,
+              0.869973
+            ]
+          },
+          "pr_auc": {
+            "metric_name": "pr_auc",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.374426,
+            "sd": 0.10055,
+            "min": 0.286842,
+            "max": 0.537592,
+            "fold_values": [
+              0.401915,
+              0.537592,
+              0.286842,
+              0.316591,
+              0.32919
+            ]
+          },
+          "pr_auc_lift": {
+            "metric_name": "pr_auc_lift",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.297769,
+            "sd": 0.101727,
+            "min": 0.208343,
+            "max": 0.46225,
+            "fold_values": [
+              0.326572,
+              0.46225,
+              0.208343,
+              0.238093,
+              0.253588
+            ]
+          },
+          "pr_auc_ratio": {
+            "metric_name": "pr_auc_ratio",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 4.902262,
+            "sd": 1.395258,
+            "min": 3.654113,
+            "max": 7.135316,
+            "fold_values": [
+              5.334507,
+              7.135316,
+              3.654113,
+              4.033095,
+              4.35428
+            ]
+          },
+          "brier_score": {
+            "metric_name": "brier_score",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.066149,
+            "sd": 0.004152,
+            "min": 0.061175,
+            "max": 0.06997,
+            "fold_values": [
+              0.062162,
+              0.061175,
+              0.06997,
+              0.068224,
+              0.069215
+            ]
+          },
+          "brier_skill_score": {
+            "metric_name": "brier_skill_score",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.06575,
+            "sd": 0.048051,
+            "min": 0.009597,
+            "max": 0.121885,
+            "fold_values": [
+              0.107708,
+              0.121885,
+              0.03271,
+              0.056848,
+              0.009597
+            ]
+          },
+          "log_loss": {
+            "metric_name": "log_loss",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.267027,
+            "sd": 0.052775,
+            "min": 0.229666,
+            "max": 0.359779,
+            "fold_values": [
+              0.229666,
+              0.239694,
+              0.359779,
+              0.252241,
+              0.253756
+            ]
+          },
+          "prevalence": {
+            "metric_name": "prevalence",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.076656,
+            "sd": 0.001685,
+            "min": 0.075342,
+            "max": 0.078498,
+            "fold_values": [
+              0.075342,
+              0.075342,
+              0.078498,
+              0.078498,
+              0.075601
+            ]
+          },
+          "precision": {
+            "metric_name": "precision",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.517064,
+            "sd": 0.176217,
+            "min": 0.222222,
+            "max": 0.666667,
+            "fold_values": [
+              0.571429,
+              0.625,
+              0.5,
+              0.666667,
+              0.222222
+            ]
+          },
+          "recall": {
+            "metric_name": "recall",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.197628,
+            "sd": 0.150379,
+            "min": 0.086957,
+            "max": 0.454545,
+            "fold_values": [
+              0.181818,
+              0.454545,
+              0.086957,
+              0.173913,
+              0.090909
+            ]
+          },
+          "specificity": {
+            "metric_name": "specificity",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.985166,
+            "sd": 0.008717,
+            "min": 0.973978,
+            "max": 0.992593,
+            "fold_values": [
+              0.988889,
+              0.977778,
+              0.992593,
+              0.992593,
+              0.973978
+            ]
+          },
+          "f1": {
+            "metric_name": "f1",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.271044,
+            "sd": 0.158494,
+            "min": 0.129032,
+            "max": 0.526316,
+            "fold_values": [
+              0.275862,
+              0.526316,
+              0.148148,
+              0.275862,
+              0.129032
+            ]
+          },
+          "balanced_accuracy": {
+            "metric_name": "balanced_accuracy",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.591397,
+            "sd": 0.07384,
+            "min": 0.532443,
+            "max": 0.716162,
+            "fold_values": [
+              0.585354,
+              0.716162,
+              0.539775,
+              0.583253,
+              0.532443
+            ]
+          }
+        },
+        "pooled_oof_full_cohort": {
+          "subset_name": "scaffold_grouped_seed_42",
+          "n_samples": 1461,
+          "n_positives": 112,
+          "n_negatives": 1349,
+          "prevalence": 0.07666,
+          "insufficient_support": false,
+          "insufficient_support_reasons": [],
+          "roc_auc": 0.837191,
+          "pr_auc": 0.35569,
+          "pr_auc_lift": 0.27903,
+          "pr_auc_ratio": 4.639845,
+          "brier_score": 0.066151,
+          "brier_skill_score": 0.065437,
+          "log_loss": 0.26709,
+          "fixed_threshold_metrics": {
+            "threshold": 0.5,
+            "threshold_type": "fixed_0.50",
+            "tn": 1329,
+            "fp": 20,
+            "fn": 90,
+            "tp": 22,
+            "confusion_matrix": [
+              [
+                1329,
+                20
+              ],
+              [
+                90,
+                22
+              ]
+            ],
+            "precision": 0.52381,
+            "recall": 0.196429,
+            "specificity": 0.985174,
+            "f1": 0.285714,
+            "balanced_accuracy": 0.590801,
+            "accuracy": 0.924709
+          },
+          "exploratory_prevalence_threshold_metrics": null
+        },
+        "pooled_oof_cyclic_only": {
+          "subset_name": "cyclic_only",
+          "n_samples": 1332,
+          "n_positives": 111,
+          "n_negatives": 1221,
+          "prevalence": 0.083333,
+          "insufficient_support": false,
+          "insufficient_support_reasons": [],
+          "roc_auc": 0.836381,
+          "pr_auc": 0.364473,
+          "pr_auc_lift": 0.28114,
+          "pr_auc_ratio": 4.373675,
+          "brier_score": 0.070404,
+          "brier_skill_score": 0.07835,
+          "log_loss": 0.258508,
+          "fixed_threshold_metrics": {
+            "threshold": 0.5,
+            "threshold_type": "fixed_0.50",
+            "tn": 1201,
+            "fp": 20,
+            "fn": 89,
+            "tp": 22,
+            "confusion_matrix": [
+              [
+                1201,
+                20
+              ],
+              [
+                89,
+                22
+              ]
+            ],
+            "precision": 0.52381,
+            "recall": 0.198198,
+            "specificity": 0.98362,
+            "f1": 0.287582,
+            "balanced_accuracy": 0.590909,
+            "accuracy": 0.918168
+          },
+          "exploratory_prevalence_threshold_metrics": null
+        },
+        "scaffold_cluster_bootstrap": {
+          "roc_auc": {
+            "metric_name": "roc_auc",
+            "point_estimate": 0.837191,
+            "ci_lower": 0.79158,
+            "ci_upper": 0.876106,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "pr_auc": {
+            "metric_name": "pr_auc",
+            "point_estimate": 0.35569,
+            "ci_lower": 0.269984,
+            "ci_upper": 0.458828,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "pr_auc_lift": {
+            "metric_name": "pr_auc_lift",
+            "point_estimate": 0.27903,
+            "ci_lower": 0.200097,
+            "ci_upper": 0.37962,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "brier_score": {
+            "metric_name": "brier_score",
+            "point_estimate": 0.066151,
+            "ci_lower": 0.055056,
+            "ci_upper": 0.076461,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "log_loss": {
+            "metric_name": "log_loss",
+            "point_estimate": 0.26709,
+            "ci_lower": 0.220301,
+            "ci_upper": 0.331311,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          }
+        }
+      },
+      "1042": {
+        "seed": 1042,
+        "regime": "scaffold_grouped",
+        "n_splits": 5,
+        "split_integrity_verified": true,
+        "folds": [
+          {
+            "fold_index": 0,
+            "fold_seed": 104200,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 735,
+            "n_test_groups": 138,
+            "n_test_singletons": 133,
+            "fit_and_eval_seconds": 3.64,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.820623,
+              "pr_auc": 0.329377,
+              "pr_auc_lift": 0.254035,
+              "pr_auc_ratio": 4.371731,
+              "brier_score": 0.062852,
+              "brier_skill_score": 0.097806,
+              "log_loss": 0.234508,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 270,
+                "fp": 0,
+                "fn": 20,
+                "tp": 2,
+                "confusion_matrix": [
+                  [
+                    270,
+                    0
+                  ],
+                  [
+                    20,
+                    2
+                  ]
+                ],
+                "precision": 1.0,
+                "recall": 0.090909,
+                "specificity": 1.0,
+                "f1": 0.166667,
+                "balanced_accuracy": 0.545455,
+                "accuracy": 0.931507
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 109,
+                "fp": 161,
+                "fn": 3,
+                "tp": 19,
+                "confusion_matrix": [
+                  [
+                    109,
+                    161
+                  ],
+                  [
+                    3,
+                    19
+                  ]
+                ],
+                "precision": 0.105556,
+                "recall": 0.863636,
+                "specificity": 0.403704,
+                "f1": 0.188119,
+                "balanced_accuracy": 0.63367,
+                "accuracy": 0.438356
+              }
+            }
+          },
+          {
+            "fold_index": 1,
+            "fold_seed": 104201,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 691,
+            "n_test_groups": 182,
+            "n_test_singletons": 136,
+            "fit_and_eval_seconds": 4.33,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.854461,
+              "pr_auc": 0.355708,
+              "pr_auc_lift": 0.280366,
+              "pr_auc_ratio": 4.721221,
+              "brier_score": 0.06907,
+              "brier_skill_score": 0.008553,
+              "log_loss": 0.258615,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 267,
+                "fp": 3,
+                "fn": 17,
+                "tp": 5,
+                "confusion_matrix": [
+                  [
+                    267,
+                    3
+                  ],
+                  [
+                    17,
+                    5
+                  ]
+                ],
+                "precision": 0.625,
+                "recall": 0.227273,
+                "specificity": 0.988889,
+                "f1": 0.333333,
+                "balanced_accuracy": 0.608081,
+                "accuracy": 0.931507
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 70,
+                "fp": 200,
+                "fn": 1,
+                "tp": 21,
+                "confusion_matrix": [
+                  [
+                    70,
+                    200
+                  ],
+                  [
+                    1,
+                    21
+                  ]
+                ],
+                "precision": 0.095023,
+                "recall": 0.954545,
+                "specificity": 0.259259,
+                "f1": 0.17284,
+                "balanced_accuracy": 0.606902,
+                "accuracy": 0.311644
+              }
+            }
+          },
+          {
+            "fold_index": 2,
+            "fold_seed": 104202,
+            "n_train": 1168,
+            "n_test": 293,
+            "train_positives": 89,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076199,
+            "test_positives": 23,
+            "test_negatives": 270,
+            "test_prevalence": 0.078498,
+            "n_train_groups": 688,
+            "n_test_groups": 185,
+            "n_test_singletons": 137,
+            "fit_and_eval_seconds": 3.98,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 293,
+              "n_positives": 23,
+              "n_negatives": 270,
+              "prevalence": 0.078498,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.826731,
+              "pr_auc": 0.40655,
+              "pr_auc_lift": 0.328052,
+              "pr_auc_ratio": 5.179093,
+              "brier_score": 0.06382,
+              "brier_skill_score": 0.117729,
+              "log_loss": 0.34442,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 268,
+                "fp": 2,
+                "fn": 19,
+                "tp": 4,
+                "confusion_matrix": [
+                  [
+                    268,
+                    2
+                  ],
+                  [
+                    19,
+                    4
+                  ]
+                ],
+                "precision": 0.666667,
+                "recall": 0.173913,
+                "specificity": 0.992593,
+                "f1": 0.275862,
+                "balanced_accuracy": 0.583253,
+                "accuracy": 0.928328
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076199,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 104,
+                "fp": 166,
+                "fn": 1,
+                "tp": 22,
+                "confusion_matrix": [
+                  [
+                    104,
+                    166
+                  ],
+                  [
+                    1,
+                    22
+                  ]
+                ],
+                "precision": 0.117021,
+                "recall": 0.956522,
+                "specificity": 0.385185,
+                "f1": 0.208531,
+                "balanced_accuracy": 0.670853,
+                "accuracy": 0.430034
+              }
+            }
+          },
+          {
+            "fold_index": 3,
+            "fold_seed": 104203,
+            "n_train": 1170,
+            "n_test": 291,
+            "train_positives": 90,
+            "train_negatives": 1080,
+            "train_prevalence": 0.076923,
+            "test_positives": 22,
+            "test_negatives": 269,
+            "test_prevalence": 0.075601,
+            "n_train_groups": 689,
+            "n_test_groups": 184,
+            "n_test_singletons": 137,
+            "fit_and_eval_seconds": 4.51,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 291,
+              "n_positives": 22,
+              "n_negatives": 269,
+              "prevalence": 0.075601,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.847415,
+              "pr_auc": 0.373109,
+              "pr_auc_lift": 0.297507,
+              "pr_auc_ratio": 4.93521,
+              "brier_score": 0.064794,
+              "brier_skill_score": 0.072859,
+              "log_loss": 0.241929,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 264,
+                "fp": 5,
+                "fn": 18,
+                "tp": 4,
+                "confusion_matrix": [
+                  [
+                    264,
+                    5
+                  ],
+                  [
+                    18,
+                    4
+                  ]
+                ],
+                "precision": 0.444444,
+                "recall": 0.181818,
+                "specificity": 0.981413,
+                "f1": 0.258065,
+                "balanced_accuracy": 0.581615,
+                "accuracy": 0.920962
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076923,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 86,
+                "fp": 183,
+                "fn": 1,
+                "tp": 21,
+                "confusion_matrix": [
+                  [
+                    86,
+                    183
+                  ],
+                  [
+                    1,
+                    21
+                  ]
+                ],
+                "precision": 0.102941,
+                "recall": 0.954545,
+                "specificity": 0.319703,
+                "f1": 0.185841,
+                "balanced_accuracy": 0.637124,
+                "accuracy": 0.367698
+              }
+            }
+          },
+          {
+            "fold_index": 4,
+            "fold_seed": 104204,
+            "n_train": 1168,
+            "n_test": 293,
+            "train_positives": 89,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076199,
+            "test_positives": 23,
+            "test_negatives": 270,
+            "test_prevalence": 0.078498,
+            "n_train_groups": 689,
+            "n_test_groups": 184,
+            "n_test_singletons": 139,
+            "fit_and_eval_seconds": 4.29,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 293,
+              "n_positives": 23,
+              "n_negatives": 270,
+              "prevalence": 0.078498,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.908535,
+              "pr_auc": 0.554543,
+              "pr_auc_lift": 0.476045,
+              "pr_auc_ratio": 7.064395,
+              "brier_score": 0.061711,
+              "brier_skill_score": 0.146888,
+              "log_loss": 0.236588,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 266,
+                "fp": 4,
+                "fn": 16,
+                "tp": 7,
+                "confusion_matrix": [
+                  [
+                    266,
+                    4
+                  ],
+                  [
+                    16,
+                    7
+                  ]
+                ],
+                "precision": 0.636364,
+                "recall": 0.304348,
+                "specificity": 0.985185,
+                "f1": 0.411765,
+                "balanced_accuracy": 0.644767,
+                "accuracy": 0.931741
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076199,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 70,
+                "fp": 200,
+                "fn": 1,
+                "tp": 22,
+                "confusion_matrix": [
+                  [
+                    70,
+                    200
+                  ],
+                  [
+                    1,
+                    22
+                  ]
+                ],
+                "precision": 0.099099,
+                "recall": 0.956522,
+                "specificity": 0.259259,
+                "f1": 0.179592,
+                "balanced_accuracy": 0.60789,
+                "accuracy": 0.313993
+              }
+            }
+          }
+        ],
+        "fold_dispersion": {
+          "roc_auc": {
+            "metric_name": "roc_auc",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.851553,
+            "sd": 0.034804,
+            "min": 0.820623,
+            "max": 0.908535,
+            "fold_values": [
+              0.820623,
+              0.854461,
+              0.826731,
+              0.847415,
+              0.908535
+            ]
+          },
+          "pr_auc": {
+            "metric_name": "pr_auc",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.403857,
+            "sd": 0.088776,
+            "min": 0.329377,
+            "max": 0.554543,
+            "fold_values": [
+              0.329377,
+              0.355708,
+              0.40655,
+              0.373109,
+              0.554543
+            ]
+          },
+          "pr_auc_lift": {
+            "metric_name": "pr_auc_lift",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.327201,
+            "sd": 0.087441,
+            "min": 0.254035,
+            "max": 0.476045,
+            "fold_values": [
+              0.254035,
+              0.280366,
+              0.328052,
+              0.297507,
+              0.476045
+            ]
+          },
+          "pr_auc_ratio": {
+            "metric_name": "pr_auc_ratio",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 5.25433,
+            "sd": 1.054398,
+            "min": 4.371731,
+            "max": 7.064395,
+            "fold_values": [
+              4.371731,
+              4.721221,
+              5.179093,
+              4.93521,
+              7.064395
+            ]
+          },
+          "brier_score": {
+            "metric_name": "brier_score",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.064449,
+            "sd": 0.002825,
+            "min": 0.061711,
+            "max": 0.06907,
+            "fold_values": [
+              0.062852,
+              0.06907,
+              0.06382,
+              0.064794,
+              0.061711
+            ]
+          },
+          "brier_skill_score": {
+            "metric_name": "brier_skill_score",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.088767,
+            "sd": 0.052407,
+            "min": 0.008553,
+            "max": 0.146888,
+            "fold_values": [
+              0.097806,
+              0.008553,
+              0.117729,
+              0.072859,
+              0.146888
+            ]
+          },
+          "log_loss": {
+            "metric_name": "log_loss",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.263212,
+            "sd": 0.046372,
+            "min": 0.234508,
+            "max": 0.34442,
+            "fold_values": [
+              0.234508,
+              0.258615,
+              0.34442,
+              0.241929,
+              0.236588
+            ]
+          },
+          "prevalence": {
+            "metric_name": "prevalence",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.076656,
+            "sd": 0.001685,
+            "min": 0.075342,
+            "max": 0.078498,
+            "fold_values": [
+              0.075342,
+              0.075342,
+              0.078498,
+              0.075601,
+              0.078498
+            ]
+          },
+          "precision": {
+            "metric_name": "precision",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.674495,
+            "sd": 0.201768,
+            "min": 0.444444,
+            "max": 1.0,
+            "fold_values": [
+              1.0,
+              0.625,
+              0.666667,
+              0.444444,
+              0.636364
+            ]
+          },
+          "recall": {
+            "metric_name": "recall",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.195652,
+            "sd": 0.078182,
+            "min": 0.090909,
+            "max": 0.304348,
+            "fold_values": [
+              0.090909,
+              0.227273,
+              0.173913,
+              0.181818,
+              0.304348
+            ]
+          },
+          "specificity": {
+            "metric_name": "specificity",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.989616,
+            "sd": 0.007144,
+            "min": 0.981413,
+            "max": 1.0,
+            "fold_values": [
+              1.0,
+              0.988889,
+              0.992593,
+              0.981413,
+              0.985185
+            ]
+          },
+          "f1": {
+            "metric_name": "f1",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.289138,
+            "sd": 0.09101,
+            "min": 0.166667,
+            "max": 0.411765,
+            "fold_values": [
+              0.166667,
+              0.333333,
+              0.275862,
+              0.258065,
+              0.411765
+            ]
+          },
+          "balanced_accuracy": {
+            "metric_name": "balanced_accuracy",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.592634,
+            "sd": 0.036714,
+            "min": 0.545455,
+            "max": 0.644767,
+            "fold_values": [
+              0.545455,
+              0.608081,
+              0.583253,
+              0.581615,
+              0.644767
+            ]
+          }
+        },
+        "pooled_oof_full_cohort": {
+          "subset_name": "scaffold_grouped_seed_1042",
+          "n_samples": 1461,
+          "n_positives": 112,
+          "n_negatives": 1349,
+          "prevalence": 0.07666,
+          "insufficient_support": false,
+          "insufficient_support_reasons": [],
+          "roc_auc": 0.849452,
+          "pr_auc": 0.3817,
+          "pr_auc_lift": 0.30504,
+          "pr_auc_ratio": 4.979139,
+          "brier_score": 0.064447,
+          "brier_skill_score": 0.089514,
+          "log_loss": 0.263264,
+          "fixed_threshold_metrics": {
+            "threshold": 0.5,
+            "threshold_type": "fixed_0.50",
+            "tn": 1335,
+            "fp": 14,
+            "fn": 90,
+            "tp": 22,
+            "confusion_matrix": [
+              [
+                1335,
+                14
+              ],
+              [
+                90,
+                22
+              ]
+            ],
+            "precision": 0.611111,
+            "recall": 0.196429,
+            "specificity": 0.989622,
+            "f1": 0.297297,
+            "balanced_accuracy": 0.593025,
+            "accuracy": 0.928816
+          },
+          "exploratory_prevalence_threshold_metrics": null
+        },
+        "pooled_oof_cyclic_only": {
+          "subset_name": "cyclic_only",
+          "n_samples": 1332,
+          "n_positives": 111,
+          "n_negatives": 1221,
+          "prevalence": 0.083333,
+          "insufficient_support": false,
+          "insufficient_support_reasons": [],
+          "roc_auc": 0.849381,
+          "pr_auc": 0.390724,
+          "pr_auc_lift": 0.307391,
+          "pr_auc_ratio": 4.688692,
+          "brier_score": 0.068544,
+          "brier_skill_score": 0.102701,
+          "log_loss": 0.254075,
+          "fixed_threshold_metrics": {
+            "threshold": 0.5,
+            "threshold_type": "fixed_0.50",
+            "tn": 1207,
+            "fp": 14,
+            "fn": 89,
+            "tp": 22,
+            "confusion_matrix": [
+              [
+                1207,
+                14
+              ],
+              [
+                89,
+                22
+              ]
+            ],
+            "precision": 0.611111,
+            "recall": 0.198198,
+            "specificity": 0.988534,
+            "f1": 0.29932,
+            "balanced_accuracy": 0.593366,
+            "accuracy": 0.922673
+          },
+          "exploratory_prevalence_threshold_metrics": null
+        },
+        "scaffold_cluster_bootstrap": {
+          "roc_auc": {
+            "metric_name": "roc_auc",
+            "point_estimate": 0.849452,
+            "ci_lower": 0.80338,
+            "ci_upper": 0.887484,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "pr_auc": {
+            "metric_name": "pr_auc",
+            "point_estimate": 0.3817,
+            "ci_lower": 0.297501,
+            "ci_upper": 0.490089,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "pr_auc_lift": {
+            "metric_name": "pr_auc_lift",
+            "point_estimate": 0.30504,
+            "ci_lower": 0.228879,
+            "ci_upper": 0.409766,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "brier_score": {
+            "metric_name": "brier_score",
+            "point_estimate": 0.064447,
+            "ci_lower": 0.053707,
+            "ci_upper": 0.076463,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "log_loss": {
+            "metric_name": "log_loss",
+            "point_estimate": 0.263264,
+            "ci_lower": 0.220243,
+            "ci_upper": 0.334921,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          }
+        }
+      },
+      "2042": {
+        "seed": 2042,
+        "regime": "scaffold_grouped",
+        "n_splits": 5,
+        "split_integrity_verified": true,
+        "folds": [
+          {
+            "fold_index": 0,
+            "fold_seed": 204200,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 731,
+            "n_test_groups": 142,
+            "n_test_singletons": 137,
+            "fit_and_eval_seconds": 7.57,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.840236,
+              "pr_auc": 0.424499,
+              "pr_auc_lift": 0.349156,
+              "pr_auc_ratio": 5.634254,
+              "brier_score": 0.059984,
+              "brier_skill_score": 0.138977,
+              "log_loss": 0.331611,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 267,
+                "fp": 3,
+                "fn": 17,
+                "tp": 5,
+                "confusion_matrix": [
+                  [
+                    267,
+                    3
+                  ],
+                  [
+                    17,
+                    5
+                  ]
+                ],
+                "precision": 0.625,
+                "recall": 0.227273,
+                "specificity": 0.988889,
+                "f1": 0.333333,
+                "balanced_accuracy": 0.608081,
+                "accuracy": 0.931507
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 111,
+                "fp": 159,
+                "fn": 2,
+                "tp": 20,
+                "confusion_matrix": [
+                  [
+                    111,
+                    159
+                  ],
+                  [
+                    2,
+                    20
+                  ]
+                ],
+                "precision": 0.111732,
+                "recall": 0.909091,
+                "specificity": 0.411111,
+                "f1": 0.199005,
+                "balanced_accuracy": 0.660101,
+                "accuracy": 0.44863
+              }
+            }
+          },
+          {
+            "fold_index": 1,
+            "fold_seed": 204201,
+            "n_train": 1168,
+            "n_test": 293,
+            "train_positives": 89,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076199,
+            "test_positives": 23,
+            "test_negatives": 270,
+            "test_prevalence": 0.078498,
+            "n_train_groups": 690,
+            "n_test_groups": 183,
+            "n_test_singletons": 139,
+            "fit_and_eval_seconds": 4.39,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 293,
+              "n_positives": 23,
+              "n_negatives": 270,
+              "prevalence": 0.078498,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.909179,
+              "pr_auc": 0.487374,
+              "pr_auc_lift": 0.408876,
+              "pr_auc_ratio": 6.208721,
+              "brier_score": 0.062281,
+              "brier_skill_score": 0.139013,
+              "log_loss": 0.23178,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 263,
+                "fp": 7,
+                "fn": 17,
+                "tp": 6,
+                "confusion_matrix": [
+                  [
+                    263,
+                    7
+                  ],
+                  [
+                    17,
+                    6
+                  ]
+                ],
+                "precision": 0.461538,
+                "recall": 0.26087,
+                "specificity": 0.974074,
+                "f1": 0.333333,
+                "balanced_accuracy": 0.617472,
+                "accuracy": 0.918089
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076199,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 92,
+                "fp": 178,
+                "fn": 0,
+                "tp": 23,
+                "confusion_matrix": [
+                  [
+                    92,
+                    178
+                  ],
+                  [
+                    0,
+                    23
+                  ]
+                ],
+                "precision": 0.114428,
+                "recall": 1.0,
+                "specificity": 0.340741,
+                "f1": 0.205357,
+                "balanced_accuracy": 0.67037,
+                "accuracy": 0.392491
+              }
+            }
+          },
+          {
+            "fold_index": 2,
+            "fold_seed": 204202,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 89,
+            "train_negatives": 1080,
+            "train_prevalence": 0.076133,
+            "test_positives": 23,
+            "test_negatives": 269,
+            "test_prevalence": 0.078767,
+            "n_train_groups": 693,
+            "n_test_groups": 180,
+            "n_test_singletons": 132,
+            "fit_and_eval_seconds": 4.62,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 23,
+              "n_negatives": 269,
+              "prevalence": 0.078767,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.801681,
+              "pr_auc": 0.398017,
+              "pr_auc_lift": 0.31925,
+              "pr_auc_ratio": 5.053083,
+              "brier_score": 0.065466,
+              "brier_skill_score": 0.097797,
+              "log_loss": 0.247221,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 266,
+                "fp": 3,
+                "fn": 18,
+                "tp": 5,
+                "confusion_matrix": [
+                  [
+                    266,
+                    3
+                  ],
+                  [
+                    18,
+                    5
+                  ]
+                ],
+                "precision": 0.625,
+                "recall": 0.217391,
+                "specificity": 0.988848,
+                "f1": 0.322581,
+                "balanced_accuracy": 0.603119,
+                "accuracy": 0.928082
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076133,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 82,
+                "fp": 187,
+                "fn": 1,
+                "tp": 22,
+                "confusion_matrix": [
+                  [
+                    82,
+                    187
+                  ],
+                  [
+                    1,
+                    22
+                  ]
+                ],
+                "precision": 0.105263,
+                "recall": 0.956522,
+                "specificity": 0.304833,
+                "f1": 0.189655,
+                "balanced_accuracy": 0.630677,
+                "accuracy": 0.356164
+              }
+            }
+          },
+          {
+            "fold_index": 3,
+            "fold_seed": 204203,
+            "n_train": 1170,
+            "n_test": 291,
+            "train_positives": 90,
+            "train_negatives": 1080,
+            "train_prevalence": 0.076923,
+            "test_positives": 22,
+            "test_negatives": 269,
+            "test_prevalence": 0.075601,
+            "n_train_groups": 691,
+            "n_test_groups": 182,
+            "n_test_singletons": 135,
+            "fit_and_eval_seconds": 5.55,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 291,
+              "n_positives": 22,
+              "n_negatives": 269,
+              "prevalence": 0.075601,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.86144,
+              "pr_auc": 0.329844,
+              "pr_auc_lift": 0.254243,
+              "pr_auc_ratio": 4.362938,
+              "brier_score": 0.069624,
+              "brier_skill_score": 0.003751,
+              "log_loss": 0.256078,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 264,
+                "fp": 5,
+                "fn": 21,
+                "tp": 1,
+                "confusion_matrix": [
+                  [
+                    264,
+                    5
+                  ],
+                  [
+                    21,
+                    1
+                  ]
+                ],
+                "precision": 0.166667,
+                "recall": 0.045455,
+                "specificity": 0.981413,
+                "f1": 0.071429,
+                "balanced_accuracy": 0.513434,
+                "accuracy": 0.910653
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076923,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 80,
+                "fp": 189,
+                "fn": 0,
+                "tp": 22,
+                "confusion_matrix": [
+                  [
+                    80,
+                    189
+                  ],
+                  [
+                    0,
+                    22
+                  ]
+                ],
+                "precision": 0.104265,
+                "recall": 1.0,
+                "specificity": 0.297398,
+                "f1": 0.188841,
+                "balanced_accuracy": 0.648699,
+                "accuracy": 0.350515
+              }
+            }
+          },
+          {
+            "fold_index": 4,
+            "fold_seed": 204204,
+            "n_train": 1168,
+            "n_test": 293,
+            "train_positives": 90,
+            "train_negatives": 1078,
+            "train_prevalence": 0.077055,
+            "test_positives": 22,
+            "test_negatives": 271,
+            "test_prevalence": 0.075085,
+            "n_train_groups": 687,
+            "n_test_groups": 186,
+            "n_test_singletons": 139,
+            "fit_and_eval_seconds": 5.95,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 293,
+              "n_positives": 22,
+              "n_negatives": 271,
+              "prevalence": 0.075085,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.866739,
+              "pr_auc": 0.393012,
+              "pr_auc_lift": 0.317927,
+              "pr_auc_ratio": 5.234209,
+              "brier_score": 0.065565,
+              "brier_skill_score": 0.055912,
+              "log_loss": 0.247478,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 266,
+                "fp": 5,
+                "fn": 18,
+                "tp": 4,
+                "confusion_matrix": [
+                  [
+                    266,
+                    5
+                  ],
+                  [
+                    18,
+                    4
+                  ]
+                ],
+                "precision": 0.444444,
+                "recall": 0.181818,
+                "specificity": 0.98155,
+                "f1": 0.258065,
+                "balanced_accuracy": 0.581684,
+                "accuracy": 0.921502
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.077055,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 71,
+                "fp": 200,
+                "fn": 0,
+                "tp": 22,
+                "confusion_matrix": [
+                  [
+                    71,
+                    200
+                  ],
+                  [
+                    0,
+                    22
+                  ]
+                ],
+                "precision": 0.099099,
+                "recall": 1.0,
+                "specificity": 0.261993,
+                "f1": 0.180328,
+                "balanced_accuracy": 0.630996,
+                "accuracy": 0.317406
+              }
+            }
+          }
+        ],
+        "fold_dispersion": {
+          "roc_auc": {
+            "metric_name": "roc_auc",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.855855,
+            "sd": 0.039281,
+            "min": 0.801681,
+            "max": 0.909179,
+            "fold_values": [
+              0.840236,
+              0.909179,
+              0.801681,
+              0.86144,
+              0.866739
+            ]
+          },
+          "pr_auc": {
+            "metric_name": "pr_auc",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.406549,
+            "sd": 0.056997,
+            "min": 0.329844,
+            "max": 0.487374,
+            "fold_values": [
+              0.424499,
+              0.487374,
+              0.398017,
+              0.329844,
+              0.393012
+            ]
+          },
+          "pr_auc_lift": {
+            "metric_name": "pr_auc_lift",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.32989,
+            "sd": 0.0561,
+            "min": 0.254243,
+            "max": 0.408876,
+            "fold_values": [
+              0.349156,
+              0.408876,
+              0.31925,
+              0.254243,
+              0.317927
+            ]
+          },
+          "pr_auc_ratio": {
+            "metric_name": "pr_auc_ratio",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 5.298641,
+            "sd": 0.685724,
+            "min": 4.362938,
+            "max": 6.208721,
+            "fold_values": [
+              5.634254,
+              6.208721,
+              5.053083,
+              4.362938,
+              5.234209
+            ]
+          },
+          "brier_score": {
+            "metric_name": "brier_score",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.064584,
+            "sd": 0.003661,
+            "min": 0.059984,
+            "max": 0.069624,
+            "fold_values": [
+              0.059984,
+              0.062281,
+              0.065466,
+              0.069624,
+              0.065565
+            ]
+          },
+          "brier_skill_score": {
+            "metric_name": "brier_skill_score",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.08709,
+            "sd": 0.057923,
+            "min": 0.003751,
+            "max": 0.139013,
+            "fold_values": [
+              0.138977,
+              0.139013,
+              0.097797,
+              0.003751,
+              0.055912
+            ]
+          },
+          "log_loss": {
+            "metric_name": "log_loss",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.262834,
+            "sd": 0.039433,
+            "min": 0.23178,
+            "max": 0.331611,
+            "fold_values": [
+              0.331611,
+              0.23178,
+              0.247221,
+              0.256078,
+              0.247478
+            ]
+          },
+          "prevalence": {
+            "metric_name": "prevalence",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.076659,
+            "sd": 0.001814,
+            "min": 0.075085,
+            "max": 0.078767,
+            "fold_values": [
+              0.075342,
+              0.078498,
+              0.078767,
+              0.075601,
+              0.075085
+            ]
+          },
+          "precision": {
+            "metric_name": "precision",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.46453,
+            "sd": 0.187507,
+            "min": 0.166667,
+            "max": 0.625,
+            "fold_values": [
+              0.625,
+              0.461538,
+              0.625,
+              0.166667,
+              0.444444
+            ]
+          },
+          "recall": {
+            "metric_name": "recall",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.186561,
+            "sd": 0.08376,
+            "min": 0.045455,
+            "max": 0.26087,
+            "fold_values": [
+              0.227273,
+              0.26087,
+              0.217391,
+              0.045455,
+              0.181818
+            ]
+          },
+          "specificity": {
+            "metric_name": "specificity",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.982955,
+            "sd": 0.006188,
+            "min": 0.974074,
+            "max": 0.988889,
+            "fold_values": [
+              0.988889,
+              0.974074,
+              0.988848,
+              0.981413,
+              0.98155
+            ]
+          },
+          "f1": {
+            "metric_name": "f1",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.263748,
+            "sd": 0.111987,
+            "min": 0.071429,
+            "max": 0.333333,
+            "fold_values": [
+              0.333333,
+              0.333333,
+              0.322581,
+              0.071429,
+              0.258065
+            ]
+          },
+          "balanced_accuracy": {
+            "metric_name": "balanced_accuracy",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.584758,
+            "sd": 0.041976,
+            "min": 0.513434,
+            "max": 0.617472,
+            "fold_values": [
+              0.608081,
+              0.617472,
+              0.603119,
+              0.513434,
+              0.581684
+            ]
+          }
+        },
+        "pooled_oof_full_cohort": {
+          "subset_name": "scaffold_grouped_seed_2042",
+          "n_samples": 1461,
+          "n_positives": 112,
+          "n_negatives": 1349,
+          "prevalence": 0.07666,
+          "insufficient_support": false,
+          "insufficient_support_reasons": [],
+          "roc_auc": 0.855346,
+          "pr_auc": 0.391212,
+          "pr_auc_lift": 0.314552,
+          "pr_auc_ratio": 5.103221,
+          "brier_score": 0.064579,
+          "brier_skill_score": 0.087642,
+          "log_loss": 0.262806,
+          "fixed_threshold_metrics": {
+            "threshold": 0.5,
+            "threshold_type": "fixed_0.50",
+            "tn": 1326,
+            "fp": 23,
+            "fn": 91,
+            "tp": 21,
+            "confusion_matrix": [
+              [
+                1326,
+                23
+              ],
+              [
+                91,
+                21
+              ]
+            ],
+            "precision": 0.477273,
+            "recall": 0.1875,
+            "specificity": 0.98295,
+            "f1": 0.269231,
+            "balanced_accuracy": 0.585225,
+            "accuracy": 0.921971
+          },
+          "exploratory_prevalence_threshold_metrics": null
+        },
+        "pooled_oof_cyclic_only": {
+          "subset_name": "cyclic_only",
+          "n_samples": 1332,
+          "n_positives": 111,
+          "n_negatives": 1221,
+          "prevalence": 0.083333,
+          "insufficient_support": false,
+          "insufficient_support_reasons": [],
+          "roc_auc": 0.856343,
+          "pr_auc": 0.403614,
+          "pr_auc_lift": 0.320281,
+          "pr_auc_ratio": 4.843373,
+          "brier_score": 0.068406,
+          "brier_skill_score": 0.104507,
+          "log_loss": 0.25277,
+          "fixed_threshold_metrics": {
+            "threshold": 0.5,
+            "threshold_type": "fixed_0.50",
+            "tn": 1200,
+            "fp": 21,
+            "fn": 90,
+            "tp": 21,
+            "confusion_matrix": [
+              [
+                1200,
+                21
+              ],
+              [
+                90,
+                21
+              ]
+            ],
+            "precision": 0.5,
+            "recall": 0.189189,
+            "specificity": 0.982801,
+            "f1": 0.27451,
+            "balanced_accuracy": 0.585995,
+            "accuracy": 0.916667
+          },
+          "exploratory_prevalence_threshold_metrics": null
+        },
+        "scaffold_cluster_bootstrap": {
+          "roc_auc": {
+            "metric_name": "roc_auc",
+            "point_estimate": 0.855346,
+            "ci_lower": 0.817635,
+            "ci_upper": 0.890887,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "pr_auc": {
+            "metric_name": "pr_auc",
+            "point_estimate": 0.391212,
+            "ci_lower": 0.311197,
+            "ci_upper": 0.493267,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "pr_auc_lift": {
+            "metric_name": "pr_auc_lift",
+            "point_estimate": 0.314552,
+            "ci_lower": 0.241008,
+            "ci_upper": 0.409991,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "brier_score": {
+            "metric_name": "brier_score",
+            "point_estimate": 0.064579,
+            "ci_lower": 0.054596,
+            "ci_upper": 0.076925,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "log_loss": {
+            "metric_name": "log_loss",
+            "point_estimate": 0.262806,
+            "ci_lower": 0.220195,
+            "ci_upper": 0.327087,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          }
+        }
+      }
+    }
+  },
+  "stratified_random_reference": {
+    "regime": "stratified_random",
+    "n_seeds": 3,
+    "seeds": [
+      42,
+      1042,
+      2042
+    ],
+    "n_splits_per_seed": 5,
+    "total_folds_evaluated": 15,
+    "across_seed_pooled_oof_summary": {
+      "roc_auc": {
+        "per_seed": {
+          "42": 0.851404,
+          "1042": 0.822666,
+          "2042": 0.848995
+        },
+        "mean": 0.841022,
+        "sd": 0.015942,
+        "min": 0.822666,
+        "max": 0.851404
+      },
+      "pr_auc": {
+        "per_seed": {
+          "42": 0.385027,
+          "1042": 0.341101,
+          "2042": 0.406541
+        },
+        "mean": 0.377556,
+        "sd": 0.033354,
+        "min": 0.341101,
+        "max": 0.406541
+      },
+      "pr_auc_lift": {
+        "per_seed": {
+          "42": 0.308368,
+          "1042": 0.264441,
+          "2042": 0.329881
+        },
+        "mean": 0.300897,
+        "sd": 0.033354,
+        "min": 0.264441,
+        "max": 0.329881
+      },
+      "pr_auc_ratio": {
+        "per_seed": {
+          "42": 5.022546,
+          "1042": 4.449541,
+          "2042": 5.303176
+        },
+        "mean": 4.925088,
+        "sd": 0.435082,
+        "min": 4.449541,
+        "max": 5.303176
+      },
+      "brier_score": {
+        "per_seed": {
+          "42": 0.065431,
+          "1042": 0.068383,
+          "2042": 0.064654
+        },
+        "mean": 0.066156,
+        "sd": 0.001967,
+        "min": 0.064654,
+        "max": 0.068383
+      },
+      "brier_skill_score": {
+        "per_seed": {
+          "42": 0.075616,
+          "1042": 0.033908,
+          "2042": 0.086586
+        },
+        "mean": 0.06537,
+        "sd": 0.027793,
+        "min": 0.033908,
+        "max": 0.086586
+      },
+      "log_loss": {
+        "per_seed": {
+          "42": 0.285734,
+          "1042": 0.295329,
+          "2042": 0.284136
+        },
+        "mean": 0.2884,
+        "sd": 0.006054,
+        "min": 0.284136,
+        "max": 0.295329
+      }
+    },
+    "per_seed_evaluations": {
+      "42": {
+        "seed": 42,
+        "regime": "stratified_random",
+        "n_splits": 5,
+        "split_integrity_verified": true,
+        "folds": [
+          {
+            "fold_index": 0,
+            "fold_seed": 4200,
+            "n_train": 1168,
+            "n_test": 293,
+            "train_positives": 89,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076199,
+            "test_positives": 23,
+            "test_negatives": 270,
+            "test_prevalence": 0.078498,
+            "n_train_groups": 736,
+            "n_test_groups": 231,
+            "n_test_singletons": 202,
+            "fit_and_eval_seconds": 4.35,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 293,
+              "n_positives": 23,
+              "n_negatives": 270,
+              "prevalence": 0.078498,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.875282,
+              "pr_auc": 0.480316,
+              "pr_auc_lift": 0.401818,
+              "pr_auc_ratio": 6.118809,
+              "brier_score": 0.060541,
+              "brier_skill_score": 0.163061,
+              "log_loss": 0.22492,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 266,
+                "fp": 4,
+                "fn": 17,
+                "tp": 6,
+                "confusion_matrix": [
+                  [
+                    266,
+                    4
+                  ],
+                  [
+                    17,
+                    6
+                  ]
+                ],
+                "precision": 0.6,
+                "recall": 0.26087,
+                "specificity": 0.985185,
+                "f1": 0.363636,
+                "balanced_accuracy": 0.623027,
+                "accuracy": 0.928328
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076199,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 113,
+                "fp": 157,
+                "fn": 2,
+                "tp": 21,
+                "confusion_matrix": [
+                  [
+                    113,
+                    157
+                  ],
+                  [
+                    2,
+                    21
+                  ]
+                ],
+                "precision": 0.117978,
+                "recall": 0.913043,
+                "specificity": 0.418519,
+                "f1": 0.208955,
+                "balanced_accuracy": 0.665781,
+                "accuracy": 0.457338
+              }
+            }
+          },
+          {
+            "fold_index": 1,
+            "fold_seed": 4201,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 730,
+            "n_test_groups": 222,
+            "n_test_singletons": 199,
+            "fit_and_eval_seconds": 4.2,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.885943,
+              "pr_auc": 0.372504,
+              "pr_auc_lift": 0.297161,
+              "pr_auc_ratio": 4.944141,
+              "brier_score": 0.067377,
+              "brier_skill_score": 0.032863,
+              "log_loss": 0.356094,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 264,
+                "fp": 6,
+                "fn": 17,
+                "tp": 5,
+                "confusion_matrix": [
+                  [
+                    264,
+                    6
+                  ],
+                  [
+                    17,
+                    5
+                  ]
+                ],
+                "precision": 0.454545,
+                "recall": 0.227273,
+                "specificity": 0.977778,
+                "f1": 0.30303,
+                "balanced_accuracy": 0.602525,
+                "accuracy": 0.921233
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 96,
+                "fp": 174,
+                "fn": 1,
+                "tp": 21,
+                "confusion_matrix": [
+                  [
+                    96,
+                    174
+                  ],
+                  [
+                    1,
+                    21
+                  ]
+                ],
+                "precision": 0.107692,
+                "recall": 0.954545,
+                "specificity": 0.355556,
+                "f1": 0.193548,
+                "balanced_accuracy": 0.655051,
+                "accuracy": 0.400685
+              }
+            }
+          },
+          {
+            "fold_index": 2,
+            "fold_seed": 4202,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 729,
+            "n_test_groups": 226,
+            "n_test_singletons": 200,
+            "fit_and_eval_seconds": 4.75,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.795623,
+              "pr_auc": 0.360955,
+              "pr_auc_lift": 0.285612,
+              "pr_auc_ratio": 4.790851,
+              "brier_score": 0.067145,
+              "brier_skill_score": 0.03619,
+              "log_loss": 0.248075,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 264,
+                "fp": 6,
+                "fn": 18,
+                "tp": 4,
+                "confusion_matrix": [
+                  [
+                    264,
+                    6
+                  ],
+                  [
+                    18,
+                    4
+                  ]
+                ],
+                "precision": 0.4,
+                "recall": 0.181818,
+                "specificity": 0.977778,
+                "f1": 0.25,
+                "balanced_accuracy": 0.579798,
+                "accuracy": 0.917808
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 111,
+                "fp": 159,
+                "fn": 2,
+                "tp": 20,
+                "confusion_matrix": [
+                  [
+                    111,
+                    159
+                  ],
+                  [
+                    2,
+                    20
+                  ]
+                ],
+                "precision": 0.111732,
+                "recall": 0.909091,
+                "specificity": 0.411111,
+                "f1": 0.199005,
+                "balanced_accuracy": 0.660101,
+                "accuracy": 0.44863
+              }
+            }
+          },
+          {
+            "fold_index": 3,
+            "fold_seed": 4203,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 735,
+            "n_test_groups": 225,
+            "n_test_singletons": 196,
+            "fit_and_eval_seconds": 4.76,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.904461,
+              "pr_auc": 0.455281,
+              "pr_auc_lift": 0.379938,
+              "pr_auc_ratio": 6.042815,
+              "brier_score": 0.06561,
+              "brier_skill_score": 0.058225,
+              "log_loss": 0.234741,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 261,
+                "fp": 9,
+                "fn": 16,
+                "tp": 6,
+                "confusion_matrix": [
+                  [
+                    261,
+                    9
+                  ],
+                  [
+                    16,
+                    6
+                  ]
+                ],
+                "precision": 0.4,
+                "recall": 0.272727,
+                "specificity": 0.966667,
+                "f1": 0.324324,
+                "balanced_accuracy": 0.619697,
+                "accuracy": 0.914384
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 106,
+                "fp": 164,
+                "fn": 0,
+                "tp": 22,
+                "confusion_matrix": [
+                  [
+                    106,
+                    164
+                  ],
+                  [
+                    0,
+                    22
+                  ]
+                ],
+                "precision": 0.11828,
+                "recall": 1.0,
+                "specificity": 0.392593,
+                "f1": 0.211538,
+                "balanced_accuracy": 0.696296,
+                "accuracy": 0.438356
+              }
+            }
+          },
+          {
+            "fold_index": 4,
+            "fold_seed": 4204,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 89,
+            "train_negatives": 1080,
+            "train_prevalence": 0.076133,
+            "test_positives": 23,
+            "test_negatives": 269,
+            "test_prevalence": 0.078767,
+            "n_train_groups": 732,
+            "n_test_groups": 232,
+            "n_test_singletons": 210,
+            "fit_and_eval_seconds": 4.6,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 23,
+              "n_negatives": 269,
+              "prevalence": 0.078767,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.802651,
+              "pr_auc": 0.399831,
+              "pr_auc_lift": 0.321064,
+              "pr_auc_ratio": 5.076119,
+              "brier_score": 0.066498,
+              "brier_skill_score": 0.083575,
+              "log_loss": 0.365048,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 262,
+                "fp": 7,
+                "fn": 14,
+                "tp": 9,
+                "confusion_matrix": [
+                  [
+                    262,
+                    7
+                  ],
+                  [
+                    14,
+                    9
+                  ]
+                ],
+                "precision": 0.5625,
+                "recall": 0.391304,
+                "specificity": 0.973978,
+                "f1": 0.461538,
+                "balanced_accuracy": 0.682641,
+                "accuracy": 0.928082
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076133,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 109,
+                "fp": 160,
+                "fn": 2,
+                "tp": 21,
+                "confusion_matrix": [
+                  [
+                    109,
+                    160
+                  ],
+                  [
+                    2,
+                    21
+                  ]
+                ],
+                "precision": 0.116022,
+                "recall": 0.913043,
+                "specificity": 0.405204,
+                "f1": 0.205882,
+                "balanced_accuracy": 0.659124,
+                "accuracy": 0.445205
+              }
+            }
+          }
+        ],
+        "fold_dispersion": {
+          "roc_auc": {
+            "metric_name": "roc_auc",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.852792,
+            "sd": 0.050142,
+            "min": 0.795623,
+            "max": 0.904461,
+            "fold_values": [
+              0.875282,
+              0.885943,
+              0.795623,
+              0.904461,
+              0.802651
+            ]
+          },
+          "pr_auc": {
+            "metric_name": "pr_auc",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.413777,
+            "sd": 0.052053,
+            "min": 0.360955,
+            "max": 0.480316,
+            "fold_values": [
+              0.480316,
+              0.372504,
+              0.360955,
+              0.455281,
+              0.399831
+            ]
+          },
+          "pr_auc_lift": {
+            "metric_name": "pr_auc_lift",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.337119,
+            "sd": 0.0513,
+            "min": 0.285612,
+            "max": 0.401818,
+            "fold_values": [
+              0.401818,
+              0.297161,
+              0.285612,
+              0.379938,
+              0.321064
+            ]
+          },
+          "pr_auc_ratio": {
+            "metric_name": "pr_auc_ratio",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 5.394547,
+            "sd": 0.635122,
+            "min": 4.790851,
+            "max": 6.118809,
+            "fold_values": [
+              6.118809,
+              4.944141,
+              4.790851,
+              6.042815,
+              5.076119
+            ]
+          },
+          "brier_score": {
+            "metric_name": "brier_score",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.065434,
+            "sd": 0.00282,
+            "min": 0.060541,
+            "max": 0.067377,
+            "fold_values": [
+              0.060541,
+              0.067377,
+              0.067145,
+              0.06561,
+              0.066498
+            ]
+          },
+          "brier_skill_score": {
+            "metric_name": "brier_skill_score",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.074783,
+            "sd": 0.053365,
+            "min": 0.032863,
+            "max": 0.163061,
+            "fold_values": [
+              0.163061,
+              0.032863,
+              0.03619,
+              0.058225,
+              0.083575
+            ]
+          },
+          "log_loss": {
+            "metric_name": "log_loss",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.285776,
+            "sd": 0.068844,
+            "min": 0.22492,
+            "max": 0.365048,
+            "fold_values": [
+              0.22492,
+              0.356094,
+              0.248075,
+              0.234741,
+              0.365048
+            ]
+          },
+          "prevalence": {
+            "metric_name": "prevalence",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.076658,
+            "sd": 0.001805,
+            "min": 0.075342,
+            "max": 0.078767,
+            "fold_values": [
+              0.078498,
+              0.075342,
+              0.075342,
+              0.075342,
+              0.078767
+            ]
+          },
+          "precision": {
+            "metric_name": "precision",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.483409,
+            "sd": 0.093,
+            "min": 0.4,
+            "max": 0.6,
+            "fold_values": [
+              0.6,
+              0.454545,
+              0.4,
+              0.4,
+              0.5625
+            ]
+          },
+          "recall": {
+            "metric_name": "recall",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.266798,
+            "sd": 0.078032,
+            "min": 0.181818,
+            "max": 0.391304,
+            "fold_values": [
+              0.26087,
+              0.227273,
+              0.181818,
+              0.272727,
+              0.391304
+            ]
+          },
+          "specificity": {
+            "metric_name": "specificity",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.976277,
+            "sd": 0.006736,
+            "min": 0.966667,
+            "max": 0.985185,
+            "fold_values": [
+              0.985185,
+              0.977778,
+              0.977778,
+              0.966667,
+              0.973978
+            ]
+          },
+          "f1": {
+            "metric_name": "f1",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.340506,
+            "sd": 0.079122,
+            "min": 0.25,
+            "max": 0.461538,
+            "fold_values": [
+              0.363636,
+              0.30303,
+              0.25,
+              0.324324,
+              0.461538
+            ]
+          },
+          "balanced_accuracy": {
+            "metric_name": "balanced_accuracy",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.621538,
+            "sd": 0.038219,
+            "min": 0.579798,
+            "max": 0.682641,
+            "fold_values": [
+              0.623027,
+              0.602525,
+              0.579798,
+              0.619697,
+              0.682641
+            ]
+          }
+        },
+        "pooled_oof_full_cohort": {
+          "subset_name": "stratified_random_seed_42",
+          "n_samples": 1461,
+          "n_positives": 112,
+          "n_negatives": 1349,
+          "prevalence": 0.07666,
+          "insufficient_support": false,
+          "insufficient_support_reasons": [],
+          "roc_auc": 0.851404,
+          "pr_auc": 0.385027,
+          "pr_auc_lift": 0.308368,
+          "pr_auc_ratio": 5.022546,
+          "brier_score": 0.065431,
+          "brier_skill_score": 0.075616,
+          "log_loss": 0.285734,
+          "fixed_threshold_metrics": {
+            "threshold": 0.5,
+            "threshold_type": "fixed_0.50",
+            "tn": 1317,
+            "fp": 32,
+            "fn": 82,
+            "tp": 30,
+            "confusion_matrix": [
+              [
+                1317,
+                32
+              ],
+              [
+                82,
+                30
+              ]
+            ],
+            "precision": 0.483871,
+            "recall": 0.267857,
+            "specificity": 0.976279,
+            "f1": 0.344828,
+            "balanced_accuracy": 0.622068,
+            "accuracy": 0.921971
+          },
+          "exploratory_prevalence_threshold_metrics": null
+        },
+        "pooled_oof_cyclic_only": {
+          "subset_name": "cyclic_only",
+          "n_samples": 1332,
+          "n_positives": 111,
+          "n_negatives": 1221,
+          "prevalence": 0.083333,
+          "insufficient_support": false,
+          "insufficient_support_reasons": [],
+          "roc_auc": 0.850894,
+          "pr_auc": 0.391149,
+          "pr_auc_lift": 0.307815,
+          "pr_auc_ratio": 4.693786,
+          "brier_score": 0.069912,
+          "brier_skill_score": 0.084783,
+          "log_loss": 0.279688,
+          "fixed_threshold_metrics": {
+            "threshold": 0.5,
+            "threshold_type": "fixed_0.50",
+            "tn": 1189,
+            "fp": 32,
+            "fn": 81,
+            "tp": 30,
+            "confusion_matrix": [
+              [
+                1189,
+                32
+              ],
+              [
+                81,
+                30
+              ]
+            ],
+            "precision": 0.483871,
+            "recall": 0.27027,
+            "specificity": 0.973792,
+            "f1": 0.346821,
+            "balanced_accuracy": 0.622031,
+            "accuracy": 0.915165
+          },
+          "exploratory_prevalence_threshold_metrics": null
+        },
+        "scaffold_cluster_bootstrap": {
+          "roc_auc": {
+            "metric_name": "roc_auc",
+            "point_estimate": 0.851404,
+            "ci_lower": 0.804848,
+            "ci_upper": 0.890571,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "pr_auc": {
+            "metric_name": "pr_auc",
+            "point_estimate": 0.385027,
+            "ci_lower": 0.288212,
+            "ci_upper": 0.52474,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "pr_auc_lift": {
+            "metric_name": "pr_auc_lift",
+            "point_estimate": 0.308368,
+            "ci_lower": 0.215884,
+            "ci_upper": 0.437807,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "brier_score": {
+            "metric_name": "brier_score",
+            "point_estimate": 0.065431,
+            "ci_lower": 0.053432,
+            "ci_upper": 0.077526,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "log_loss": {
+            "metric_name": "log_loss",
+            "point_estimate": 0.285734,
+            "ci_lower": 0.22177,
+            "ci_upper": 0.379337,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          }
+        }
+      },
+      "1042": {
+        "seed": 1042,
+        "regime": "stratified_random",
+        "n_splits": 5,
+        "split_integrity_verified": true,
+        "folds": [
+          {
+            "fold_index": 0,
+            "fold_seed": 104200,
+            "n_train": 1168,
+            "n_test": 293,
+            "train_positives": 89,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076199,
+            "test_positives": 23,
+            "test_negatives": 270,
+            "test_prevalence": 0.078498,
+            "n_train_groups": 730,
+            "n_test_groups": 218,
+            "n_test_singletons": 190,
+            "fit_and_eval_seconds": 4.2,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 293,
+              "n_positives": 23,
+              "n_negatives": 270,
+              "prevalence": 0.078498,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.771176,
+              "pr_auc": 0.331738,
+              "pr_auc_lift": 0.25324,
+              "pr_auc_ratio": 4.226055,
+              "brier_score": 0.067762,
+              "brier_skill_score": 0.063231,
+              "log_loss": 0.252882,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 268,
+                "fp": 2,
+                "fn": 19,
+                "tp": 4,
+                "confusion_matrix": [
+                  [
+                    268,
+                    2
+                  ],
+                  [
+                    19,
+                    4
+                  ]
+                ],
+                "precision": 0.666667,
+                "recall": 0.173913,
+                "specificity": 0.992593,
+                "f1": 0.275862,
+                "balanced_accuracy": 0.583253,
+                "accuracy": 0.928328
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076199,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 117,
+                "fp": 153,
+                "fn": 3,
+                "tp": 20,
+                "confusion_matrix": [
+                  [
+                    117,
+                    153
+                  ],
+                  [
+                    3,
+                    20
+                  ]
+                ],
+                "precision": 0.115607,
+                "recall": 0.869565,
+                "specificity": 0.433333,
+                "f1": 0.204082,
+                "balanced_accuracy": 0.651449,
+                "accuracy": 0.467577
+              }
+            }
+          },
+          {
+            "fold_index": 1,
+            "fold_seed": 104201,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 738,
+            "n_test_groups": 220,
+            "n_test_singletons": 190,
+            "fit_and_eval_seconds": 3.91,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.848653,
+              "pr_auc": 0.488606,
+              "pr_auc_lift": 0.413263,
+              "pr_auc_ratio": 6.485129,
+              "brier_score": 0.060609,
+              "brier_skill_score": 0.130002,
+              "log_loss": 0.333768,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 264,
+                "fp": 6,
+                "fn": 15,
+                "tp": 7,
+                "confusion_matrix": [
+                  [
+                    264,
+                    6
+                  ],
+                  [
+                    15,
+                    7
+                  ]
+                ],
+                "precision": 0.538462,
+                "recall": 0.318182,
+                "specificity": 0.977778,
+                "f1": 0.4,
+                "balanced_accuracy": 0.64798,
+                "accuracy": 0.928082
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 121,
+                "fp": 149,
+                "fn": 2,
+                "tp": 20,
+                "confusion_matrix": [
+                  [
+                    121,
+                    149
+                  ],
+                  [
+                    2,
+                    20
+                  ]
+                ],
+                "precision": 0.118343,
+                "recall": 0.909091,
+                "specificity": 0.448148,
+                "f1": 0.209424,
+                "balanced_accuracy": 0.67862,
+                "accuracy": 0.482877
+              }
+            }
+          },
+          {
+            "fold_index": 2,
+            "fold_seed": 104202,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 729,
+            "n_test_groups": 226,
+            "n_test_singletons": 198,
+            "fit_and_eval_seconds": 4.09,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.83064,
+              "pr_auc": 0.287129,
+              "pr_auc_lift": 0.211787,
+              "pr_auc_ratio": 3.810987,
+              "brier_score": 0.075076,
+              "brier_skill_score": -0.077662,
+              "log_loss": 0.281482,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 260,
+                "fp": 10,
+                "fn": 17,
+                "tp": 5,
+                "confusion_matrix": [
+                  [
+                    260,
+                    10
+                  ],
+                  [
+                    17,
+                    5
+                  ]
+                ],
+                "precision": 0.333333,
+                "recall": 0.227273,
+                "specificity": 0.962963,
+                "f1": 0.27027,
+                "balanced_accuracy": 0.595118,
+                "accuracy": 0.907534
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 99,
+                "fp": 171,
+                "fn": 2,
+                "tp": 20,
+                "confusion_matrix": [
+                  [
+                    99,
+                    171
+                  ],
+                  [
+                    2,
+                    20
+                  ]
+                ],
+                "precision": 0.104712,
+                "recall": 0.909091,
+                "specificity": 0.366667,
+                "f1": 0.187793,
+                "balanced_accuracy": 0.637879,
+                "accuracy": 0.407534
+              }
+            }
+          },
+          {
+            "fold_index": 3,
+            "fold_seed": 104203,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 728,
+            "n_test_groups": 236,
+            "n_test_singletons": 213,
+            "fit_and_eval_seconds": 3.68,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.84798,
+              "pr_auc": 0.444088,
+              "pr_auc_lift": 0.368746,
+              "pr_auc_ratio": 5.894262,
+              "brier_score": 0.063722,
+              "brier_skill_score": 0.08532,
+              "log_loss": 0.344518,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 264,
+                "fp": 6,
+                "fn": 12,
+                "tp": 10,
+                "confusion_matrix": [
+                  [
+                    264,
+                    6
+                  ],
+                  [
+                    12,
+                    10
+                  ]
+                ],
+                "precision": 0.625,
+                "recall": 0.454545,
+                "specificity": 0.977778,
+                "f1": 0.526316,
+                "balanced_accuracy": 0.716162,
+                "accuracy": 0.938356
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 119,
+                "fp": 151,
+                "fn": 1,
+                "tp": 21,
+                "confusion_matrix": [
+                  [
+                    119,
+                    151
+                  ],
+                  [
+                    1,
+                    21
+                  ]
+                ],
+                "precision": 0.122093,
+                "recall": 0.954545,
+                "specificity": 0.440741,
+                "f1": 0.216495,
+                "balanced_accuracy": 0.697643,
+                "accuracy": 0.479452
+              }
+            }
+          },
+          {
+            "fold_index": 4,
+            "fold_seed": 104204,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 89,
+            "train_negatives": 1080,
+            "train_prevalence": 0.076133,
+            "test_positives": 23,
+            "test_negatives": 269,
+            "test_prevalence": 0.078767,
+            "n_train_groups": 732,
+            "n_test_groups": 227,
+            "n_test_singletons": 201,
+            "fit_and_eval_seconds": 3.74,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 23,
+              "n_negatives": 269,
+              "prevalence": 0.078767,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.816955,
+              "pr_auc": 0.287673,
+              "pr_auc_lift": 0.208906,
+              "pr_auc_ratio": 3.652193,
+              "brier_score": 0.074747,
+              "brier_skill_score": -0.030099,
+              "log_loss": 0.264138,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 264,
+                "fp": 5,
+                "fn": 17,
+                "tp": 6,
+                "confusion_matrix": [
+                  [
+                    264,
+                    5
+                  ],
+                  [
+                    17,
+                    6
+                  ]
+                ],
+                "precision": 0.545455,
+                "recall": 0.26087,
+                "specificity": 0.981413,
+                "f1": 0.352941,
+                "balanced_accuracy": 0.621141,
+                "accuracy": 0.924658
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076133,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 100,
+                "fp": 169,
+                "fn": 0,
+                "tp": 23,
+                "confusion_matrix": [
+                  [
+                    100,
+                    169
+                  ],
+                  [
+                    0,
+                    23
+                  ]
+                ],
+                "precision": 0.119792,
+                "recall": 1.0,
+                "specificity": 0.371747,
+                "f1": 0.213953,
+                "balanced_accuracy": 0.685874,
+                "accuracy": 0.421233
+              }
+            }
+          }
+        ],
+        "fold_dispersion": {
+          "roc_auc": {
+            "metric_name": "roc_auc",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.823081,
+            "sd": 0.03187,
+            "min": 0.771176,
+            "max": 0.848653,
+            "fold_values": [
+              0.771176,
+              0.848653,
+              0.83064,
+              0.84798,
+              0.816955
+            ]
+          },
+          "pr_auc": {
+            "metric_name": "pr_auc",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.367847,
+            "sd": 0.093063,
+            "min": 0.287129,
+            "max": 0.488606,
+            "fold_values": [
+              0.331738,
+              0.488606,
+              0.287129,
+              0.444088,
+              0.287673
+            ]
+          },
+          "pr_auc_lift": {
+            "metric_name": "pr_auc_lift",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.291188,
+            "sd": 0.094118,
+            "min": 0.208906,
+            "max": 0.413263,
+            "fold_values": [
+              0.25324,
+              0.413263,
+              0.211787,
+              0.368746,
+              0.208906
+            ]
+          },
+          "pr_auc_ratio": {
+            "metric_name": "pr_auc_ratio",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 4.813725,
+            "sd": 1.29046,
+            "min": 3.652193,
+            "max": 6.485129,
+            "fold_values": [
+              4.226055,
+              6.485129,
+              3.810987,
+              5.894262,
+              3.652193
+            ]
+          },
+          "brier_score": {
+            "metric_name": "brier_score",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.068383,
+            "sd": 0.006478,
+            "min": 0.060609,
+            "max": 0.075076,
+            "fold_values": [
+              0.067762,
+              0.060609,
+              0.075076,
+              0.063722,
+              0.074747
+            ]
+          },
+          "brier_skill_score": {
+            "metric_name": "brier_skill_score",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.034158,
+            "sd": 0.085559,
+            "min": -0.077662,
+            "max": 0.130002,
+            "fold_values": [
+              0.063231,
+              0.130002,
+              -0.077662,
+              0.08532,
+              -0.030099
+            ]
+          },
+          "log_loss": {
+            "metric_name": "log_loss",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.295358,
+            "sd": 0.041423,
+            "min": 0.252882,
+            "max": 0.344518,
+            "fold_values": [
+              0.252882,
+              0.333768,
+              0.281482,
+              0.344518,
+              0.264138
+            ]
+          },
+          "prevalence": {
+            "metric_name": "prevalence",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.076658,
+            "sd": 0.001805,
+            "min": 0.075342,
+            "max": 0.078767,
+            "fold_values": [
+              0.078498,
+              0.075342,
+              0.075342,
+              0.075342,
+              0.078767
+            ]
+          },
+          "precision": {
+            "metric_name": "precision",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.541783,
+            "sd": 0.128449,
+            "min": 0.333333,
+            "max": 0.666667,
+            "fold_values": [
+              0.666667,
+              0.538462,
+              0.333333,
+              0.625,
+              0.545455
+            ]
+          },
+          "recall": {
+            "metric_name": "recall",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.286957,
+            "sd": 0.107334,
+            "min": 0.173913,
+            "max": 0.454545,
+            "fold_values": [
+              0.173913,
+              0.318182,
+              0.227273,
+              0.454545,
+              0.26087
+            ]
+          },
+          "specificity": {
+            "metric_name": "specificity",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.978505,
+            "sd": 0.010601,
+            "min": 0.962963,
+            "max": 0.992593,
+            "fold_values": [
+              0.992593,
+              0.977778,
+              0.962963,
+              0.977778,
+              0.981413
+            ]
+          },
+          "f1": {
+            "metric_name": "f1",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.365078,
+            "sd": 0.105253,
+            "min": 0.27027,
+            "max": 0.526316,
+            "fold_values": [
+              0.275862,
+              0.4,
+              0.27027,
+              0.526316,
+              0.352941
+            ]
+          },
+          "balanced_accuracy": {
+            "metric_name": "balanced_accuracy",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.632731,
+            "sd": 0.052892,
+            "min": 0.583253,
+            "max": 0.716162,
+            "fold_values": [
+              0.583253,
+              0.64798,
+              0.595118,
+              0.716162,
+              0.621141
+            ]
+          }
+        },
+        "pooled_oof_full_cohort": {
+          "subset_name": "stratified_random_seed_1042",
+          "n_samples": 1461,
+          "n_positives": 112,
+          "n_negatives": 1349,
+          "prevalence": 0.07666,
+          "insufficient_support": false,
+          "insufficient_support_reasons": [],
+          "roc_auc": 0.822666,
+          "pr_auc": 0.341101,
+          "pr_auc_lift": 0.264441,
+          "pr_auc_ratio": 4.449541,
+          "brier_score": 0.068383,
+          "brier_skill_score": 0.033908,
+          "log_loss": 0.295329,
+          "fixed_threshold_metrics": {
+            "threshold": 0.5,
+            "threshold_type": "fixed_0.50",
+            "tn": 1320,
+            "fp": 29,
+            "fn": 80,
+            "tp": 32,
+            "confusion_matrix": [
+              [
+                1320,
+                29
+              ],
+              [
+                80,
+                32
+              ]
+            ],
+            "precision": 0.52459,
+            "recall": 0.285714,
+            "specificity": 0.978503,
+            "f1": 0.369942,
+            "balanced_accuracy": 0.632108,
+            "accuracy": 0.925394
+          },
+          "exploratory_prevalence_threshold_metrics": null
+        },
+        "pooled_oof_cyclic_only": {
+          "subset_name": "cyclic_only",
+          "n_samples": 1332,
+          "n_positives": 111,
+          "n_negatives": 1221,
+          "prevalence": 0.083333,
+          "insufficient_support": false,
+          "insufficient_support_reasons": [],
+          "roc_auc": 0.82051,
+          "pr_auc": 0.347094,
+          "pr_auc_lift": 0.263761,
+          "pr_auc_ratio": 4.165128,
+          "brier_score": 0.073177,
+          "brier_skill_score": 0.042052,
+          "log_loss": 0.290581,
+          "fixed_threshold_metrics": {
+            "threshold": 0.5,
+            "threshold_type": "fixed_0.50",
+            "tn": 1192,
+            "fp": 29,
+            "fn": 79,
+            "tp": 32,
+            "confusion_matrix": [
+              [
+                1192,
+                29
+              ],
+              [
+                79,
+                32
+              ]
+            ],
+            "precision": 0.52459,
+            "recall": 0.288288,
+            "specificity": 0.976249,
+            "f1": 0.372093,
+            "balanced_accuracy": 0.632269,
+            "accuracy": 0.918919
+          },
+          "exploratory_prevalence_threshold_metrics": null
+        },
+        "scaffold_cluster_bootstrap": {
+          "roc_auc": {
+            "metric_name": "roc_auc",
+            "point_estimate": 0.822666,
+            "ci_lower": 0.775513,
+            "ci_upper": 0.862726,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "pr_auc": {
+            "metric_name": "pr_auc",
+            "point_estimate": 0.341101,
+            "ci_lower": 0.250009,
+            "ci_upper": 0.487471,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "pr_auc_lift": {
+            "metric_name": "pr_auc_lift",
+            "point_estimate": 0.264441,
+            "ci_lower": 0.175875,
+            "ci_upper": 0.408895,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "brier_score": {
+            "metric_name": "brier_score",
+            "point_estimate": 0.068383,
+            "ci_lower": 0.05559,
+            "ci_upper": 0.08244,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "log_loss": {
+            "metric_name": "log_loss",
+            "point_estimate": 0.295329,
+            "ci_lower": 0.228467,
+            "ci_upper": 0.383775,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          }
+        }
+      },
+      "2042": {
+        "seed": 2042,
+        "regime": "stratified_random",
+        "n_splits": 5,
+        "split_integrity_verified": true,
+        "folds": [
+          {
+            "fold_index": 0,
+            "fold_seed": 204200,
+            "n_train": 1168,
+            "n_test": 293,
+            "train_positives": 89,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076199,
+            "test_positives": 23,
+            "test_negatives": 270,
+            "test_prevalence": 0.078498,
+            "n_train_groups": 738,
+            "n_test_groups": 218,
+            "n_test_singletons": 189,
+            "fit_and_eval_seconds": 4.11,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 293,
+              "n_positives": 23,
+              "n_negatives": 270,
+              "prevalence": 0.078498,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.879791,
+              "pr_auc": 0.464506,
+              "pr_auc_lift": 0.386007,
+              "pr_auc_ratio": 5.917399,
+              "brier_score": 0.059981,
+              "brier_skill_score": 0.170807,
+              "log_loss": 0.221969,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 266,
+                "fp": 4,
+                "fn": 16,
+                "tp": 7,
+                "confusion_matrix": [
+                  [
+                    266,
+                    4
+                  ],
+                  [
+                    16,
+                    7
+                  ]
+                ],
+                "precision": 0.636364,
+                "recall": 0.304348,
+                "specificity": 0.985185,
+                "f1": 0.411765,
+                "balanced_accuracy": 0.644767,
+                "accuracy": 0.931741
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076199,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 113,
+                "fp": 157,
+                "fn": 1,
+                "tp": 22,
+                "confusion_matrix": [
+                  [
+                    113,
+                    157
+                  ],
+                  [
+                    1,
+                    22
+                  ]
+                ],
+                "precision": 0.122905,
+                "recall": 0.956522,
+                "specificity": 0.418519,
+                "f1": 0.217822,
+                "balanced_accuracy": 0.68752,
+                "accuracy": 0.460751
+              }
+            }
+          },
+          {
+            "fold_index": 1,
+            "fold_seed": 204201,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 725,
+            "n_test_groups": 229,
+            "n_test_singletons": 204,
+            "fit_and_eval_seconds": 4.17,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.810185,
+              "pr_auc": 0.425952,
+              "pr_auc_lift": 0.35061,
+              "pr_auc_ratio": 5.653548,
+              "brier_score": 0.067644,
+              "brier_skill_score": 0.029029,
+              "log_loss": 0.360247,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 261,
+                "fp": 9,
+                "fn": 12,
+                "tp": 10,
+                "confusion_matrix": [
+                  [
+                    261,
+                    9
+                  ],
+                  [
+                    12,
+                    10
+                  ]
+                ],
+                "precision": 0.526316,
+                "recall": 0.454545,
+                "specificity": 0.966667,
+                "f1": 0.487805,
+                "balanced_accuracy": 0.710606,
+                "accuracy": 0.928082
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 103,
+                "fp": 167,
+                "fn": 3,
+                "tp": 19,
+                "confusion_matrix": [
+                  [
+                    103,
+                    167
+                  ],
+                  [
+                    3,
+                    19
+                  ]
+                ],
+                "precision": 0.102151,
+                "recall": 0.863636,
+                "specificity": 0.381481,
+                "f1": 0.182692,
+                "balanced_accuracy": 0.622559,
+                "accuracy": 0.417808
+              }
+            }
+          },
+          {
+            "fold_index": 2,
+            "fold_seed": 204202,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 737,
+            "n_test_groups": 222,
+            "n_test_singletons": 191,
+            "fit_and_eval_seconds": 4.03,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.831481,
+              "pr_auc": 0.283914,
+              "pr_auc_lift": 0.208571,
+              "pr_auc_ratio": 3.768308,
+              "brier_score": 0.068439,
+              "brier_skill_score": 0.017608,
+              "log_loss": 0.351804,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 265,
+                "fp": 5,
+                "fn": 19,
+                "tp": 3,
+                "confusion_matrix": [
+                  [
+                    265,
+                    5
+                  ],
+                  [
+                    19,
+                    3
+                  ]
+                ],
+                "precision": 0.375,
+                "recall": 0.136364,
+                "specificity": 0.981481,
+                "f1": 0.2,
+                "balanced_accuracy": 0.558923,
+                "accuracy": 0.917808
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 121,
+                "fp": 149,
+                "fn": 1,
+                "tp": 21,
+                "confusion_matrix": [
+                  [
+                    121,
+                    149
+                  ],
+                  [
+                    1,
+                    21
+                  ]
+                ],
+                "precision": 0.123529,
+                "recall": 0.954545,
+                "specificity": 0.448148,
+                "f1": 0.21875,
+                "balanced_accuracy": 0.701347,
+                "accuracy": 0.486301
+              }
+            }
+          },
+          {
+            "fold_index": 3,
+            "fold_seed": 204203,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 90,
+            "train_negatives": 1079,
+            "train_prevalence": 0.076989,
+            "test_positives": 22,
+            "test_negatives": 270,
+            "test_prevalence": 0.075342,
+            "n_train_groups": 717,
+            "n_test_groups": 239,
+            "n_test_singletons": 215,
+            "fit_and_eval_seconds": 3.66,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 22,
+              "n_negatives": 270,
+              "prevalence": 0.075342,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.849747,
+              "pr_auc": 0.434557,
+              "pr_auc_lift": 0.359215,
+              "pr_auc_ratio": 5.767757,
+              "brier_score": 0.073412,
+              "brier_skill_score": -0.053777,
+              "log_loss": 0.275472,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 261,
+                "fp": 9,
+                "fn": 13,
+                "tp": 9,
+                "confusion_matrix": [
+                  [
+                    261,
+                    9
+                  ],
+                  [
+                    13,
+                    9
+                  ]
+                ],
+                "precision": 0.5,
+                "recall": 0.409091,
+                "specificity": 0.966667,
+                "f1": 0.45,
+                "balanced_accuracy": 0.687879,
+                "accuracy": 0.924658
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076989,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 94,
+                "fp": 176,
+                "fn": 2,
+                "tp": 20,
+                "confusion_matrix": [
+                  [
+                    94,
+                    176
+                  ],
+                  [
+                    2,
+                    20
+                  ]
+                ],
+                "precision": 0.102041,
+                "recall": 0.909091,
+                "specificity": 0.348148,
+                "f1": 0.183486,
+                "balanced_accuracy": 0.62862,
+                "accuracy": 0.390411
+              }
+            }
+          },
+          {
+            "fold_index": 4,
+            "fold_seed": 204204,
+            "n_train": 1169,
+            "n_test": 292,
+            "train_positives": 89,
+            "train_negatives": 1080,
+            "train_prevalence": 0.076133,
+            "test_positives": 23,
+            "test_negatives": 269,
+            "test_prevalence": 0.078767,
+            "n_train_groups": 742,
+            "n_test_groups": 219,
+            "n_test_singletons": 192,
+            "fit_and_eval_seconds": 3.59,
+            "metrics": {
+              "subset_name": "full_cohort",
+              "n_samples": 292,
+              "n_positives": 23,
+              "n_negatives": 269,
+              "prevalence": 0.078767,
+              "insufficient_support": false,
+              "insufficient_support_reasons": [],
+              "roc_auc": 0.886536,
+              "pr_auc": 0.613939,
+              "pr_auc_lift": 0.535172,
+              "pr_auc_ratio": 7.794357,
+              "brier_score": 0.053811,
+              "brier_skill_score": 0.258418,
+              "log_loss": 0.2114,
+              "fixed_threshold_metrics": {
+                "threshold": 0.5,
+                "threshold_type": "fixed_0.50",
+                "tn": 265,
+                "fp": 4,
+                "fn": 12,
+                "tp": 11,
+                "confusion_matrix": [
+                  [
+                    265,
+                    4
+                  ],
+                  [
+                    12,
+                    11
+                  ]
+                ],
+                "precision": 0.733333,
+                "recall": 0.478261,
+                "specificity": 0.98513,
+                "f1": 0.578947,
+                "balanced_accuracy": 0.731695,
+                "accuracy": 0.945205
+              },
+              "exploratory_prevalence_threshold_metrics": {
+                "threshold": 0.076133,
+                "threshold_type": "exploratory_train_prevalence",
+                "tn": 102,
+                "fp": 167,
+                "fn": 1,
+                "tp": 22,
+                "confusion_matrix": [
+                  [
+                    102,
+                    167
+                  ],
+                  [
+                    1,
+                    22
+                  ]
+                ],
+                "precision": 0.116402,
+                "recall": 0.956522,
+                "specificity": 0.379182,
+                "f1": 0.207547,
+                "balanced_accuracy": 0.667852,
+                "accuracy": 0.424658
+              }
+            }
+          }
+        ],
+        "fold_dispersion": {
+          "roc_auc": {
+            "metric_name": "roc_auc",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.851548,
+            "sd": 0.032166,
+            "min": 0.810185,
+            "max": 0.886536,
+            "fold_values": [
+              0.879791,
+              0.810185,
+              0.831481,
+              0.849747,
+              0.886536
+            ]
+          },
+          "pr_auc": {
+            "metric_name": "pr_auc",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.444574,
+            "sd": 0.117623,
+            "min": 0.283914,
+            "max": 0.613939,
+            "fold_values": [
+              0.464506,
+              0.425952,
+              0.283914,
+              0.434557,
+              0.613939
+            ]
+          },
+          "pr_auc_lift": {
+            "metric_name": "pr_auc_lift",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.367915,
+            "sd": 0.116263,
+            "min": 0.208571,
+            "max": 0.535172,
+            "fold_values": [
+              0.386007,
+              0.35061,
+              0.208571,
+              0.359215,
+              0.535172
+            ]
+          },
+          "pr_auc_ratio": {
+            "metric_name": "pr_auc_ratio",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 5.780274,
+            "sd": 1.426495,
+            "min": 3.768308,
+            "max": 7.794357,
+            "fold_values": [
+              5.917399,
+              5.653548,
+              3.768308,
+              5.767757,
+              7.794357
+            ]
+          },
+          "brier_score": {
+            "metric_name": "brier_score",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.064657,
+            "sd": 0.007736,
+            "min": 0.053811,
+            "max": 0.073412,
+            "fold_values": [
+              0.059981,
+              0.067644,
+              0.068439,
+              0.073412,
+              0.053811
+            ]
+          },
+          "brier_skill_score": {
+            "metric_name": "brier_skill_score",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.084417,
+            "sd": 0.126855,
+            "min": -0.053777,
+            "max": 0.258418,
+            "fold_values": [
+              0.170807,
+              0.029029,
+              0.017608,
+              -0.053777,
+              0.258418
+            ]
+          },
+          "log_loss": {
+            "metric_name": "log_loss",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.284178,
+            "sd": 0.070004,
+            "min": 0.2114,
+            "max": 0.360247,
+            "fold_values": [
+              0.221969,
+              0.360247,
+              0.351804,
+              0.275472,
+              0.2114
+            ]
+          },
+          "prevalence": {
+            "metric_name": "prevalence",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.076658,
+            "sd": 0.001805,
+            "min": 0.075342,
+            "max": 0.078767,
+            "fold_values": [
+              0.078498,
+              0.075342,
+              0.075342,
+              0.075342,
+              0.078767
+            ]
+          },
+          "precision": {
+            "metric_name": "precision",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.554203,
+            "sd": 0.136627,
+            "min": 0.375,
+            "max": 0.733333,
+            "fold_values": [
+              0.636364,
+              0.526316,
+              0.375,
+              0.5,
+              0.733333
+            ]
+          },
+          "recall": {
+            "metric_name": "recall",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.356522,
+            "sd": 0.139986,
+            "min": 0.136364,
+            "max": 0.478261,
+            "fold_values": [
+              0.304348,
+              0.454545,
+              0.136364,
+              0.409091,
+              0.478261
+            ]
+          },
+          "specificity": {
+            "metric_name": "specificity",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.977026,
+            "sd": 0.009575,
+            "min": 0.966667,
+            "max": 0.985185,
+            "fold_values": [
+              0.985185,
+              0.966667,
+              0.981481,
+              0.966667,
+              0.98513
+            ]
+          },
+          "f1": {
+            "metric_name": "f1",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.425703,
+            "sd": 0.140594,
+            "min": 0.2,
+            "max": 0.578947,
+            "fold_values": [
+              0.411765,
+              0.487805,
+              0.2,
+              0.45,
+              0.578947
+            ]
+          },
+          "balanced_accuracy": {
+            "metric_name": "balanced_accuracy",
+            "n_total_folds": 5,
+            "n_valid_folds": 5,
+            "n_undefined_folds": 0,
+            "mean": 0.666774,
+            "sd": 0.068369,
+            "min": 0.558923,
+            "max": 0.731695,
+            "fold_values": [
+              0.644767,
+              0.710606,
+              0.558923,
+              0.687879,
+              0.731695
+            ]
+          }
+        },
+        "pooled_oof_full_cohort": {
+          "subset_name": "stratified_random_seed_2042",
+          "n_samples": 1461,
+          "n_positives": 112,
+          "n_negatives": 1349,
+          "prevalence": 0.07666,
+          "insufficient_support": false,
+          "insufficient_support_reasons": [],
+          "roc_auc": 0.848995,
+          "pr_auc": 0.406541,
+          "pr_auc_lift": 0.329881,
+          "pr_auc_ratio": 5.303176,
+          "brier_score": 0.064654,
+          "brier_skill_score": 0.086586,
+          "log_loss": 0.284136,
+          "fixed_threshold_metrics": {
+            "threshold": 0.5,
+            "threshold_type": "fixed_0.50",
+            "tn": 1318,
+            "fp": 31,
+            "fn": 72,
+            "tp": 40,
+            "confusion_matrix": [
+              [
+                1318,
+                31
+              ],
+              [
+                72,
+                40
+              ]
+            ],
+            "precision": 0.56338,
+            "recall": 0.357143,
+            "specificity": 0.97702,
+            "f1": 0.437158,
+            "balanced_accuracy": 0.667081,
+            "accuracy": 0.9295
+          },
+          "exploratory_prevalence_threshold_metrics": null
+        },
+        "pooled_oof_cyclic_only": {
+          "subset_name": "cyclic_only",
+          "n_samples": 1332,
+          "n_positives": 111,
+          "n_negatives": 1221,
+          "prevalence": 0.083333,
+          "insufficient_support": false,
+          "insufficient_support_reasons": [],
+          "roc_auc": 0.848289,
+          "pr_auc": 0.412422,
+          "pr_auc_lift": 0.329088,
+          "pr_auc_ratio": 4.949062,
+          "brier_score": 0.069164,
+          "brier_skill_score": 0.094583,
+          "log_loss": 0.278597,
+          "fixed_threshold_metrics": {
+            "threshold": 0.5,
+            "threshold_type": "fixed_0.50",
+            "tn": 1190,
+            "fp": 31,
+            "fn": 71,
+            "tp": 40,
+            "confusion_matrix": [
+              [
+                1190,
+                31
+              ],
+              [
+                71,
+                40
+              ]
+            ],
+            "precision": 0.56338,
+            "recall": 0.36036,
+            "specificity": 0.974611,
+            "f1": 0.43956,
+            "balanced_accuracy": 0.667486,
+            "accuracy": 0.923423
+          },
+          "exploratory_prevalence_threshold_metrics": null
+        },
+        "scaffold_cluster_bootstrap": {
+          "roc_auc": {
+            "metric_name": "roc_auc",
+            "point_estimate": 0.848995,
+            "ci_lower": 0.801522,
+            "ci_upper": 0.88964,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "pr_auc": {
+            "metric_name": "pr_auc",
+            "point_estimate": 0.406541,
+            "ci_lower": 0.291,
+            "ci_upper": 0.534684,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "pr_auc_lift": {
+            "metric_name": "pr_auc_lift",
+            "point_estimate": 0.329881,
+            "ci_lower": 0.21788,
+            "ci_upper": 0.45152,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "brier_score": {
+            "metric_name": "brier_score",
+            "point_estimate": 0.064654,
+            "ci_lower": 0.053112,
+            "ci_upper": 0.076931,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          },
+          "log_loss": {
+            "metric_name": "log_loss",
+            "point_estimate": 0.284136,
+            "ci_lower": 0.217998,
+            "ci_upper": 0.372991,
+            "ci_level": 0.95,
+            "n_requested_replicates": 500,
+            "n_valid_replicates": 500,
+            "n_invalid_replicates": 0,
+            "n_total_clusters": 873,
+            "n_positive_clusters": 91,
+            "insufficient_cluster_support": false,
+            "insufficient_support_reason": null,
+            "limitations_note": "Scaffold-cluster block bootstrap resamples scaffold clusters with replacement to account for within-scaffold dependence. When positive events are concentrated in a small number of scaffold clusters, bootstrap replicates may exhibit discrete jumps or draw zero positives (tracked via n_invalid_replicates); cluster bootstrap CIs are not guaranteed to be wider than naive molecule-level bootstrap CIs."
+          }
+        }
+      }
+    }
+  },
+  "execution_summary": {
+    "total_elapsed_seconds": 430.33,
+    "checksums_verified_before_save": true,
+    "checksum_status": "31 ML artifacts and 5 literature benchmarks verified 100% matched."
+  }
+}

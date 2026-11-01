@@ -1,0 +1,1119 @@
+{
+  "schema_version": "1.1.0",
+  "endpoint": "NR-Aromatase",
+  "created_at": "2026-10-10T08:39:26.608108+00:00",
+  "provenance": {
+    "base_model_filename": "NR_Aromatase_model.joblib",
+    "base_model_sha256": "001706c1fe8c91edcd2a22833038442c2446394417ed609addd627c94a4116be",
+    "dataset_path": "data/raw/tox21.csv",
+    "dataset_sha256": "0c5d8aa09dd4bec7858b37d9d26cadf7ce4ab8b6fbc4c290ac648407879b91b8",
+    "split_strategy": "stratified_random_80_20",
+    "method_selection_protocol": "5_fold_3way_disjoint_base60_cal20_val20",
+    "calibration_protocol": "5_fold_stratified_out_of_fold_posthoc",
+    "random_seed": 42,
+    "positive_class_label": 1,
+    "positive_class_index": 1,
+    "train_global_indices_sha256": "c20baae5c7ccce36d4d0d595d437a6a499b166c1aa29740bedc4d15a99df46aa",
+    "test_global_indices_sha256": "7cdb0c1df0479d2b20eead370e50007948032e424a831a68a0cc4fd75059cc75",
+    "train_test_disjoint_verified": true,
+    "bootstrap_replicates": 500,
+    "bootstrap_resampling_unit": "individual_test_compound_paired_with_replacement",
+    "ece_binning_rule": "10_equal_width_bins_0_to_1_closed_right_final",
+    "library_versions": {
+      "scikit_learn": "1.9.1",
+      "numpy": "2.4.3",
+      "pandas": "3.0.6"
+    }
+  },
+  "data_summary": {
+    "total_raw_records": 7831,
+    "missing_or_invalid_excluded": 2016,
+    "usable_samples": 5815,
+    "positive_count": 300,
+    "negative_count": 5515,
+    "prevalence": 0.0516,
+    "train_count": 4652,
+    "train_positive_count": 240,
+    "train_negative_count": 4412,
+    "calibration_fit_count": 4652,
+    "calibration_fit_positive_count": 240,
+    "calibration_fit_negative_count": 4412,
+    "min_3way_cal_fit_positive_count": 48,
+    "test_count": 1163,
+    "test_positive_count": 60,
+    "test_negative_count": 1103
+  },
+  "selection_governance": {
+    "recommended_method": "sigmoid",
+    "method_selection_rule": "1.1.0_3way_disjoint_with_sigmoid_fallback",
+    "selection_rationale": "Sigmoid (Platt) selected via 3-way disjoint CV: reduces validation Brier from 0.0468 to 0.0411, LogLoss from 0.2198 to 0.1656, and ECE from 0.0515 to 0.0044. Isotonic excluded due to low overall training minority support (train_pos=240 < 250 or prev=5.16% < 5.0%).",
+    "isotonic_train_eligible": false,
+    "isotonic_fold_support_sufficient": false,
+    "isotonic_selection_eligible": false,
+    "test_brier_improvement_point_estimate": true,
+    "test_brier_improvement_95ci_excludes_zero": true,
+    "default_production_behavior": "raw_uncalibrated_preserved",
+    "opt_in_calibrated_available": true,
+    "scientific_disclaimer": "Calibrated probabilities estimate empirical Tox21 in-vitro assay activity frequency under the benchmark evaluation protocol; they do not represent clinical toxicity risk, in-vivo human safety, or regulatory suitability."
+  },
+  "calibrator_parameters": {
+    "sigmoid": {
+      "method": "sigmoid",
+      "a": -5.636647486508318,
+      "b": 3.8503027744685347
+    },
+    "isotonic": {
+      "method": "isotonic",
+      "X_thresholds": [
+        0.0,
+        0.006388888888888888,
+        0.006666666666666667,
+        0.026363636363636363,
+        0.02666666666666667,
+        0.03638888888888889,
+        0.03666666666666667,
+        0.05644444444444444,
+        0.056666666666666664,
+        0.0925925925925926,
+        0.09266025641025641,
+        0.1263888888888889,
+        0.12666666666666668,
+        0.1299019607843137,
+        0.13,
+        0.18913752913752913,
+        0.1895238095238095,
+        0.31333333333333335,
+        0.31509210740040366,
+        0.36648148148148146,
+        0.36666666666666664,
+        0.41285714285714287,
+        0.4166666666666667,
+        0.42,
+        0.42333333333333334,
+        0.4247128775892386,
+        0.43,
+        0.53,
+        0.5333333333333333,
+        0.6993608234749192,
+        0.7,
+        0.7333333333333333,
+        0.7366666666666667,
+        0.81,
+        0.8132456140350878,
+        0.85,
+        0.8566666666666667,
+        1.0
+      ],
+      "y_thresholds": [
+        0.0036101083032490976,
+        0.0036101083032490976,
+        0.01141552511415525,
+        0.01141552511415525,
+        0.017123287671232876,
+        0.017123287671232876,
+        0.02434077079107505,
+        0.02434077079107505,
+        0.0310391363022942,
+        0.0310391363022942,
+        0.04285714285714286,
+        0.04285714285714286,
+        0.043478260869565216,
+        0.043478260869565216,
+        0.057513914656771796,
+        0.057513914656771796,
+        0.12207792207792208,
+        0.12207792207792208,
+        0.16326530612244897,
+        0.16326530612244897,
+        0.1935483870967742,
+        0.1935483870967742,
+        0.2,
+        0.2,
+        0.25,
+        0.25,
+        0.2571428571428571,
+        0.2571428571428571,
+        0.3111111111111111,
+        0.3111111111111111,
+        0.42857142857142855,
+        0.42857142857142855,
+        0.5,
+        0.5,
+        0.7,
+        0.7,
+        0.8095238095238095,
+        0.8095238095238095
+      ]
+    }
+  },
+  "method_selection_fold_provenance": [
+    {
+      "fold": 0,
+      "base_rf_count": 2790,
+      "base_rf_positive_count": 144,
+      "base_rf_negative_count": 2646,
+      "base_rf_indices_sha256": "208226989d74684900971b30e044f619fdca4772dc394b9bf62ed8f23e30a0cb",
+      "cal_fit_count": 931,
+      "cal_fit_positive_count": 48,
+      "cal_fit_negative_count": 883,
+      "cal_fit_indices_sha256": "402568b565a3dfd0296d67baa5d6bff1f330275a701f123960df8e4ae72b9228",
+      "val_count": 931,
+      "val_positive_count": 48,
+      "val_negative_count": 883,
+      "val_indices_sha256": "7fc08a4f7b027e83bc7f2125c986d181c9912c5c652f3e8db6c01a2a9321ea54",
+      "pairwise_disjoint_verified": true
+    },
+    {
+      "fold": 1,
+      "base_rf_count": 2791,
+      "base_rf_positive_count": 144,
+      "base_rf_negative_count": 2647,
+      "base_rf_indices_sha256": "7a9b651e70fa083f0901f1ee4d6b00883d7b63e707c83e11157089934074f833",
+      "cal_fit_count": 930,
+      "cal_fit_positive_count": 48,
+      "cal_fit_negative_count": 882,
+      "cal_fit_indices_sha256": "2cb18929cc4bd2b53ff9399f5ce11412f31a21f57206b328adf66cdc7fb27bf0",
+      "val_count": 931,
+      "val_positive_count": 48,
+      "val_negative_count": 883,
+      "val_indices_sha256": "402568b565a3dfd0296d67baa5d6bff1f330275a701f123960df8e4ae72b9228",
+      "pairwise_disjoint_verified": true
+    },
+    {
+      "fold": 2,
+      "base_rf_count": 2792,
+      "base_rf_positive_count": 144,
+      "base_rf_negative_count": 2648,
+      "base_rf_indices_sha256": "a6d6a8a4c058476cc9dd0e2921037683bd648b49c84054ae80b77c6e1f825329",
+      "cal_fit_count": 930,
+      "cal_fit_positive_count": 48,
+      "cal_fit_negative_count": 882,
+      "cal_fit_indices_sha256": "a12eec7bc8ff31806ad10d80e259658d30c6c5a9ace0a59b8c0ebda09e559d9e",
+      "val_count": 930,
+      "val_positive_count": 48,
+      "val_negative_count": 882,
+      "val_indices_sha256": "2cb18929cc4bd2b53ff9399f5ce11412f31a21f57206b328adf66cdc7fb27bf0",
+      "pairwise_disjoint_verified": true
+    },
+    {
+      "fold": 3,
+      "base_rf_count": 2792,
+      "base_rf_positive_count": 144,
+      "base_rf_negative_count": 2648,
+      "base_rf_indices_sha256": "2a455f0541daa2831e91b76a242efc5f95380de038d57192a265d5d880e70be4",
+      "cal_fit_count": 930,
+      "cal_fit_positive_count": 48,
+      "cal_fit_negative_count": 882,
+      "cal_fit_indices_sha256": "cbdd4fcee8b7bd23fdb826f1d2137f290739d58b68453d5023e01eb170cbae42",
+      "val_count": 930,
+      "val_positive_count": 48,
+      "val_negative_count": 882,
+      "val_indices_sha256": "a12eec7bc8ff31806ad10d80e259658d30c6c5a9ace0a59b8c0ebda09e559d9e",
+      "pairwise_disjoint_verified": true
+    },
+    {
+      "fold": 4,
+      "base_rf_count": 2791,
+      "base_rf_positive_count": 144,
+      "base_rf_negative_count": 2647,
+      "base_rf_indices_sha256": "86cac62a490277247a2682060fc18d1cbdec5bf3f41db44e08c3b5996453cb62",
+      "cal_fit_count": 931,
+      "cal_fit_positive_count": 48,
+      "cal_fit_negative_count": 883,
+      "cal_fit_indices_sha256": "7fc08a4f7b027e83bc7f2125c986d181c9912c5c652f3e8db6c01a2a9321ea54",
+      "val_count": 930,
+      "val_positive_count": 48,
+      "val_negative_count": 882,
+      "val_indices_sha256": "cbdd4fcee8b7bd23fdb826f1d2137f290739d58b68453d5023e01eb170cbae42",
+      "pairwise_disjoint_verified": true
+    }
+  ],
+  "score_distribution_comparison": {
+    "base_rf_60pct_train_3way_val": {
+      "mean": 0.1031,
+      "std": 0.1366,
+      "median": 0.0633,
+      "p10": 0.0033,
+      "p90": 0.2233,
+      "fraction_ge_0_5": 0.0254
+    },
+    "base_rf_80pct_train_5fold_oof": {
+      "mean": 0.1005,
+      "std": 0.1395,
+      "median": 0.06,
+      "p10": 0.0033,
+      "p90": 0.22,
+      "fraction_ge_0_5": 0.0271
+    },
+    "base_rf_100pct_deployed_test": {
+      "mean": 0.1044,
+      "std": 0.1464,
+      "median": 0.06,
+      "p10": 0.0033,
+      "p90": 0.232,
+      "fraction_ge_0_5": 0.0301
+    },
+    "train_60pct_vs_80pct_mean_abs_diff": 0.0266,
+    "train_60pct_vs_80pct_pearson_r": 0.934,
+    "note": "Base models in 3-way disjoint selection are trained on 60% of D_train (3/5 folds), final-fit OOF base models are trained on 80% of D_train (4/5 folds), and the deployed model is trained on 100% of D_train. While stratified folds preserve class ratios, smaller training subsets exhibit slightly higher finite-sample leaf variance."
+  },
+  "training_3way_disjoint_cv_metrics": {
+    "uncalibrated": {
+      "method": "uncalibrated",
+      "brier_score": 0.0468,
+      "log_loss_value": 0.2198,
+      "ece_10bin_weighted": 0.0515,
+      "mace_5bin_unweighted": 0.1673,
+      "roc_auc": 0.7938,
+      "average_precision": 0.3184,
+      "accuracy": 0.9497,
+      "balanced_accuracy": 0.6228,
+      "sensitivity": 0.2583,
+      "specificity": 0.9873,
+      "precision": 0.5254,
+      "f1": 0.3464,
+      "confusion_matrix": [
+        [
+          4356,
+          56
+        ],
+        [
+          178,
+          62
+        ]
+      ],
+      "calibration_curve_10bin": {
+        "n_bins": 10,
+        "bin_strategy": "equal_width_closed_right_final",
+        "bin_edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ],
+        "bin_centers": [
+          0.05,
+          0.15,
+          0.25,
+          0.35,
+          0.45,
+          0.55,
+          0.65,
+          0.75,
+          0.85,
+          0.95
+        ],
+        "observed_frequency": [
+          0.021,
+          0.0535,
+          0.0901,
+          0.1889,
+          0.2308,
+          0.2857,
+          0.4,
+          0.4737,
+          0.7895,
+          0.7407
+        ],
+        "mean_predicted_probability": [
+          0.0357,
+          0.1407,
+          0.2401,
+          0.3472,
+          0.4477,
+          0.5482,
+          0.6445,
+          0.743,
+          0.8495,
+          0.9703
+        ],
+        "bin_counts": [
+          2959,
+          1102,
+          344,
+          90,
+          39,
+          28,
+          25,
+          19,
+          19,
+          27
+        ]
+      },
+      "brier_ci_95": null,
+      "delta_brier_vs_raw": null,
+      "delta_brier_ci_95": null
+    },
+    "sigmoid": {
+      "method": "sigmoid",
+      "brier_score": 0.0411,
+      "log_loss_value": 0.1656,
+      "ece_10bin_weighted": 0.0044,
+      "mace_5bin_unweighted": 0.0586,
+      "roc_auc": 0.7924,
+      "average_precision": 0.3245,
+      "accuracy": 0.9527,
+      "balanced_accuracy": 0.5929,
+      "sensitivity": 0.1917,
+      "specificity": 0.9941,
+      "precision": 0.6389,
+      "f1": 0.2949,
+      "confusion_matrix": [
+        [
+          4386,
+          26
+        ],
+        [
+          194,
+          46
+        ]
+      ],
+      "calibration_curve_10bin": {
+        "n_bins": 10,
+        "bin_strategy": "equal_width_closed_right_final",
+        "bin_edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ],
+        "bin_centers": [
+          0.05,
+          0.15,
+          0.25,
+          0.35,
+          0.45,
+          0.55,
+          0.65,
+          0.75,
+          0.85,
+          0.95
+        ],
+        "observed_frequency": [
+          0.034,
+          0.1832,
+          0.2059,
+          0.2857,
+          0.5333,
+          0.4118,
+          0.6,
+          0.8333,
+          0.65,
+          1.0
+        ],
+        "mean_predicted_probability": [
+          0.0341,
+          0.1351,
+          0.2535,
+          0.3511,
+          0.4399,
+          0.5577,
+          0.6615,
+          0.7452,
+          0.8611,
+          0.9068
+        ],
+        "bin_counts": [
+          4379,
+          131,
+          34,
+          21,
+          15,
+          17,
+          15,
+          18,
+          20,
+          2
+        ]
+      },
+      "brier_ci_95": null,
+      "delta_brier_vs_raw": -0.005632,
+      "delta_brier_ci_95": null
+    },
+    "isotonic": {
+      "method": "isotonic",
+      "brier_score": 0.0414,
+      "log_loss_value": 0.2125,
+      "ece_10bin_weighted": 0.0057,
+      "mace_5bin_unweighted": 0.0633,
+      "roc_auc": 0.7841,
+      "average_precision": 0.3045,
+      "accuracy": 0.9536,
+      "balanced_accuracy": 0.5993,
+      "sensitivity": 0.2042,
+      "specificity": 0.9943,
+      "precision": 0.6622,
+      "f1": 0.3121,
+      "confusion_matrix": [
+        [
+          4387,
+          25
+        ],
+        [
+          191,
+          49
+        ]
+      ],
+      "calibration_curve_10bin": {
+        "n_bins": 10,
+        "bin_strategy": "equal_width_closed_right_final",
+        "bin_edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ],
+        "bin_centers": [
+          0.05,
+          0.15,
+          0.25,
+          0.35,
+          0.45,
+          0.55,
+          0.65,
+          0.75,
+          0.85,
+          0.95
+        ],
+        "observed_frequency": [
+          0.0322,
+          0.105,
+          0.2308,
+          0.5,
+          0.2857,
+          0.5,
+          1.0,
+          0.7059,
+          0.75,
+          0.75
+        ],
+        "mean_predicted_probability": [
+          0.0299,
+          0.1332,
+          0.2269,
+          0.3073,
+          0.4272,
+          0.5806,
+          0.6128,
+          0.7167,
+          0.8522,
+          1.0
+        ],
+        "bin_counts": [
+          4251,
+          181,
+          130,
+          2,
+          14,
+          24,
+          1,
+          17,
+          12,
+          20
+        ]
+      },
+      "brier_ci_95": null,
+      "delta_brier_vs_raw": -0.005339,
+      "delta_brier_ci_95": null
+    }
+  },
+  "training_oof_cv_metrics": {
+    "uncalibrated": {
+      "method": "uncalibrated",
+      "brier_score": 0.0468,
+      "log_loss_value": 0.2198,
+      "ece_10bin_weighted": 0.0515,
+      "mace_5bin_unweighted": 0.1673,
+      "roc_auc": 0.7938,
+      "average_precision": 0.3184,
+      "accuracy": 0.9497,
+      "balanced_accuracy": 0.6228,
+      "sensitivity": 0.2583,
+      "specificity": 0.9873,
+      "precision": 0.5254,
+      "f1": 0.3464,
+      "confusion_matrix": [
+        [
+          4356,
+          56
+        ],
+        [
+          178,
+          62
+        ]
+      ],
+      "calibration_curve_10bin": {
+        "n_bins": 10,
+        "bin_strategy": "equal_width_closed_right_final",
+        "bin_edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ],
+        "bin_centers": [
+          0.05,
+          0.15,
+          0.25,
+          0.35,
+          0.45,
+          0.55,
+          0.65,
+          0.75,
+          0.85,
+          0.95
+        ],
+        "observed_frequency": [
+          0.021,
+          0.0535,
+          0.0901,
+          0.1889,
+          0.2308,
+          0.2857,
+          0.4,
+          0.4737,
+          0.7895,
+          0.7407
+        ],
+        "mean_predicted_probability": [
+          0.0357,
+          0.1407,
+          0.2401,
+          0.3472,
+          0.4477,
+          0.5482,
+          0.6445,
+          0.743,
+          0.8495,
+          0.9703
+        ],
+        "bin_counts": [
+          2959,
+          1102,
+          344,
+          90,
+          39,
+          28,
+          25,
+          19,
+          19,
+          27
+        ]
+      },
+      "brier_ci_95": null,
+      "delta_brier_vs_raw": null,
+      "delta_brier_ci_95": null
+    },
+    "sigmoid": {
+      "method": "sigmoid",
+      "brier_score": 0.0411,
+      "log_loss_value": 0.1656,
+      "ece_10bin_weighted": 0.0044,
+      "mace_5bin_unweighted": 0.0586,
+      "roc_auc": 0.7924,
+      "average_precision": 0.3245,
+      "accuracy": 0.9527,
+      "balanced_accuracy": 0.5929,
+      "sensitivity": 0.1917,
+      "specificity": 0.9941,
+      "precision": 0.6389,
+      "f1": 0.2949,
+      "confusion_matrix": [
+        [
+          4386,
+          26
+        ],
+        [
+          194,
+          46
+        ]
+      ],
+      "calibration_curve_10bin": {
+        "n_bins": 10,
+        "bin_strategy": "equal_width_closed_right_final",
+        "bin_edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ],
+        "bin_centers": [
+          0.05,
+          0.15,
+          0.25,
+          0.35,
+          0.45,
+          0.55,
+          0.65,
+          0.75,
+          0.85,
+          0.95
+        ],
+        "observed_frequency": [
+          0.034,
+          0.1832,
+          0.2059,
+          0.2857,
+          0.5333,
+          0.4118,
+          0.6,
+          0.8333,
+          0.65,
+          1.0
+        ],
+        "mean_predicted_probability": [
+          0.0341,
+          0.1351,
+          0.2535,
+          0.3511,
+          0.4399,
+          0.5577,
+          0.6615,
+          0.7452,
+          0.8611,
+          0.9068
+        ],
+        "bin_counts": [
+          4379,
+          131,
+          34,
+          21,
+          15,
+          17,
+          15,
+          18,
+          20,
+          2
+        ]
+      },
+      "brier_ci_95": null,
+      "delta_brier_vs_raw": -0.005632,
+      "delta_brier_ci_95": null
+    },
+    "isotonic": {
+      "method": "isotonic",
+      "brier_score": 0.0414,
+      "log_loss_value": 0.2125,
+      "ece_10bin_weighted": 0.0057,
+      "mace_5bin_unweighted": 0.0633,
+      "roc_auc": 0.7841,
+      "average_precision": 0.3045,
+      "accuracy": 0.9536,
+      "balanced_accuracy": 0.5993,
+      "sensitivity": 0.2042,
+      "specificity": 0.9943,
+      "precision": 0.6622,
+      "f1": 0.3121,
+      "confusion_matrix": [
+        [
+          4387,
+          25
+        ],
+        [
+          191,
+          49
+        ]
+      ],
+      "calibration_curve_10bin": {
+        "n_bins": 10,
+        "bin_strategy": "equal_width_closed_right_final",
+        "bin_edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ],
+        "bin_centers": [
+          0.05,
+          0.15,
+          0.25,
+          0.35,
+          0.45,
+          0.55,
+          0.65,
+          0.75,
+          0.85,
+          0.95
+        ],
+        "observed_frequency": [
+          0.0322,
+          0.105,
+          0.2308,
+          0.5,
+          0.2857,
+          0.5,
+          1.0,
+          0.7059,
+          0.75,
+          0.75
+        ],
+        "mean_predicted_probability": [
+          0.0299,
+          0.1332,
+          0.2269,
+          0.3073,
+          0.4272,
+          0.5806,
+          0.6128,
+          0.7167,
+          0.8522,
+          1.0
+        ],
+        "bin_counts": [
+          4251,
+          181,
+          130,
+          2,
+          14,
+          24,
+          1,
+          17,
+          12,
+          20
+        ]
+      },
+      "brier_ci_95": null,
+      "delta_brier_vs_raw": -0.005339,
+      "delta_brier_ci_95": null
+    }
+  },
+  "held_out_test_metrics": {
+    "uncalibrated": {
+      "method": "uncalibrated",
+      "brier_score": 0.0386,
+      "log_loss_value": 0.2138,
+      "ece_10bin_weighted": 0.0547,
+      "mace_5bin_unweighted": 0.1069,
+      "roc_auc": 0.8546,
+      "average_precision": 0.5332,
+      "accuracy": 0.9561,
+      "balanced_accuracy": 0.6774,
+      "sensitivity": 0.3667,
+      "specificity": 0.9882,
+      "precision": 0.6286,
+      "f1": 0.4632,
+      "confusion_matrix": [
+        [
+          1090,
+          13
+        ],
+        [
+          38,
+          22
+        ]
+      ],
+      "calibration_curve_10bin": {
+        "n_bins": 10,
+        "bin_strategy": "equal_width_closed_right_final",
+        "bin_edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ],
+        "bin_centers": [
+          0.05,
+          0.15,
+          0.25,
+          0.35,
+          0.45,
+          0.55,
+          0.65,
+          0.75,
+          0.85,
+          0.95
+        ],
+        "observed_frequency": [
+          0.0118,
+          0.0474,
+          0.0822,
+          0.25,
+          0.3333,
+          0.2857,
+          0.3636,
+          1.0,
+          0.75,
+          1.0
+        ],
+        "mean_predicted_probability": [
+          0.0356,
+          0.1389,
+          0.2438,
+          0.3414,
+          0.4598,
+          0.5421,
+          0.6549,
+          0.7577,
+          0.85,
+          0.9607
+        ],
+        "bin_counts": [
+          762,
+          253,
+          73,
+          28,
+          12,
+          7,
+          11,
+          3,
+          4,
+          10
+        ]
+      },
+      "brier_ci_95": [
+        0.0304,
+        0.0455
+      ],
+      "delta_brier_vs_raw": null,
+      "delta_brier_ci_95": null
+    },
+    "sigmoid": {
+      "method": "sigmoid",
+      "brier_score": 0.034,
+      "log_loss_value": 0.1391,
+      "ece_10bin_weighted": 0.0203,
+      "mace_5bin_unweighted": 0.0737,
+      "roc_auc": 0.8546,
+      "average_precision": 0.5332,
+      "accuracy": 0.9613,
+      "balanced_accuracy": 0.6408,
+      "sensitivity": 0.2833,
+      "specificity": 0.9982,
+      "precision": 0.8947,
+      "f1": 0.4304,
+      "confusion_matrix": [
+        [
+          1101,
+          2
+        ],
+        [
+          43,
+          17
+        ]
+      ],
+      "calibration_curve_10bin": {
+        "n_bins": 10,
+        "bin_strategy": "equal_width_closed_right_final",
+        "bin_edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ],
+        "bin_centers": [
+          0.05,
+          0.15,
+          0.25,
+          0.35,
+          0.45,
+          0.55,
+          0.65,
+          0.75,
+          0.85,
+          0.95
+        ],
+        "observed_frequency": [
+          0.0222,
+          0.2895,
+          0.3333,
+          0.2,
+          0.375,
+          0.6667,
+          0.75,
+          1.0,
+          1.0,
+          null
+        ],
+        "mean_predicted_probability": [
+          0.0333,
+          0.128,
+          0.2459,
+          0.3468,
+          0.4585,
+          0.5144,
+          0.6554,
+          0.7722,
+          0.8356,
+          null
+        ],
+        "bin_counts": [
+          1081,
+          38,
+          12,
+          5,
+          8,
+          3,
+          4,
+          4,
+          8,
+          0
+        ]
+      },
+      "brier_ci_95": [
+        0.025,
+        0.0426
+      ],
+      "delta_brier_vs_raw": -0.004576,
+      "delta_brier_ci_95": [
+        -0.007924,
+        -0.001165
+      ]
+    },
+    "isotonic": {
+      "method": "isotonic",
+      "brier_score": 0.0342,
+      "log_loss_value": 0.1412,
+      "ece_10bin_weighted": 0.0118,
+      "mace_5bin_unweighted": 0.1963,
+      "roc_auc": 0.8508,
+      "average_precision": 0.494,
+      "accuracy": 0.9604,
+      "balanced_accuracy": 0.6245,
+      "sensitivity": 0.25,
+      "specificity": 0.9991,
+      "precision": 0.9375,
+      "f1": 0.3947,
+      "confusion_matrix": [
+        [
+          1102,
+          1
+        ],
+        [
+          45,
+          15
+        ]
+      ],
+      "calibration_curve_10bin": {
+        "n_bins": 10,
+        "bin_strategy": "equal_width_closed_right_final",
+        "bin_edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ],
+        "bin_centers": [
+          0.05,
+          0.15,
+          0.25,
+          0.35,
+          0.45,
+          0.55,
+          0.65,
+          0.75,
+          0.85,
+          0.95
+        ],
+        "observed_frequency": [
+          0.019,
+          0.1304,
+          0.3571,
+          0.3333,
+          1.0,
+          1.0,
+          0.5,
+          null,
+          1.0,
+          null
+        ],
+        "mean_predicted_probability": [
+          0.0264,
+          0.1324,
+          0.256,
+          0.3111,
+          0.4286,
+          0.5,
+          0.7,
+          null,
+          0.8095,
+          null
+        ],
+        "bin_counts": [
+          1002,
+          115,
+          14,
+          15,
+          1,
+          2,
+          2,
+          0,
+          12,
+          0
+        ]
+      },
+      "brier_ci_95": [
+        0.0255,
+        0.0429
+      ],
+      "delta_brier_vs_raw": -0.004421,
+      "delta_brier_ci_95": [
+        -0.007791,
+        -0.001128
+      ]
+    }
+  },
+  "runtime_seconds": 116.33
+}

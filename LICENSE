@@ -1,0 +1,76 @@
+MIT License
+
+Copyright (c) 2026 Amrita Dahiya and MoleculeIQ Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+==============================================================================
+THIRD-PARTY DATA & COMPONENT NOTICES
+==============================================================================
+
+MoleculeIQ incorporates, accesses, or derives data from public scientific research
+resources. Under open-source multi-licensing principles, original MoleculeIQ source
+code is licensed under the MIT License above, while specific external data assets
+retain their respective original licenses and attribution requirements:
+
+1. ClinTox Dataset (data/raw/clintox.csv, clintox.csv.gz):
+   - Curated by: MoleculeNet / Wu et al. (2018), Chemical Science, 9(2): 513-530, distributed via DeepChem.
+   - Primary sources: SWEETLEAD database (Novick et al., 2013, PLoS ONE, 8(11): e79252, Creative Commons
+     Attribution CC BY 4.0) and clinical trial failure data from AACT (Gayvert et al., 2016, Public Domain).
+   - Licensing: Scientific benchmark compilation requiring attribution under Creative Commons Attribution
+     (CC BY 4.0) principles based on its SWEETLEAD constituent.
+   - Permitted for research and academic redistribution with scientific citation of Wu et al. (2018)
+     and Novick et al. (2013).
+
+2. Tox21 Data Challenge (data/raw/tox21.csv, tox21.csv.gz):
+   - Provided by: National Center for Advancing Translational Sciences (NCATS/NIH),
+     U.S. Environmental Protection Agency (EPA), National Toxicology Program (NIEHS),
+     and U.S. Food and Drug Administration (FDA).
+   - Legal status: The raw bioassay dataset is a U.S. Federal Government work under 17 U.S.C. § 105 (Public Domain).
+   - Redistribution: Unrestricted worldwide redistribution of raw government data permitted. Derived trained
+     models and calibration artifacts are released under MoleculeIQ repository terms.
+   - Disclaimer: Use does not imply endorsement by NIH, EPA, or the U.S. Government.
+
+3. Approved Drugs Reference Library (data/reference/approved_drugs.csv):
+   - Mixed-provenance compilation of 1,396 small-molecule reference compounds:
+     a) ChEMBL Anchor Compounds (12 records, tagged 'ChEMBL_Curated_Anchor'):
+        Extracted from the ChEMBL database (EMBL-EBI). Governed by Creative Commons
+        Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0).
+     b) ClinTox FDA Subset (1,384 records, tagged 'FDA_Approved_ClinTox'):
+        Derived from the FDA-approved subset of ClinTox (SWEETLEAD / MoleculeNet).
+   - License Notice: In compliance with CC BY-SA 3.0, the dataset asset itself
+     ('data/reference/approved_drugs.csv') is distributed under Creative Commons
+     Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0). MoleculeIQ application
+     source code remains under the MIT License.
+
+4. PubMed Literature Benchmark (data/benchmarks/literature/):
+   - Provided by: National Center for Biotechnology Information (NCBI), U.S. National
+     Library of Medicine (NLM).
+   - Workflow Notice: The public repository distributes benchmark queries, PMIDs,
+     citation metadata, and locally curated relevance annotations (data/benchmarks/
+     literature/pubmed_benchmark_manifest.json and relevance_annotations_v2.json).
+   - Verbatim journal abstract texts are copyrighted by their respective publishers
+     and are retrieved dynamically at runtime via the official NCBI E-utilities API
+     using 'scripts/hydrate_pubmed_benchmark.py'.
+
+5. 3Dmol.js Molecular Viewer:
+   - Source: 3Dmol.js (Nicholas Rego and David Koes, University of Pittsburgh).
+   - License: BSD 3-Clause License.
+   - Integration: Loaded dynamically via CDN (https://3dmol.org/build/3Dmol-min.js)
+     with visible attribution rendered in the user interface.

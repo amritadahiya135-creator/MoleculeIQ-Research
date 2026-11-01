@@ -1,11 +1,11 @@
 # MoleculeIQ — Final Scientific and Machine Learning Validation Report
 
-**Document Identifier:** `FSVR-V5.0-2026-01`  
-**Date:** October 4, 2026  
-**Auditing Panel:** Independent Scientific & ML Audit Team (Principal Computational Chemist, Senior ML Scientist, Computational Toxicologist, MLOps Validation Engineer)  
-**Target Repository:** MoleculeIQ (`c:\Users\AMRITA\OneDrive\Desktop\moleculeiq`)  
-**Verified Git Commit:** `9934604`  
-**Overall Scientific Verdict:** **SCIENTIFICALLY VALIDATED WITH RESEARCH-GRADE BOUNDARIES**  
+**Document Identifier:** `FSVR-V5.0-2026-01`<br>
+**Date:** October 4, 2026<br>
+**Auditing Panel:** Independent Scientific & ML Audit Team (Principal Computational Chemist, Senior ML Scientist, Computational Toxicologist, MLOps Validation Engineer)<br>
+**Target Repository:** MoleculeIQ<br>
+**Verified Git Commit:** `9934604`<br>
+**Overall Scientific Verdict:** **SCIENTIFICALLY VALIDATED WITH RESEARCH-GRADE BOUNDARIES**<br>
 
 ---
 
@@ -15,13 +15,13 @@ This report delivers the comprehensive, evidence-driven scientific and machine l
 
 ### Core Scientific Findings:
 1. **Deduplication and Leakage Elimination:**
-   The ClinTox dataset ([`data/raw/clintox.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/clintox.csv)) contained 19 duplicate canonical SMILES groups (38 rows) entered with opposite ground-truth annotations ($CT\_TOX=0$ vs $CT\_TOX=1$). Resolving these via the precautionary `conservative_toxic` policy produced **1,461 unique canonical compounds** and eliminated train/test cross-partition leakage completely ($0$ overlapping molecules).
+   The ClinTox dataset ([`data/raw/clintox.csv`](../data/raw/clintox.csv)) contained 19 duplicate canonical SMILES groups (38 rows) entered with opposite ground-truth annotations ($CT\_TOX=0$ vs $CT\_TOX=1$). Resolving these via the precautionary `conservative_toxic` policy produced **1,461 unique canonical compounds** and eliminated train/test cross-partition leakage completely ($0$ overlapping molecules).
 2. **Probability Calibration:**
    Platt scaling calibration (`CalibratedClassifierCV` with sigmoid mapping on training data only) reduced Brier score loss from **$0.0789$ to $0.0522$**, log loss from **$0.5242$ to $0.1969$**, and Expected Calibration Error (ECE) to **$0.1604$**. Output probabilities now monotonically reflect empirical clinical trial discontinuation risk.
 3. **Generalization Gap Between Interpolation and Extrapolation:**
    On Stratified Random Split, ClinTox achieves ROC-AUC $= 0.8507$ and PR-AUC $= 0.5099$. On Bemis–Murcko Scaffold Split (zero shared ring assemblies), ClinTox achieves ROC-AUC $= 0.7877$ and PR-AUC $= 0.3994$. This $\sim 0.06$ ROC-AUC drop reflects genuine out-of-scaffold generalization penalty.
 4. **Dynamic Applicability Domain:**
-   Tanimoto distance against the 1,168 training library compounds ([`artifacts/clintox/training_fingerprints.npz`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/artifacts/clintox/training_fingerprints.npz)) provides active boundary detection. Molecules with maximum Tanimoto $< 0.25$ (such as Cisplatin and $\text{XeF}_2$) correctly trigger `OUTSIDE_DOMAIN` warnings, alerting scientists to unwarranted extrapolation.
+   Tanimoto distance against the 1,168 training library compounds ([`artifacts/clintox/training_fingerprints.npz`](../artifacts/clintox/training_fingerprints.npz)) provides active boundary detection. Molecules with maximum Tanimoto $< 0.25$ (such as Cisplatin and $\text{XeF}_2$) correctly trigger `OUTSIDE_DOMAIN` warnings, alerting scientists to unwarranted extrapolation.
 
 ---
 
@@ -97,7 +97,7 @@ Raw Library (1,484 rows) ──> RDKit Sanitizer ──> Deduplication (1,461 un
 
 ## 6. Dynamic Applicability Domain Analysis
 
-* **Algorithm:** Vectorized Tanimoto distance against the 1,168 unique training set fingerprints saved in [`artifacts/clintox/training_fingerprints.npz`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/artifacts/clintox/training_fingerprints.npz).
+* **Algorithm:** Vectorized Tanimoto distance against the 1,168 unique training set fingerprints saved in [`artifacts/clintox/training_fingerprints.npz`](../artifacts/clintox/training_fingerprints.npz).
 * **Execution Latency:** $< 10$ milliseconds per query.
 * **Empirical Cutoffs (Grounded in Training Set Distribution):**
   - $\ge 0.40$: `WITHIN_DOMAIN` (no warning).
@@ -113,7 +113,7 @@ Raw Library (1,484 rows) ──> RDKit Sanitizer ──> Deduplication (1,461 un
 
 ## 7. Model Explainability via TreeSHAP
 
-* **Algorithm:** `shap.TreeExplainer` executed against the base Random Forest tree ensemble ([`artifacts/clintox/uncalibrated_model.joblib`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/artifacts/clintox/uncalibrated_model.joblib)).
+* **Algorithm:** `shap.TreeExplainer` executed against the base Random Forest tree ensemble ([`artifacts/clintox/uncalibrated_model.joblib`](../artifacts/clintox/uncalibrated_model.joblib)).
 * **Substructure Attribution:** High-magnitude fingerprint bits are translated back to 2D atom neighborhoods and rendered as highlighted SVG depictions.
 * **Scientific Caveat:** SHAP attributions represent statistical tree feature importance, NOT verified causal toxicophore mechanisms. This distinction is prominently disclosed in UI disclaimers.
 

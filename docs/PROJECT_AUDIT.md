@@ -9,13 +9,13 @@
 
 ## 1. Executive Summary
 
-A comprehensive initial inspection was conducted on the designated project workspace at `C:\Users\AMRITA\OneDrive\Desktop\moleculeiq`.
+A comprehensive initial inspection was conducted on the designated project workspace at `<repository-root>`.
 
 Key findings:
 1. **Initial Repository State:** The workspace was completely uninitialized and empty (0 files, 0 folders, no Git repository).
 2. **Execution Environment:** 
    - Operating System: Windows 11 (PowerShell environment)
-   - Python Version: Python 3.12.6 (`C:\Users\AMRITA\AppData\Local\Programs\Python\Python312\python.exe`)
+   - Python Version: Python 3.12.6 (`python.exe`)
    - Pip Version: 24.2
 3. **Core Dependencies Availability:**
    - Cheminformatics: `rdkit` (Available and functional)

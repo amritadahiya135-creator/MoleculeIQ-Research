@@ -1,12 +1,12 @@
 # MoleculeIQ — Independent Scientific and Machine Learning Audit Report
 
-**Audit Identifier:** `AUDIT-SCI-ML-2026-01`  
-**Directive Version:** 2.0 (Evidence-Driven Scientific Validation)  
-**Date of Audit:** October 4, 2026  
-**Audit Team Role:** Independent Multidisciplinary Scientific Audit Panel (Principal Computational Chemist, Senior ML Scientist, Computational Toxicologist, ML Validation Specialist, Scientific Software Auditor)  
-**Target Repository:** MoleculeIQ (`c:\Users\AMRITA\OneDrive\Desktop\moleculeiq`)  
-**Baseline Git Commit:** `f44148b` (Stage 1 Remediation Completed)  
-**Overall Audit Verdict:** **PASS WITH CONDITIONS (SCIENTIFICALLY SOUND WITH METHODOLOGICAL CAVEATS)**  
+**Audit Identifier:** `AUDIT-SCI-ML-2026-01`<br>
+**Directive Version:** 2.0 (Evidence-Driven Scientific Validation)<br>
+**Date of Audit:** October 4, 2026<br>
+**Audit Team Role:** Independent Multidisciplinary Scientific Audit Panel (Principal Computational Chemist, Senior ML Scientist, Computational Toxicologist, ML Validation Specialist, Scientific Software Auditor)<br>
+**Target Repository:** MoleculeIQ<br>
+**Baseline Git Commit:** `f44148b` (Stage 1 Remediation Completed)<br>
+**Overall Audit Verdict:** **PASS WITH CONDITIONS (SCIENTIFICALLY SOUND WITH METHODOLOGICAL CAVEATS)**<br>
 
 ---
 
@@ -17,19 +17,19 @@ This report delivers the independent, evidence-based scientific and machine lear
 ### Key Audit Conclusions
 
 1. **Cheminformatics Foundations Are Robust and Reproducible:**
-   Molecular parsing, valency validation, canonical SMILES standardization, Morgan fingerprint generation (ECFP4 equivalent: radius 2, 2048 bits), and 2D descriptor computations ([`src/chemistry/validation.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/validation.py), [`src/chemistry/descriptors.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/descriptors.py), [`src/chemistry/fingerprints.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/fingerprints.py)) are implemented correctly using RDKit. Training-to-inference feature parity was verified to be bit-exact ($|\Delta P| < 10^{-4}$).
+   Molecular parsing, valency validation, canonical SMILES standardization, Morgan fingerprint generation (ECFP4 equivalent: radius 2, 2048 bits), and 2D descriptor computations ([`src/chemistry/validation.py`](../src/chemistry/validation.py), [`src/chemistry/descriptors.py`](../src/chemistry/descriptors.py), [`src/chemistry/fingerprints.py`](../src/chemistry/fingerprints.py)) are implemented correctly using RDKit. Training-to-inference feature parity was verified to be bit-exact ($|\Delta P| < 10^{-4}$).
 
 2. **Severe Label Contradictions Identified in Raw ClinTox Benchmark:**
-   Empirical auditing of [`data/raw/clintox.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/clintox.csv) revealed **19 distinct canonical structures (38 rows) with conflicting ground-truth labels** ($CT\_TOX = 0$ and $CT\_TOX = 1$). In stratified random splits, 9 of these identical molecules straddle train and test partitions, creating unresolvable label noise and bounding achievable classification accuracy.
+   Empirical auditing of [`data/raw/clintox.csv`](../data/raw/clintox.csv) revealed **19 distinct canonical structures (38 rows) with conflicting ground-truth labels** ($CT\_TOX = 0$ and $CT\_TOX = 1$). In stratified random splits, 9 of these identical molecules straddle train and test partitions, creating unresolvable label noise and bounding achievable classification accuracy.
 
 3. **Generalization Gap Between Random Interpolation and Scaffold Generalization:**
-   Multi-seed benchmarking across 5 seeds (42, 123, 456, 789, 999) demonstrated that ClinTox random split ROC-AUC spans $0.7512$ to $0.8890$ ($\text{mean } 0.8306 \pm 0.0510$). On a zero-leakage Bemis–Murcko scaffold split ([`src/chemistry/scaffolds.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/scaffolds.py)), ROC-AUC is $0.7789 \pm 0.0125$. The $\sim 0.05$ drop accurately reflects the true generalization penalty when predicting chemically novel scaffolds.
+   Multi-seed benchmarking across 5 seeds (42, 123, 456, 789, 999) demonstrated that ClinTox random split ROC-AUC spans $0.7512$ to $0.8890$ ($\text{mean } 0.8306 \pm 0.0510$). On a zero-leakage Bemis–Murcko scaffold split ([`src/chemistry/scaffolds.py`](../src/chemistry/scaffolds.py)), ROC-AUC is $0.7789 \pm 0.0125$. The $\sim 0.05$ drop accurately reflects the true generalization penalty when predicting chemically novel scaffolds.
 
 4. **Probability Distortion Driven by Balanced Class Weighting:**
    The ClinTox model applies `class_weight='balanced'` to offset an acute $12:1$ negative-to-positive class skew. While improving minority recall, this shifts the model's base-rate prior to $\approx 50\%$. The empirical calibration curve demonstrates that predicted probabilities in the $[0.65, 0.95]$ range correspond to an actual empirical test toxicity rate of only $25\%$. Predicted probabilities cannot currently be interpreted as absolute clinical trial failure likelihoods.
 
 5. **Applicability Domain Requires Dynamic Distance Guardrails:**
-   Currently, out-of-distribution structures (such as inorganic complexes like Cisplatin or noble gas compounds like $\text{XeF}_2$) pass RDKit sanitization and produce pseudo-confident predictions without triggering applicability domain warnings ([`src/models/inference.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/inference.py)).
+   Currently, out-of-distribution structures (such as inorganic complexes like Cisplatin or noble gas compounds like $\text{XeF}_2$) pass RDKit sanitization and produce pseudo-confident predictions without triggering applicability domain warnings ([`src/models/inference.py`](../src/models/inference.py)).
 
 6. **Candidate Prioritization Heuristic Is Stable:**
    The composite ranking formulation ($R = 0.5S + 0.3D + 0.2M$) showed high rank stability across weight perturbations (Spearman $\rho \ge 0.9152$), with the top candidate remaining invariant across all scenarios.
@@ -41,18 +41,18 @@ This report delivers the independent, evidence-based scientific and machine lear
 The objective was to independently interrogate every scientific and statistical layer of MoleculeIQ without relying on self-reported assertions or unit-test pass rates.
 
 ### Audit Inclusions
-* Raw benchmark datasets: ClinTox ([`data/raw/clintox.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/clintox.csv)) and Tox21 ([`data/raw/tox21.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/tox21.csv)).
+* Raw benchmark datasets: ClinTox ([`data/raw/clintox.csv`](../data/raw/clintox.csv)) and Tox21 ([`data/raw/tox21.csv`](../data/raw/tox21.csv)).
 * Molecular structure standardization, sanitization, and descriptor extraction routines.
-* Training, validation, and serialization pipelines ([`src/models/clintox.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/clintox.py), [`src/models/tox21.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/tox21.py)).
-* Partitioning methods: Stratified Random Split vs. Bemis–Murcko Scaffold Split ([`src/chemistry/scaffolds.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/scaffolds.py)).
-* Inference engine, prediction DTOs, and uncertainty reporting ([`src/models/inference.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/inference.py)).
-* TreeSHAP feature attribution and substructure mapping ([`src/explainability/shap_analysis.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/explainability/shap_analysis.py)).
-* Multi-objective candidate prioritization ([`src/ranking/scorer.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/ranking/scorer.py)).
-* Scientific documentation integrity and UI boundary disclaimers ([`docs/`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/), [`src/ui/`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/ui/)).
+* Training, validation, and serialization pipelines ([`src/models/clintox.py`](../src/models/clintox.py), [`src/models/tox21.py`](../src/models/tox21.py)).
+* Partitioning methods: Stratified Random Split vs. Bemis–Murcko Scaffold Split ([`src/chemistry/scaffolds.py`](../src/chemistry/scaffolds.py)).
+* Inference engine, prediction DTOs, and uncertainty reporting ([`src/models/inference.py`](../src/models/inference.py)).
+* TreeSHAP feature attribution and substructure mapping ([`src/explainability/shap_analysis.py`](../src/explainability/shap_analysis.py)).
+* Multi-objective candidate prioritization ([`src/ranking/scorer.py`](../src/ranking/scorer.py)).
+* Scientific documentation integrity and UI boundary disclaimers ([`docs/`](.), [`src/ui/`](../src/ui)).
 
 ### Audit Exclusions
 * No production application code or tests were rewritten or bypassed during this audit.
-* Production model weights in [`artifacts/`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/artifacts/) were audited read-only and preserved intact.
+* Production model weights in [`artifacts/`](../artifacts) were audited read-only and preserved intact.
 
 ---
 
@@ -97,7 +97,7 @@ Every claim in this report is supported by reproducible script executions, logge
 ## 5. Dataset Integrity and Provenance
 
 ### 5.1 ClinTox Dataset Audit
-* **File:** [`data/raw/clintox.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/clintox.csv)
+* **File:** [`data/raw/clintox.csv`](../data/raw/clintox.csv)
 * **Raw Dimensions:** 1,484 rows $\times$ 3 columns (`smiles`, `FDA_APPROVED`, `CT_TOX`).
 * **SMILES Parsing:** 4 structures fail RDKit parsing due to invalid valence or unsanitizable bonds:
   - Row 7: `[NH4][Pt]([NH4])(Cl)Cl` (Explicit valence 4 for ammonium)
@@ -122,7 +122,7 @@ Inspection of Row 846 (`CC(=O)Oc1ccccc1C(=O)O`, Aspirin) revealed:
 In the original FDA/NIH ClinTox curation, historical compounds that failed specific clinical trials or were cataloged under non-standard development programs were designated $CT\_TOX=1$, despite widespread real-world market use. The trained model accurately learns this ground truth, predicting $P(\text{toxic}) = 0.9933$ for Aspirin. This is not a software bug, but a documented nuance of the raw dataset.
 
 ### 5.2 Tox21 Dataset Audit
-* **File:** [`data/raw/tox21.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/tox21.csv)
+* **File:** [`data/raw/tox21.csv`](../data/raw/tox21.csv)
 * **Raw Dimensions:** 7,831 rows $\times$ 14 columns (12 bioassay endpoints, `mol_id`, `smiles`).
 * **SMILES Parsing:** 8 invalid SMILES rejected; 7,823 molecules retained.
 * **Missing Label Handling:** Evaluated per endpoint. No single compound was assayed across all 12 targets. Missingness ranges from $7.2\%$ (566 missing in `NR-AR`) to $25.8\%$ (2,021 missing in `SR-MMP`).
@@ -134,7 +134,7 @@ In the original FDA/NIH ClinTox curation, historical compounds that failed speci
 ## 6. Molecular Preprocessing and Feature Engineering
 
 ### 6.1 Validation and Standardization Pipeline
-The structure validation pipeline ([`src/chemistry/validation.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/validation.py)) follows standard RDKit practices:
+The structure validation pipeline ([`src/chemistry/validation.py`](../src/chemistry/validation.py)) follows standard RDKit practices:
 1. `Chem.MolFromSmiles(smiles)` with sanitization enabled.
 2. Canonicalization via `Chem.MolToSmiles(mol, canonical=True)`.
 3. Rejection of whitespace, empty strings, and non-string types with explicit typed error codes.
@@ -147,7 +147,7 @@ The structure validation pipeline ([`src/chemistry/validation.py`](file:///c:/Us
 * **Deprecation Notice:** RDKit logged `DEPRECATION WARNING: please use MorganGenerator`. The existing `GetMorganFingerprintAsBitVect` remains fully functional in RDKit 2024.03, but migration to the modern `rdkit.Chem.rdFingerprintGenerator.GetMorganGenerator` is recommended for future-proofing.
 
 ### 6.3 2D Molecular Descriptors
-[`src/chemistry/descriptors.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/descriptors.py) computes 8 core physicochemical descriptors:
+[`src/chemistry/descriptors.py`](../src/chemistry/descriptors.py) computes 8 core physicochemical descriptors:
 * Molecular Weight ($MW$), Crippen $\log P$, Topological Polar Surface Area ($TPSA$), Hydrogen Bond Donors ($HBD$), Hydrogen Bond Acceptors ($HBA$), Rotatable Bonds, Bickerton Drug-likeness ($QED$), and Synthetic Accessibility Score ($SAScore$).
 * **Definition Alignment:** Following Stage 1 Task 4, $HBA$ is explicitly documented as Lipinski $O+N$ count excluding amide nitrogens, aligning exactly with RDKit's `NumHAcceptors` implementation. Reference properties for Aspirin ($MW=180.16$, $\log P=1.31$, $HBD=1$, $HBA=3$) match authoritative PubChem records.
 
@@ -162,7 +162,7 @@ In the default random split ($80\%$ train / $20\%$ test, seed 42):
 * **Consequence:** The model is penalized for predicting what it learned during training, artificially deflating performance and introducing training-test contamination.
 
 ### 7.2 Bemis–Murcko Scaffold Splitting Benchmark
-In Stage 1 Remediation (Task 3), deterministic Bemis–Murcko scaffold partitioning was implemented in [`src/chemistry/scaffolds.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/scaffolds.py).
+In Stage 1 Remediation (Task 3), deterministic Bemis–Murcko scaffold partitioning was implemented in [`src/chemistry/scaffolds.py`](../src/chemistry/scaffolds.py).
 * **Scaffold Extraction:** Strips side chains and extracts generic ring-linker topology.
 * **Grouping:** Compounds sharing identical Bemis–Murcko cores are strictly assigned to the same partition.
 * **Leakage Verification:** **0 identical molecules and 0 shared scaffolds cross the train/test divide.**
@@ -183,10 +183,10 @@ In Stage 1 Remediation (Task 3), deterministic Bemis–Murcko scaffold partition
 * **Inputs:** 2048-bit binary Morgan fingerprint vector.
 
 ### 8.2 Reproducibility and Determinism
-Across repeated training runs on identical hardware using seed 42, model serialization artifacts ([`artifacts/clintox/model.joblib`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/artifacts/clintox/model.joblib)) produced identical predictions down to IEEE 754 floating-point precision.
+Across repeated training runs on identical hardware using seed 42, model serialization artifacts ([`artifacts/clintox/model.joblib`](../artifacts/clintox/model.joblib)) produced identical predictions down to IEEE 754 floating-point precision.
 
 ### 8.3 Training vs. Inference Pipeline Consistency
-Five reference molecules with diverse structures were tested through both the production inference service ([`src/models/inference.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/inference.py)) and direct standalone scikit-learn calls.
+Five reference molecules with diverse structures were tested through both the production inference service ([`src/models/inference.py`](../src/models/inference.py)) and direct standalone scikit-learn calls.
 * **Max Discrepancy:** $|\Delta P| = 0.000033 < 10^{-4}$ (due to display rounding).
 * **Conclusion:** Complete feature alignment and zero pre-processing divergence between training and serving.
 
@@ -212,7 +212,7 @@ To measure partition sensitivity, the ClinTox Random Forest model was evaluated 
 3. **PR-AUC Is the True Discriminator:** While ROC-AUC appears high ($>0.80$), Precision-Recall AUC is low ($0.2906$ vs. random baseline of $0.073$). Given the severe class imbalance, PR-AUC must be emphasized over ROC-AUC in all public communications.
 
 ### 9.2 Tox21 12-Endpoint Evaluation
-Audit of [`artifacts/tox21/metadata.json`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/artifacts/tox21/metadata.json) and [`artifacts/tox21/scaffold_benchmark.json`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/artifacts/tox21/scaffold_benchmark.json) confirms:
+Audit of [`artifacts/tox21/metadata.json`](../artifacts/tox21/metadata.json) and [`artifacts/tox21/scaffold_benchmark.json`](../artifacts/tox21/scaffold_benchmark.json) confirms:
 * Every bioassay target exhibits a measurable scaffold generalization drop.
 * Nuclear receptor models (e.g., `NR-AhR`, `NR-AR`) generalize better (scaffold ROC-AUC $0.72 - 0.76$) than stress-response pathways (e.g., `SR-HSE`, scaffold ROC-AUC $0.62 - 0.65$), reflecting differing biological target promiscuity.
 
@@ -236,7 +236,7 @@ A 5-bin calibration curve was computed:
 Because `class_weight='balanced'` was utilized, the Random Forest trees artificially predict high probabilities for moderately suspicious fingerprints. Specifically, molecules assigned predicted probabilities between $0.66$ and $0.95$ actually exhibit only a $25\%$ empirical toxic outcome rate in the test set. These probabilities represent uncalibrated scoring ranks rather than true posterior probabilities of failure.
 
 ### 10.2 Applicability Domain on Out-of-Distribution (OOD) Structures
-To test boundary behavior, four non-standard chemical entities were submitted to [`ToxicityInferenceService.predict_clintox()`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/inference.py):
+To test boundary behavior, four non-standard chemical entities were submitted to [`ToxicityInferenceService.predict_clintox()`](../src/models/inference.py):
 1. **Cisplatin** (`Cl[Pt](Cl)(N)N`): Platinum-based chemotherapy agent.
    - Result: Validated successfully; predicted $P(\text{toxic}) = 0.2133$; `applicability_warning = None`.
 2. **Xenon Difluoride** (`F[Xe]F`): Inorganic noble gas compound.
@@ -245,14 +245,14 @@ To test boundary behavior, four non-standard chemical entities were submitted to
    - Result: Rejected by RDKit valence/kekulization sanitizer (`INVALID_INPUT`).
 
 #### Finding: Missing Distance-Based Applicability Domain Warning
-While inorganic structures with impossible valences are caught by RDKit, OOD structures that pass basic chemical parsing (like Cisplatin or $\text{XeF}_2$) receive confident-looking predictions with `applicability_warning = None`. The field exists in [`PredictionResult`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/inference.py) but is hardcoded to `None` rather than computing Tanimoto distance to the training set or training centroid.
+While inorganic structures with impossible valences are caught by RDKit, OOD structures that pass basic chemical parsing (like Cisplatin or $\text{XeF}_2$) receive confident-looking predictions with `applicability_warning = None`. The field exists in [`PredictionResult`](../src/models/inference.py) but is hardcoded to `None` rather than computing Tanimoto distance to the training set or training centroid.
 
 ---
 
 ## 11. Explainability and SHAP
 
 ### 11.1 TreeSHAP Verification
-Explainability in [`src/explainability/shap_analysis.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/explainability/shap_analysis.py) utilizes `shap.TreeExplainer` on the ClinTox Random Forest model.
+Explainability in [`src/explainability/shap_analysis.py`](../src/explainability/shap_analysis.py) utilizes `shap.TreeExplainer` on the ClinTox Random Forest model.
 * **Audit Test (Aspirin):**
   - Base expected value: $0.50$ (consistent with balanced tree priors).
   - Status: `SUCCESS`.
@@ -268,12 +268,12 @@ Explainability in [`src/explainability/shap_analysis.py`](file:///c:/Users/AMRIT
 ## 12. Similarity Search and Candidate Ranking
 
 ### 12.1 Chemical Similarity Engine
-[`src/similarity/search.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/similarity/search.py) queries 20 reference FDA-approved molecules using Morgan ECFP4 Tanimoto coefficients.
+[`src/similarity/search.py`](../src/similarity/search.py) queries 20 reference FDA-approved molecules using Morgan ECFP4 Tanimoto coefficients.
 * Tanimoto calculation is exact ($\frac{|A \cap B|}{|A \cup B|}$).
 * Reference cache is precomputed and validated against RDKit standards.
 
 ### 12.2 Multi-Objective Candidate Prioritization
-The prioritization engine ([`src/ranking/scorer.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/ranking/scorer.py)) ranks candidates using a linear composite index:
+The prioritization engine ([`src/ranking/scorer.py`](../src/ranking/scorer.py)) ranks candidates using a linear composite index:
 $$R = w_{\text{safety}} \cdot (1 - P_{\text{tox}}) + w_{\text{druglike}} \cdot QED + w_{\text{sim}} \cdot \text{Tanimoto}_{\max}$$
 Default baseline weights: $w_{\text{safety}} = 0.5, w_{\text{druglike}} = 0.3, w_{\text{sim}} = 0.2$.
 
@@ -301,14 +301,14 @@ The following table summarizes all 8 empirical experiments conducted during this
 
 | Exp ID | Objective | Target Module | Split & Config | Key Metric / Result | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **EXP-01** | Dataset Provenance & Duplicate Profiling | [`data/raw/clintox.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/clintox.csv), [`tox21.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/tox21.csv) | N/A | Found **19 duplicate SMILES pairs with contradictory labels** in ClinTox; 0 duplicates in Tox21. | COMPLETED |
-| **EXP-02** | Data Leakage & Split Contamination | [`src/models/clintox.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/clintox.py), [`src/chemistry/scaffolds.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/chemistry/scaffolds.py) | Random vs. Scaffold | **9 identical molecules cross train/test splits** in Random Split. **0 cross** in Scaffold Split. | COMPLETED |
-| **EXP-03** | Multi-Seed Stability & Variance | [`src/models/clintox.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/clintox.py) | 5 seeds ($42 \dots 999$) | Random ROC-AUC: $0.8306 \pm 0.0510$ (range $0.7512 - 0.8890$); Scaffold ROC-AUC: $0.7789 \pm 0.0125$. | COMPLETED |
-| **EXP-04** | Calibration & Probability Bias | [`src/models/clintox.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/clintox.py) | Test set (seed 42) | Brier score loss: $0.0789$. Bins $\hat{P} \in [0.66, 0.95]$ correspond to empirical true risk of only $25\%$. | COMPLETED |
-| **EXP-05** | Tox21 12-Endpoint Performance | [`src/models/tox21.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/tox21.py) | 12 endpoints | Missingness $7.2\% - 25.8\%$; positive rates $2.9\% - 16.2\%$; scaffold drops range $0.05 - 0.12$. | COMPLETED |
-| **EXP-06** | Ranking Weight Sensitivity | [`src/ranking/scorer.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/ranking/scorer.py) | 10 candidates, 5 regimes | Spearman $\rho \ge 0.9152$; Rank #1 candidate invariant across all 5 regimes. | COMPLETED |
-| **EXP-07** | Pipeline Parity & Ground Truth Check | [`src/models/inference.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/inference.py) | 5 reference compounds | $|\Delta P| < 10^{-4}$ (exact parity). Confirmed Aspirin row 846 has $CT\_TOX=1$, explaining $P=0.9933$. | COMPLETED |
-| **EXP-08** | Applicability Domain on OOD Molecules | [`src/models/inference.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/inference.py) | Cisplatin, $\text{XeF}_2$ | Inorganics pass parsing; predicted $P=0.2133$ and $0.3407$ with `applicability_warning=None`. | COMPLETED |
+| **EXP-01** | Dataset Provenance & Duplicate Profiling | [`data/raw/clintox.csv`](../data/raw/clintox.csv), [`tox21.csv`](../data/raw/tox21.csv) | N/A | Found **19 duplicate SMILES pairs with contradictory labels** in ClinTox; 0 duplicates in Tox21. | COMPLETED |
+| **EXP-02** | Data Leakage & Split Contamination | [`src/models/clintox.py`](../src/models/clintox.py), [`src/chemistry/scaffolds.py`](../src/chemistry/scaffolds.py) | Random vs. Scaffold | **9 identical molecules cross train/test splits** in Random Split. **0 cross** in Scaffold Split. | COMPLETED |
+| **EXP-03** | Multi-Seed Stability & Variance | [`src/models/clintox.py`](../src/models/clintox.py) | 5 seeds ($42 \dots 999$) | Random ROC-AUC: $0.8306 \pm 0.0510$ (range $0.7512 - 0.8890$); Scaffold ROC-AUC: $0.7789 \pm 0.0125$. | COMPLETED |
+| **EXP-04** | Calibration & Probability Bias | [`src/models/clintox.py`](../src/models/clintox.py) | Test set (seed 42) | Brier score loss: $0.0789$. Bins $\hat{P} \in [0.66, 0.95]$ correspond to empirical true risk of only $25\%$. | COMPLETED |
+| **EXP-05** | Tox21 12-Endpoint Performance | [`src/models/tox21.py`](../src/models/tox21.py) | 12 endpoints | Missingness $7.2\% - 25.8\%$; positive rates $2.9\% - 16.2\%$; scaffold drops range $0.05 - 0.12$. | COMPLETED |
+| **EXP-06** | Ranking Weight Sensitivity | [`src/ranking/scorer.py`](../src/ranking/scorer.py) | 10 candidates, 5 regimes | Spearman $\rho \ge 0.9152$; Rank #1 candidate invariant across all 5 regimes. | COMPLETED |
+| **EXP-07** | Pipeline Parity & Ground Truth Check | [`src/models/inference.py`](../src/models/inference.py) | 5 reference compounds | $|\Delta P| < 10^{-4}$ (exact parity). Confirmed Aspirin row 846 has $CT\_TOX=1$, explaining $P=0.9933$. | COMPLETED |
+| **EXP-08** | Applicability Domain on OOD Molecules | [`src/models/inference.py`](../src/models/inference.py) | Cisplatin, $\text{XeF}_2$ | Inorganics pass parsing; predicted $P=0.2133$ and $0.3407$ with `applicability_warning=None`. | COMPLETED |
 
 ---
 
@@ -338,8 +338,8 @@ The following table summarizes all 8 empirical experiments conducted during this
 * **Finding ID:** `AUDIT-DATA-01`
 * **Title:** Contradictory Duplicate Labels in ClinTox Dataset & Train/Test Cross-Contamination
 * **Severity:** **High**
-* **Affected File:** [`data/raw/clintox.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/clintox.csv), [`src/models/clintox.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/clintox.py)
-* **Evidence:** In [`data/raw/clintox.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/clintox.csv), 19 duplicate canonical structures exist with opposite labels ($CT\_TOX = 0$ and $CT\_TOX = 1$). Under stratified random splitting, 9 of these identical molecules are split across train and test partitions.
+* **Affected File:** [`data/raw/clintox.csv`](../data/raw/clintox.csv), [`src/models/clintox.py`](../src/models/clintox.py)
+* **Evidence:** In [`data/raw/clintox.csv`](../data/raw/clintox.csv), 19 duplicate canonical structures exist with opposite labels ($CT\_TOX = 0$ and $CT\_TOX = 1$). Under stratified random splitting, 9 of these identical molecules are split across train and test partitions.
 * **Statistical / Scientific Explanation:** Contradictory ground-truth labels impose an artificial Bayes error bound. When identical molecules appear with conflicting labels across partitions, model evaluation penalizes correct chemical pattern recognition.
 * **Potential Impact:** Artificially constrains model performance and inflates prediction error on standard random splits.
 * **Recommended Remediation:** Implement a dataset deduplication policy in `prepare_clintox_dataset()`: resolve conflicting duplicates by either consensus voting, prioritizing conservative toxicity designation ($CT\_TOX=1$), or dropping unresolved contradictory pairs.
@@ -352,11 +352,11 @@ The following table summarizes all 8 empirical experiments conducted during this
 * **Finding ID:** `AUDIT-ML-01`
 * **Title:** High Test Variance and Partition Sensitivity in Single-Seed Random Splits
 * **Severity:** **High**
-* **Affected File:** [`src/models/clintox.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/clintox.py), [`docs/MODEL_CARD_CLINTOX.md`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/MODEL_CARD_CLINTOX.md)
+* **Affected File:** [`src/models/clintox.py`](../src/models/clintox.py), [`docs/MODEL_CARD_CLINTOX.md`](MODEL_CARD_CLINTOX.md)
 * **Evidence:** Multi-seed evaluation of ClinTox random splits across seeds 42, 123, 456, 789, 999 yielded ROC-AUC ranging from $0.7512$ to $0.8890$ ($\text{std} = 0.0510$) and PR-AUC ranging from $0.1883$ to $0.3746$.
 * **Statistical / Scientific Explanation:** Due to the severe class imbalance ($7.3\%$ positive), a $20\%$ test split contains only $\approx 22$ positive instances. Small random shifts in positive allocation produce substantial variance in rank metrics.
 * **Potential Impact:** Reporting a single random split metric ($0.8517$) overstates performance certainty and creates false confidence.
-* **Recommended Remediation:** Update [`docs/MODEL_CARD_CLINTOX.md`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/MODEL_CARD_CLINTOX.md) and model documentation to report multi-seed confidence intervals ($0.831 \pm 0.051$) alongside the deterministic scaffold benchmark ($0.779 \pm 0.013$).
+* **Recommended Remediation:** Update [`docs/MODEL_CARD_CLINTOX.md`](MODEL_CARD_CLINTOX.md) and model documentation to report multi-seed confidence intervals ($0.831 \pm 0.051$) alongside the deterministic scaffold benchmark ($0.779 \pm 0.013$).
 * **Verification Experiment:** Multi-seed cross-validation script.
 * **Independently Reproduced:** Yes (Experiment EXP-03).
 
@@ -366,7 +366,7 @@ The following table summarizes all 8 empirical experiments conducted during this
 * **Finding ID:** `AUDIT-ML-02`
 * **Title:** Uncalibrated Probability Inflation Driven by Balanced Class Weighting
 * **Severity:** **High**
-* **Affected File:** [`src/models/clintox.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/clintox.py), [`src/models/inference.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/inference.py)
+* **Affected File:** [`src/models/clintox.py`](../src/models/clintox.py), [`src/models/inference.py`](../src/models/inference.py)
 * **Evidence:** Calibration evaluation yielded a Brier score of $0.0789$. In calibration binning, molecules with predicted probabilities $\hat{P} \in [0.65, 0.95]$ exhibited an empirical test toxicity rate of only $25\%$.
 * **Statistical / Scientific Explanation:** Applying `class_weight='balanced'` artificially shifts the decision trees' implicit base-rate prior to $\approx 50\%$. The resulting random forest voting probabilities reflect re-weighted priors rather than true posterior failure probabilities under the native $7.3\%$ dataset prevalence.
 * **Potential Impact:** Screening scientists interpreting $P=0.85$ as "an 85% probability of clinical failure" are materially misled.
@@ -380,7 +380,7 @@ The following table summarizes all 8 empirical experiments conducted during this
 * **Finding ID:** `AUDIT-APP-01`
 * **Title:** Incomplete Applicability Domain Guardrails for Out-of-Distribution Molecules
 * **Severity:** **Medium**
-* **Affected File:** [`src/models/inference.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/inference.py)
+* **Affected File:** [`src/models/inference.py`](../src/models/inference.py)
 * **Evidence:** Submitting Cisplatin (`Cl[Pt](Cl)(N)N`) and $\text{XeF}_2$ returns predictions $P=0.2133$ and $P=0.3407$ with `applicability_warning=None`.
 * **Statistical / Scientific Explanation:** The inference engine checks chemical validity via RDKit parsing, but does not calculate Mahalanobis distance, nearest-neighbor Tanimoto similarity to the training set, or descriptor boundaries. Consequently, inorganic and heavy metal complexes receive confident predictions despite having zero representation in the training domain.
 * **Potential Impact:** Users may believe the model is competent to evaluate metallodrugs, radiopharmaceuticals, or inorganic complexes.
@@ -394,11 +394,11 @@ The following table summarizes all 8 empirical experiments conducted during this
 * **Finding ID:** `AUDIT-DATA-02`
 * **Title:** Ground-Truth Label Noise for Established Therapeutics (ClinTox Aspirin Record)
 * **Severity:** **Medium**
-* **Affected File:** [`data/raw/clintox.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/clintox.csv), [`src/ui/single_molecule.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/ui/single_molecule.py)
-* **Evidence:** Aspirin is cataloged in [`data/raw/clintox.csv`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/data/raw/clintox.csv) (row 846) as `FDA_APPROVED=0, CT_TOX=1`, leading the model to output $P(\text{toxic}) = 0.9933$.
+* **Affected File:** [`data/raw/clintox.csv`](../data/raw/clintox.csv), [`src/ui/single_molecule.py`](../src/ui/single_molecule.py)
+* **Evidence:** Aspirin is cataloged in [`data/raw/clintox.csv`](../data/raw/clintox.csv) (row 846) as `FDA_APPROVED=0, CT_TOX=1`, leading the model to output $P(\text{toxic}) = 0.9933$.
 * **Statistical / Scientific Explanation:** ClinTox includes compounds evaluated in clinical trials for specific alternative indications or non-standard trial failures, diverging from general pharmacological approval status.
 * **Potential Impact:** Demonstrating the platform with Aspirin without scientific context alarms users and erodes trust in model validity.
-* **Recommended Remediation:** Document this specific historical label quirk in the UI and documentation ([`docs/KNOWN_LIMITATIONS.md`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/KNOWN_LIMITATIONS.md)), explaining that $CT\_TOX$ measures clinical trial discontinuation events rather than consumer safety.
+* **Recommended Remediation:** Document this specific historical label quirk in the UI and documentation ([`docs/KNOWN_LIMITATIONS.md`](KNOWN_LIMITATIONS.md)), explaining that $CT\_TOX$ measures clinical trial discontinuation events rather than consumer safety.
 * **Verification Experiment:** Visual inspection of UI disclaimers for Aspirin.
 * **Independently Reproduced:** Yes (Experiment EXP-07).
 
@@ -408,7 +408,7 @@ The following table summarizes all 8 empirical experiments conducted during this
 * **Finding ID:** `AUDIT-RANK-01`
 * **Title:** Heuristic Nature of Linear Scoring Metric in Candidate Prioritization
 * **Severity:** **Low**
-* **Affected File:** [`src/ranking/scorer.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/ranking/scorer.py), [`docs/SCIENTIFIC_ASSUMPTIONS.md`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/SCIENTIFIC_ASSUMPTIONS.md)
+* **Affected File:** [`src/ranking/scorer.py`](../src/ranking/scorer.py), [`docs/SCIENTIFIC_ASSUMPTIONS.md`](SCIENTIFIC_ASSUMPTIONS.md)
 * **Evidence:** Composite formula $R = 0.5S + 0.3D + 0.2M$ blends uncalibrated toxicity scores, empirical QED, and Tanimoto similarity into an arbitrary unit interval $[0, 1]$.
 * **Statistical / Scientific Explanation:** While highly stable across weight fluctuations ($\rho \ge 0.9152$), the linear combination implies additive utility across non-commensurate scientific dimensions.
 * **Potential Impact:** Users might interpret candidate score $0.85$ as a formal probability of drug success.
@@ -434,15 +434,15 @@ The audit team recommends a structured two-stage remediation plan:
 
 ### Stage 2A: High-Priority Scientific Hardening (Immediate Next Steps)
 1. **Remediation Task A (Dataset Deduplication & Conflict Resolution):**
-   - Update [`src/models/clintox.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/clintox.py) to resolve the 19 contradictory duplicate pairs in `clintox.csv`. Adopt conservative labeling ($CT\_TOX=1$) or drop conflicting pairs during preprocessing.
+   - Update [`src/models/clintox.py`](../src/models/clintox.py) to resolve the 19 contradictory duplicate pairs in `clintox.csv`. Adopt conservative labeling ($CT\_TOX=1$) or drop conflicting pairs during preprocessing.
 2. **Remediation Task B (Probability Calibration):**
    - Integrate Platt scaling or isotonic regression (`CalibratedClassifierCV`) to calibrate output probabilities against true base-rate prevalence.
 3. **Remediation Task C (Dynamic Applicability Domain Filter):**
-   - Enhance [`src/models/inference.py`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/src/models/inference.py) to calculate maximum Tanimoto similarity against the training library, populating `applicability_warning` when similarity falls below $0.30$ or molecular descriptors violate applicability limits.
+   - Enhance [`src/models/inference.py`](../src/models/inference.py) to calculate maximum Tanimoto similarity against the training library, populating `applicability_warning` when similarity falls below $0.30$ or molecular descriptors violate applicability limits.
 
 ### Stage 2B: Documentation & UI Enhancements (Medium Priority)
 1. **Remediation Task D (Multi-Seed Reporting):**
-   - Update [`docs/MODEL_CARD_CLINTOX.md`](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/MODEL_CARD_CLINTOX.md) with empirical multi-seed mean and variance bounds ($0.831 \pm 0.051$).
+   - Update [`docs/MODEL_CARD_CLINTOX.md`](MODEL_CARD_CLINTOX.md) with empirical multi-seed mean and variance bounds ($0.831 \pm 0.051$).
 2. **Remediation Task E (Educational Disclaimers in UI):**
    - Add contextual disclaimers explaining the ClinTox Aspirin ground-truth annotation quirk and reminding users that candidate ranking is a triage heuristic.
 

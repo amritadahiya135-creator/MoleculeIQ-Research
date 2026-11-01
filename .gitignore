@@ -9,3 +9,25 @@ htmlcov/
 .venv/
 env/
 venv/
+
+# Scratch and temporary directories
+scratch/
+.DS_Store
+
+# Distribution packages & release tarballs
+dist/
+build/
+*.egg-info/
+
+# Hydrated literature benchmark (retrieved locally on-demand via scripts/hydrate_pubmed_benchmark.py)
+data/benchmarks/literature/pubmed_benchmark_v1.json
+
+# Private local benchmark backup containing verbatim text
+data/benchmarks/literature/relevance_annotations_v1.json
+
+# Internal AI agent orchestration tracking
+.agent/
+# Local machine-learning model binaries distributed via GitHub Release asset archive
+artifacts/clintox/*.joblib
+artifacts/tox21/*.joblib
+artifacts/clintox/training_fingerprints.npz

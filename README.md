@@ -5,7 +5,7 @@
 [![Python 3.11 | 3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue.svg)](https://www.python.org/downloads/)
 [![RDKit](https://img.shields.io/badge/cheminformatics-RDKit%202024-green.svg)](https://www.rdkit.org/)
 [![Streamlit](https://img.shields.io/badge/ui-Streamlit-red.svg)](https://streamlit.io/)
-[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/Dockerfile)
+[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](Dockerfile)
 [![Status](https://img.shields.io/badge/status-Research%20Prototype%20Release%20Candidate%20(v5.0)-brightgreen.svg)]()
 
 ---
@@ -68,30 +68,46 @@ Built on an auditable, layered monolithic architecture, MoleculeIQ unifies RDKit
 
 ### 1. Local Native Installation
 ```bash
-git clone https://github.com/moleculeiq/moleculeiq.git
+git clone https://github.com/amritadahiya135-creator/moleculeiq.git
 cd moleculeiq
 python -m venv .venv
 # Activate: source .venv/bin/activate (Linux/macOS) or .venv\Scripts\activate (Windows)
 pip install -r requirements.txt
 ```
 
-### 2. Verify Cryptographic Integrity (SHA-256)
+### 2. Acquire or Verify Model Release Assets
+Model weights and pre-computed fingerprint matrices (~405 MB uncompressed) are distributed as versioned GitHub Release assets rather than bundled in Git clone history:
+```bash
+# Verify existing local model artifacts
+python scripts/download_release_artifacts.py --verify-only
+
+# Or download and extract models from the latest release
+python scripts/download_release_artifacts.py --tag v5.0.0
+```
+
+### 3. Hydrate Authentic PubMed Literature Benchmark (Optional)
+To run the literature retrieval evaluation benchmark without bundling copyrighted commercial journal abstracts in Git:
+```bash
+python scripts/hydrate_pubmed_benchmark.py
+```
+
+### 4. Verify Cryptographic Integrity (SHA-256)
 ```bash
 python -c "from src.utils.integrity import verify_artifact_checksums; res = verify_artifact_checksums(); print(res); assert res.is_valid"
 ```
 
-### 3. Run Automated Tests
+### 5. Run Automated Tests
 ```bash
 python -m pytest tests/unit/ tests/integration/ tests/e2e/ -v
 ```
 
-### 4. Launch Application
+### 6. Launch Application
 ```bash
 streamlit run app.py
 ```
 Open [http://localhost:8501](http://localhost:8501) in your browser.
 
-### 5. Docker Deployment
+### 7. Docker Deployment
 ```bash
 docker build -t moleculeiq:latest .
 docker run -d -p 8501:8501 --name moleculeiq-app moleculeiq:latest
@@ -101,13 +117,21 @@ docker run -d -p 8501:8501 --name moleculeiq-app moleculeiq:latest
 
 ## Comprehensive Documentation
 
-* [Installation & Deployment Guide](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/INSTALLATION.md)
-* [Demonstration & Evaluation Walkthrough](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/DEMO_GUIDE.md)
-* [Final Scientific & ML Validation Report](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/FINAL_SCIENTIFIC_VALIDATION_REPORT.md)
-* [Master Engineering Baseline](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/MASTER_ENGINEERING_BASELINE.md)
-* [Release Readiness Report (v5.0)](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/RELEASE_READINESS_REPORT.md)
-* [Independent Release Audit](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/INDEPENDENT_RELEASE_AUDIT.md)
-* [Architecture Specification](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/ARCHITECTURE.md)
-* [ClinTox Model Card](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/MODEL_CARD_CLINTOX.md)
-* [Tox21 Model Card](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/MODEL_CARD_TOX21.md)
-* [Release Notes](file:///c:/Users/AMRITA/OneDrive/Desktop/moleculeiq/docs/RELEASE_NOTES.md)
+* [Installation & Deployment Guide](docs/INSTALLATION.md)
+* [Demonstration & Evaluation Walkthrough](docs/DEMO_GUIDE.md)
+* [Final Scientific & ML Validation Report](docs/FINAL_SCIENTIFIC_VALIDATION_REPORT.md)
+* [Master Engineering Baseline](docs/MASTER_ENGINEERING_BASELINE.md)
+* [Release Readiness Report (v5.0)](docs/RELEASE_READINESS_REPORT.md)
+* [Independent Release Audit](docs/INDEPENDENT_RELEASE_AUDIT.md)
+* [Architecture Specification](docs/ARCHITECTURE.md)
+* [ClinTox Model Card](docs/MODEL_CARD_CLINTOX.md)
+* [Tox21 Model Card](docs/MODEL_CARD_TOX21.md)
+* [Release Notes](docs/RELEASE_NOTES.md)
+
+---
+
+## License
+
+MoleculeIQ is released under the [MIT License](LICENSE).
+
+See the [LICENSE](LICENSE) file for the full license text and third-party dataset notices (MoleculeNet ClinTox, NIH NCATS Tox21, ChEMBL, and NCBI PubMed).

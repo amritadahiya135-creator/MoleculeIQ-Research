@@ -1,8 +1,7 @@
-"""MoleculeIQ Performance and Latency Benchmarking Suite."""
-
+import math
 import time
 import statistics
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Sequence
 import pytest
 
 from src.chemistry.validation import validate_smiles
@@ -24,6 +23,69 @@ TEST_MOLECULES = [
     "CC12CCC3C(C1CCC2O)CCC4=CC(=O)CCC34C", # Testosterone
     "CC(C)c1c(C(=O)Nc2ccccc2)c(-c2ccccc2)c(-c2ccc(F)cc2)n1CC[C@@H](O)C[C@@H](O)CC(=O)O", # Atorvastatin
 ]
+
+
+def calculate_batch_throughput_stats(
+    trial_durations_seconds: Sequence[float],
+    n_molecules: int,
+) -> Dict[str, Any]:
+    """Calculate repeatable, unrounded and display-rounded batch throughput metrics.
+
+    Parameters
+    ----------
+    trial_durations_seconds : Sequence[float]
+        Sequence of measured elapsed times in seconds for each batch trial.
+    n_molecules : int
+        Number of molecules evaluated in each batch trial.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Dictionary containing raw and display-rounded throughput and latency statistics.
+    """
+    if n_molecules <= 0:
+        raise ValueError(f"n_molecules must be positive, got {n_molecules}.")
+    if not trial_durations_seconds:
+        raise ValueError("trial_durations_seconds cannot be empty.")
+
+    durations: List[float] = []
+    for d in trial_durations_seconds:
+        d_val = float(d)
+        if d_val <= 0.0 or not math.isfinite(d_val):
+            raise ValueError(f"Trial duration must be positive and finite, got {d}.")
+        durations.append(d_val)
+
+    throughputs = [float(n_molecules) / d for d in durations]
+    sorted_d = sorted(durations)
+    sorted_tp = sorted(throughputs)
+
+    med_duration = float(statistics.median(durations))
+    med_tp = float(statistics.median(throughputs))
+    mean_duration = float(statistics.mean(durations))
+    mean_tp = float(statistics.mean(throughputs))
+
+    return {
+        # Raw unrounded throughput strictly evaluated against the performance SLA (> 0.4 mol/s)
+        "raw_molecules_per_second": med_tp,
+        # Display-rounded fields preserving existing dictionary schema
+        "molecules_per_second": round(med_tp, 1),
+        "total_seconds_for_20": round(med_duration, 2),
+        # Multi-trial repeatability diagnostics
+        "n_trials": len(durations),
+        "trial_seconds": [round(d, 3) for d in durations],
+        "trial_throughputs": [round(tp, 3) for tp in throughputs],
+        "raw_trial_throughputs": throughputs,
+        "raw_median_seconds": med_duration,
+        "mean_seconds_for_20": round(mean_duration, 2),
+        "mean_molecules_per_second": round(mean_tp, 2),
+        "min_molecules_per_second": round(sorted_tp[0], 3),
+        "max_molecules_per_second": round(sorted_tp[-1], 3),
+        "raw_min_molecules_per_second": sorted_tp[0],
+        "raw_max_molecules_per_second": sorted_tp[-1],
+        "all_trials_pass_sla": all(tp > 0.4 for tp in throughputs),
+        "min_seconds_for_20": round(sorted_d[0], 3),
+        "max_seconds_for_20": round(sorted_d[-1], 3),
+    }
 
 
 def measure_latencies(fn, iterations: int = 5) -> Dict[str, float]:
@@ -50,8 +112,8 @@ def measure_latencies(fn, iterations: int = 5) -> Dict[str, float]:
     }
 
 
-def run_comprehensive_benchmarks() -> Dict[str, Dict[str, float]]:
-    results: Dict[str, Dict[str, float]] = {}
+def run_comprehensive_benchmarks(n_batch_trials: int = 3) -> Dict[str, Dict[str, Any]]:
+    results: Dict[str, Dict[str, Any]] = {}
 
     # 1. SMILES Validation
     def benchmark_validation():
@@ -122,15 +184,18 @@ def run_comprehensive_benchmarks() -> Dict[str, Dict[str, float]]:
         k: round(v / len(TEST_MOLECULES), 3) for k, v in e2e_stats.items()
     }
 
-    # 7. Batch Screening Throughput
-    t_start = time.perf_counter()
-    batch_res = orchestrator.screen_batch(TEST_MOLECULES * 2)  # 20 compounds
-    t_elapsed = time.perf_counter() - t_start
-    throughput = len(TEST_MOLECULES * 2) / t_elapsed
-    results["Batch_Throughput"] = {
-        "molecules_per_second": round(throughput, 1),
-        "total_seconds_for_20": round(t_elapsed, 2),
-    }
+    # 7. Batch Screening Throughput (Multi-trial repeated measurement)
+    batch_workload = TEST_MOLECULES * 2  # 20 compounds
+    trial_durations: List[float] = []
+    for _ in range(max(1, n_batch_trials)):
+        t_start = time.perf_counter()
+        _ = orchestrator.screen_batch(batch_workload)
+        trial_durations.append(time.perf_counter() - t_start)
+
+    results["Batch_Throughput"] = calculate_batch_throughput_stats(
+        trial_durations_seconds=trial_durations,
+        n_molecules=len(batch_workload),
+    )
 
     return results
 
@@ -148,7 +213,36 @@ def test_performance_benchmarks():
     assert results["Morgan_FP_per_mol"]["p50_ms"] < 25.0, "Fingerprint p50 should be < 25ms"
     assert results["ClinTox_Inference_per_mol"]["p50_ms"] < 1000.0, "ClinTox inference p50 should be < 1000ms"
     assert results["Similarity_Search_per_mol"]["p50_ms"] < 50.0, "Similarity p50 should be < 50ms"
-    assert results["Batch_Throughput"]["molecules_per_second"] > 0.4, "Batch throughput should exceed 0.4 mol/s"
+
+    batch_stats = results["Batch_Throughput"]
+    raw_throughputs = batch_stats.get(
+        "raw_trial_throughputs",
+        [batch_stats.get("raw_molecules_per_second", batch_stats["molecules_per_second"])],
+    )
+    trial_durations = batch_stats.get("trial_seconds", [batch_stats.get("total_seconds_for_20")])
+
+    # Per-trial performance integrity: every scored trial must strictly exceed 0.4 mol/s
+    failing_trials = [
+        {"trial": i + 1, "duration_s": dur, "raw_throughput_mol_per_s": tp}
+        for i, (dur, tp) in enumerate(zip(trial_durations, raw_throughputs))
+        if tp <= 0.4
+    ]
+
+    assert len(failing_trials) == 0, (
+        f"Batch throughput SLA violated: every scored trial must strictly exceed 0.4 mol/s. "
+        f"Failing trials ({len(failing_trials)}/{len(raw_throughputs)}): {failing_trials}. "
+        f"All trial throughputs (raw): {[round(tp, 4) for tp in raw_throughputs]} mol/s. "
+        f"All trial durations: {trial_durations} s. "
+        f"Median raw throughput: {batch_stats.get('raw_molecules_per_second', 0.0):.4f} mol/s "
+        f"(display={batch_stats.get('molecules_per_second')} mol/s)."
+    )
+
+    # Median throughput check as secondary summary verification
+    raw_median = batch_stats.get("raw_molecules_per_second", batch_stats["molecules_per_second"])
+    assert raw_median > 0.4, (
+        f"Median batch throughput should exceed 0.4 mol/s: raw={raw_median:.4f} mol/s, "
+        f"display={batch_stats.get('molecules_per_second')} mol/s"
+    )
 
 
 if __name__ == "__main__":

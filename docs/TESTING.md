@@ -37,7 +37,7 @@ All 37 test cases passed with a 100% pass rate:
 ```text
 ============================= test session starts =============================
 platform win32 -- Python 3.12.6, pytest-9.1.1
-rootdir: C:\Users\AMRITA\OneDrive\Desktop\moleculeiq
+rootdir: <repository-root>
 collected 37 items
 
 tests/e2e/test_batch_workflow.py::TestBatchScreeningWorkflow::test_mixed_valid_and_invalid_batch_screening PASSED

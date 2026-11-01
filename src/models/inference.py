@@ -41,6 +41,14 @@ class Tox21EndpointPrediction:
     is_active: bool
     status: str
     error_message: Optional[str] = None
+    applicability_score: Optional[float] = None
+    applicability_domain_status: str = "UNVALIDATED"
+    applicability_warning: Optional[str] = None
+    calibrated_probability: Optional[float] = None
+    calibration_method: Optional[str] = None
+    calibration_status: str = "UNAVAILABLE"
+    calibration_version: Optional[str] = None
+    calibration_warning: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -70,6 +78,8 @@ class ToxicityInferenceService:
         self._clintox_meta: Optional[Dict[str, Any]] = None
         self._tox21_models: Dict[str, RandomForestClassifier] = {}
         self._tox21_metas: Dict[str, Dict[str, Any]] = {}
+        self._tox21_ad_evaluator: Optional[Any] = None
+        self._tox21_calibrator: Optional[Any] = None
 
     def is_clintox_available(self) -> bool:
         """Check if ClinTox model artifact exists on disk."""
@@ -200,6 +210,87 @@ class ToxicityInferenceService:
             )
             return "OUTSIDE_DOMAIN", round(max_tanimoto, 4), warning
 
+    def _get_tox21_ad_evaluator(self) -> Any:
+        if self._tox21_ad_evaluator is None:
+            from src.models.tox21_applicability import Tox21ApplicabilityEvaluator
+            self._tox21_ad_evaluator = Tox21ApplicabilityEvaluator(
+                artifact_dir=self.tox21_artifact_dir,
+            )
+        return self._tox21_ad_evaluator
+
+    def assess_tox21_endpoint_applicability(
+        self, endpoint: str, query_fp_vec: np.ndarray
+    ) -> Tuple[str, Optional[float], Optional[str]]:
+        """
+        Assess chemical applicability domain for a specific Tox21 endpoint.
+
+        Parameters
+        ----------
+        endpoint : str
+            Tox21 endpoint identifier (e.g., 'NR-AR').
+        query_fp_vec : np.ndarray
+            2048-bit Morgan fingerprint vector.
+
+        Returns
+        -------
+        status : str
+            "UNVALIDATED" if evaluated, or "UNAVAILABLE".
+        score : Optional[float]
+            Maximum Tanimoto similarity to the endpoint's training set compounds.
+        warning : Optional[str]
+            Advisory disclosure regarding unvalidated threshold status.
+        """
+        evaluator = self._get_tox21_ad_evaluator()
+        res = evaluator.evaluate_endpoint(endpoint, query_fp_vec)
+        return res.applicability_domain_status, res.applicability_score, res.applicability_warning
+
+    def assess_tox21_applicability(
+        self, smiles_or_fp: Any
+    ) -> Dict[str, Tuple[str, Optional[float], Optional[str]]]:
+        """
+        Assess applicability domain across all 12 Tox21 endpoints.
+
+        Parameters
+        ----------
+        smiles_or_fp : str or np.ndarray
+            SMILES string or 2048-bit fingerprint array.
+
+        Returns
+        -------
+        Dict[str, Tuple[str, Optional[float], Optional[str]]]
+            Mapping of endpoint name to (status, score, warning).
+        """
+        evaluator = self._get_tox21_ad_evaluator()
+        all_res = evaluator.evaluate_all(smiles_or_fp)
+        return {
+            ep: (r.applicability_domain_status, r.applicability_score, r.applicability_warning)
+            for ep, r in all_res.items()
+        }
+
+    def _get_tox21_calibrator(self) -> Any:
+        if self._tox21_calibrator is None:
+            from src.models.tox21_calibration import Tox21CalibrationService
+            self._tox21_calibrator = Tox21CalibrationService(
+                artifact_dir=self.tox21_artifact_dir,
+            )
+        return self._tox21_calibrator
+
+    def calibrate_tox21_endpoint_probability(
+        self,
+        endpoint: str,
+        raw_probability: float,
+        method: str = "recommended",
+    ) -> Dict[str, Any]:
+        """
+        Compute calibrated probability for a specific Tox21 endpoint without altering raw predictions.
+        """
+        calibrator = self._get_tox21_calibrator()
+        return calibrator.calibrate_probability(
+            endpoint=endpoint,
+            raw_probability=raw_probability,
+            method=method,
+        )
+
     def predict_clintox(self, smiles_or_fp: Any) -> ClinToxPrediction:
         """
         Execute ClinTox clinical trial toxicity probability prediction.
@@ -283,7 +374,71 @@ class ToxicityInferenceService:
             uncalibrated_probability=uncal_prob,
         )
 
-    def predict_tox21(self, smiles_or_fp: Any) -> Tox21MultiPrediction:
+    def predict_clintox_batch(self, fp_matrix: np.ndarray) -> List[ClinToxPrediction]:
+        """Execute ClinTox prediction across a batch of precomputed 2048-bit Morgan fingerprint vectors."""
+        if fp_matrix.ndim != 2 or fp_matrix.shape[1] != 2048:
+            raise ValueError(f"Expected 2D fingerprint matrix with shape (N, 2048), got {fp_matrix.shape}")
+
+        M = fp_matrix.shape[0]
+        if M == 0:
+            return []
+
+        try:
+            model, meta = self._load_clintox()
+        except Exception as exc:
+            return [
+                ClinToxPrediction(
+                    probability=0.0,
+                    predicted_class=0,
+                    is_toxic=False,
+                    model_version="unavailable",
+                    task_definition="Clinical trial failure due to toxicity (CT_TOX)",
+                    status="UNAVAILABLE",
+                    applicability_domain_status="UNAVAILABLE",
+                    error_message=str(exc),
+                )
+                for _ in range(M)
+            ]
+
+        pos_idx = meta.get("positive_class_index", 1)
+        probs_matrix = model.predict_proba(fp_matrix)
+
+        uncal_probs_list: List[Optional[float]] = [None] * M
+        if self._uncalibrated_model is not None:
+            try:
+                uncal_raw = self._uncalibrated_model.predict_proba(fp_matrix)
+                uncal_probs_list = [round(float(p[pos_idx]), 4) for p in uncal_raw]
+            except Exception:
+                pass
+
+        results: List[ClinToxPrediction] = []
+        for i in range(M):
+            prob_toxic = float(probs_matrix[i, pos_idx])
+            pred_class = int(prob_toxic >= 0.5)
+            ad_status, ad_score, ad_warning = self.assess_applicability_domain(fp_matrix[i])
+
+            results.append(
+                ClinToxPrediction(
+                    probability=round(prob_toxic, 4),
+                    predicted_class=pred_class,
+                    is_toxic=(pred_class == 1),
+                    model_version=meta.get("model_id", "clintox_rf_calibrated"),
+                    task_definition="Clinical trial failure due to toxicity (CT_TOX)",
+                    status="SUCCESS",
+                    applicability_domain_status=ad_status,
+                    applicability_score=ad_score,
+                    applicability_warning=ad_warning,
+                    uncalibrated_probability=uncal_probs_list[i],
+                )
+            )
+
+        return results
+
+    def predict_tox21(
+        self,
+        smiles_or_fp: Any,
+        calibration_method: str = "recommended",
+    ) -> Tox21MultiPrediction:
         """
         Execute multi-endpoint prediction across all 12 Tox21 assays.
         """
@@ -323,6 +478,14 @@ class ToxicityInferenceService:
                     is_active=False,
                     status="UNAVAILABLE",
                     error_message="Model artifact not found",
+                    applicability_score=None,
+                    applicability_domain_status="UNAVAILABLE",
+                    applicability_warning=f"Model artifact not found for '{ep}'",
+                    calibrated_probability=None,
+                    calibration_method=None,
+                    calibration_status="UNAVAILABLE",
+                    calibration_version=None,
+                    calibration_warning=f"Model artifact not found for '{ep}'",
                 )
                 continue
 
@@ -336,12 +499,25 @@ class ToxicityInferenceService:
             if is_active:
                 active_count += 1
 
+            ad_status, ad_score, ad_warning = self.assess_tox21_endpoint_applicability(ep, X[0])
+            cal_res = self.calibrate_tox21_endpoint_probability(
+                ep, prob_active, method=calibration_method
+            )
+
             endpoint_results[ep] = Tox21EndpointPrediction(
                 endpoint=ep,
                 probability=round(prob_active, 4),
                 predicted_class=pred_class,
                 is_active=is_active,
                 status="SUCCESS",
+                applicability_score=ad_score,
+                applicability_domain_status=ad_status,
+                applicability_warning=ad_warning,
+                calibrated_probability=cal_res["calibrated_probability"],
+                calibration_method=cal_res["calibration_method"],
+                calibration_status=cal_res["calibration_status"],
+                calibration_version=cal_res["calibration_version"],
+                calibration_warning=cal_res["calibration_warning"],
             )
 
         return Tox21MultiPrediction(
@@ -350,3 +526,85 @@ class ToxicityInferenceService:
             active_endpoints_count=active_count,
             status="SUCCESS",
         )
+
+    def predict_tox21_batch(
+        self,
+        fp_matrix: np.ndarray,
+        calibration_method: str = "recommended",
+    ) -> List[Tox21MultiPrediction]:
+        """Execute Tox21 12-endpoint prediction across a batch of precomputed 2048-bit Morgan fingerprint vectors."""
+        from src.models.tox21 import TOX21_ENDPOINTS
+
+        if fp_matrix.ndim != 2 or fp_matrix.shape[1] != 2048:
+            raise ValueError(f"Expected 2D fingerprint matrix with shape (N, 2048), got {fp_matrix.shape}")
+
+        M = fp_matrix.shape[0]
+        if M == 0:
+            return []
+
+        sample_endpoint_results: List[Dict[str, Tox21EndpointPrediction]] = [{} for _ in range(M)]
+        sample_active_counts: List[int] = [0] * M
+
+        for ep in TOX21_ENDPOINTS:
+            loaded = self._load_tox21_endpoint(ep)
+            if loaded is None:
+                for i in range(M):
+                    sample_endpoint_results[i][ep] = Tox21EndpointPrediction(
+                        endpoint=ep,
+                        probability=0.0,
+                        predicted_class=0,
+                        is_active=False,
+                        status="UNAVAILABLE",
+                        error_message="Model artifact not found",
+                        applicability_score=None,
+                        applicability_domain_status="UNAVAILABLE",
+                        applicability_warning=f"Model artifact not found for '{ep}'",
+                        calibrated_probability=None,
+                        calibration_method=None,
+                        calibration_status="UNAVAILABLE",
+                        calibration_version=None,
+                        calibration_warning=f"Model artifact not found for '{ep}'",
+                    )
+                continue
+
+            model, meta = loaded
+            pos_idx = meta.get("positive_class_index", 1)
+            ep_probs_matrix = model.predict_proba(fp_matrix)
+
+            for i in range(M):
+                prob_active = float(ep_probs_matrix[i, pos_idx])
+                pred_class = int(prob_active >= 0.5)
+                is_active = (pred_class == 1)
+                if is_active:
+                    sample_active_counts[i] += 1
+
+                ad_status, ad_score, ad_warning = self.assess_tox21_endpoint_applicability(ep, fp_matrix[i])
+                cal_res = self.calibrate_tox21_endpoint_probability(
+                    ep, prob_active, method=calibration_method
+                )
+
+                sample_endpoint_results[i][ep] = Tox21EndpointPrediction(
+                    endpoint=ep,
+                    probability=round(prob_active, 4),
+                    predicted_class=pred_class,
+                    is_active=is_active,
+                    status="SUCCESS",
+                    applicability_score=ad_score,
+                    applicability_domain_status=ad_status,
+                    applicability_warning=ad_warning,
+                    calibrated_probability=cal_res["calibrated_probability"],
+                    calibration_method=cal_res["calibration_method"],
+                    calibration_status=cal_res["calibration_status"],
+                    calibration_version=cal_res["calibration_version"],
+                    calibration_warning=cal_res["calibration_warning"],
+                )
+
+        return [
+            Tox21MultiPrediction(
+                endpoints=sample_endpoint_results[i],
+                total_endpoints=len(sample_endpoint_results[i]),
+                active_endpoints_count=sample_active_counts[i],
+                status="SUCCESS",
+            )
+            for i in range(M)
+        ]

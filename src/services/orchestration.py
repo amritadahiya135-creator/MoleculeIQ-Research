@@ -3,10 +3,12 @@
 import datetime
 import logging
 from typing import List, Optional, Callable, Dict, Any
+import numpy as np
 import pandas as pd
 
 from src.chemistry.validation import validate_smiles
 from src.chemistry.descriptors import calculate_descriptors
+from src.chemistry.fingerprints import generate_morgan_fingerprint
 from src.models.inference import ToxicityInferenceService
 from src.similarity.index import ChemicalSimilarityIndex
 from src.ranking.scoring import calculate_prioritization_score
@@ -37,7 +39,9 @@ class ScreeningOrchestrator:
         self.inference_service = inference_service or ToxicityInferenceService()
         self.similarity_index = similarity_index or ChemicalSimilarityIndex()
         self.explainer = explainer or ClinToxExplainer()
-        self.literature_service = literature_service or LiteratureAssistantService()
+        self.literature_service = literature_service or LiteratureAssistantService(
+            enable_biomedical_enhancements=True
+        )
 
     def analyze_single_molecule(
         self,
@@ -146,22 +150,65 @@ class ScreeningOrchestrator:
                 "Please partition the library into smaller sub-batches."
             )
 
-        records: List[BatchCandidateRecord] = []
         valid_count = 0
         invalid_count = 0
 
+        # Step 1: Validate rows, compute descriptors, and precompute Morgan fingerprints
+        valid_items: List[Dict[str, Any]] = []
+        all_row_info: List[Dict[str, Any]] = []
+
         for idx, smi in enumerate(smiles_list):
             name = names_list[idx] if (names_list and idx < len(names_list)) else f"Compound_{idx+1}"
-
-            # Step 1: Validate row
             val_res = validate_smiles(str(smi))
             if not val_res.is_valid or not val_res.canonical_smiles:
                 invalid_count += 1
+                all_row_info.append({
+                    "row_id": idx + 1,
+                    "name": name,
+                    "original_smiles": str(smi),
+                    "is_valid": False,
+                    "val_res": val_res,
+                })
+            else:
+                valid_count += 1
+                canonical = val_res.canonical_smiles
+                try:
+                    desc = calculate_descriptors(canonical)
+                except Exception:
+                    desc = None
+                fp_res = generate_morgan_fingerprint(canonical, radius=2, n_bits=2048)
+                item = {
+                    "row_id": idx + 1,
+                    "name": name,
+                    "original_smiles": str(smi),
+                    "canonical_smiles": canonical,
+                    "is_valid": True,
+                    "desc": desc,
+                    "fp_res": fp_res,
+                    "valid_idx": len(valid_items),
+                }
+                valid_items.append(item)
+                all_row_info.append(item)
+
+        # Step 2: High-throughput matrix inference on valid compounds
+        if valid_items:
+            X_valid = np.array([item["fp_res"].numpy_vector for item in valid_items])
+            clintox_preds = self.inference_service.predict_clintox_batch(X_valid)
+            tox21_preds = self.inference_service.predict_tox21_batch(X_valid)
+        else:
+            clintox_preds = []
+            tox21_preds = []
+
+        # Step 3: Construct records preserving original row identity and order
+        records: List[BatchCandidateRecord] = []
+        for idx, info in enumerate(all_row_info):
+            if not info["is_valid"]:
+                val_res = info["val_res"]
                 records.append(
                     BatchCandidateRecord(
-                        row_id=idx + 1,
-                        name=name,
-                        original_smiles=str(smi),
+                        row_id=info["row_id"],
+                        name=info["name"],
+                        original_smiles=info["original_smiles"],
                         canonical_smiles=None,
                         is_valid=False,
                         error_message=val_res.error_message,
@@ -181,62 +228,57 @@ class ScreeningOrchestrator:
                         druglikeness_score=None,
                         similarity_score=None,
                         overall_priority_score=None,
+                        applicability_domain_status="UNAVAILABLE",
+                        applicability_domain_score=None,
+                        applicability_warning=None,
                     )
                 )
-                if progress_callback:
-                    progress_callback(idx + 1, total)
-                continue
+            else:
+                v_idx = info["valid_idx"]
+                canonical = info["canonical_smiles"]
+                desc = info["desc"]
+                clintox = clintox_preds[v_idx]
+                tox21 = tox21_preds[v_idx]
 
-            # Valid row
-            canonical = val_res.canonical_smiles
-            valid_count += 1
+                # Structural similarity using precomputed fingerprint
+                sim = self.similarity_index.search(info["fp_res"], top_k=1)
+                top_sim = sim.best_similarity if sim.status == "SUCCESS" else 0.0
+                top_ref_name = sim.matches[0].name if sim.matches else "None"
 
-            # Descriptors
-            try:
-                desc = calculate_descriptors(canonical)
-            except Exception:
-                desc = None
+                # Prioritization Score
+                p_tox = clintox.probability if clintox.status == "SUCCESS" else None
+                lip_pass = desc.lipinski_pass if desc else None
+                prio = calculate_prioritization_score(p_tox=p_tox, lipinski_pass=lip_pass, best_similarity=top_sim)
 
-            # Models
-            clintox = self.inference_service.predict_clintox(canonical)
-            tox21 = self.inference_service.predict_tox21(canonical)
-
-            # Similarity
-            sim = self.similarity_index.search(canonical, top_k=1)
-            top_sim = sim.best_similarity if sim.status == "SUCCESS" else 0.0
-            top_ref_name = sim.matches[0].name if sim.matches else "None"
-
-            # Prioritization Score
-            p_tox = clintox.probability if clintox.status == "SUCCESS" else None
-            lip_pass = desc.lipinski_pass if desc else None
-            prio = calculate_prioritization_score(p_tox=p_tox, lipinski_pass=lip_pass, best_similarity=top_sim)
-
-            records.append(
-                BatchCandidateRecord(
-                    row_id=idx + 1,
-                    name=name,
-                    original_smiles=str(smi),
-                    canonical_smiles=canonical,
-                    is_valid=True,
-                    error_message=None,
-                    molecular_weight=desc.molecular_weight if desc else None,
-                    logp=desc.logp if desc else None,
-                    hbond_donors=desc.hbond_donors if desc else None,
-                    hbond_acceptors=desc.hbond_acceptors if desc else None,
-                    rotatable_bonds=desc.rotatable_bonds if desc else None,
-                    tpsa=desc.tpsa if desc else None,
-                    lipinski_pass=desc.lipinski_pass if desc else None,
-                    clintox_p_tox=clintox.probability if clintox.status == "SUCCESS" else None,
-                    clintox_is_toxic=clintox.is_toxic if clintox.status == "SUCCESS" else None,
-                    tox21_active_count=tox21.active_endpoints_count if tox21.status == "SUCCESS" else None,
-                    top_similarity=top_sim,
-                    top_reference_name=top_ref_name,
-                    safety_score=prio.safety_score if prio.is_complete else None,
-                    druglikeness_score=prio.druglikeness_score if prio.is_complete else None,
-                    similarity_score=prio.similarity_score if prio.is_complete else None,
-                    overall_priority_score=prio.overall_score if prio.is_complete else None,
+                records.append(
+                    BatchCandidateRecord(
+                        row_id=info["row_id"],
+                        name=info["name"],
+                        original_smiles=info["original_smiles"],
+                        canonical_smiles=canonical,
+                        is_valid=True,
+                        error_message=None,
+                        molecular_weight=desc.molecular_weight if desc else None,
+                        logp=desc.logp if desc else None,
+                        hbond_donors=desc.hbond_donors if desc else None,
+                        hbond_acceptors=desc.hbond_acceptors if desc else None,
+                        rotatable_bonds=desc.rotatable_bonds if desc else None,
+                        tpsa=desc.tpsa if desc else None,
+                        lipinski_pass=desc.lipinski_pass if desc else None,
+                        clintox_p_tox=clintox.probability if clintox.status == "SUCCESS" else None,
+                        clintox_is_toxic=clintox.is_toxic if clintox.status == "SUCCESS" else None,
+                        tox21_active_count=tox21.active_endpoints_count if tox21.status == "SUCCESS" else None,
+                        top_similarity=top_sim,
+                        top_reference_name=top_ref_name,
+                        safety_score=prio.safety_score if prio.is_complete else None,
+                        druglikeness_score=prio.druglikeness_score if prio.is_complete else None,
+                        similarity_score=prio.similarity_score if prio.is_complete else None,
+                        overall_priority_score=prio.overall_score if prio.is_complete else None,
+                        applicability_domain_status=clintox.applicability_domain_status if clintox else "UNAVAILABLE",
+                        applicability_domain_score=clintox.applicability_score if clintox else None,
+                        applicability_warning=clintox.applicability_warning if clintox else None,
+                    )
                 )
-            )
 
             if progress_callback:
                 progress_callback(idx + 1, total)
@@ -261,6 +303,9 @@ class ScreeningOrchestrator:
                 "Lipinski_Pass": r.lipinski_pass,
                 "ClinTox_P_Tox": r.clintox_p_tox,
                 "ClinTox_Toxic": r.clintox_is_toxic,
+                "Applicability_Domain_Status": r.applicability_domain_status or "UNAVAILABLE",
+                "Applicability_Domain_Score": r.applicability_domain_score,
+                "Applicability_Warning": r.applicability_warning or "",
                 "Tox21_Active_Assays": r.tox21_active_count,
                 "Top_Reference_Drug": r.top_reference_name,
                 "Tanimoto_Similarity": r.top_similarity,
@@ -270,17 +315,29 @@ class ScreeningOrchestrator:
                 "Overall_Priority_Score": r.overall_priority_score,
             })
 
-        df_res = pd.DataFrame(rows_data)
+        COLUMN_NAMES = [
+            "Rank", "Row_ID", "Name", "Original_SMILES", "Canonical_SMILES", "Status", "Error",
+            "MW", "LogP", "HBD", "HBA", "RotBonds", "TPSA", "Lipinski_Pass",
+            "ClinTox_P_Tox", "ClinTox_Toxic", "Applicability_Domain_Status",
+            "Applicability_Domain_Score", "Applicability_Warning", "Tox21_Active_Assays",
+            "Top_Reference_Drug", "Tanimoto_Similarity", "Safety_Score",
+            "Druglikeness_Score", "Similarity_Score", "Overall_Priority_Score",
+        ]
 
-        # Sort valid candidates descending by overall priority score, keep invalid at bottom
-        valid_mask = df_res["Status"] == "Valid"
-        df_valid = df_res[valid_mask].sort_values(by="Overall_Priority_Score", ascending=False).copy()
-        df_valid["Rank"] = range(1, len(df_valid) + 1)
+        if not rows_data:
+            df_final = pd.DataFrame(columns=COLUMN_NAMES)
+        else:
+            df_res = pd.DataFrame(rows_data)
 
-        df_invalid = df_res[~valid_mask].copy()
-        df_invalid["Rank"] = "-"
+            # Sort valid candidates descending by overall priority score, keep invalid at bottom
+            valid_mask = df_res["Status"] == "Valid"
+            df_valid = df_res[valid_mask].sort_values(by="Overall_Priority_Score", ascending=False).copy()
+            df_valid["Rank"] = range(1, len(df_valid) + 1)
 
-        df_final = pd.concat([df_valid, df_invalid], ignore_index=True)
+            df_invalid = df_res[~valid_mask].copy()
+            df_invalid["Rank"] = "-"
+
+            df_final = pd.concat([df_valid, df_invalid], ignore_index=True)
 
         return BatchScreeningResult(
             total_records=total,

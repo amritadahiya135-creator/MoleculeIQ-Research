@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 52" fill="none">
+  <!-- MoleculeIQ Horizontal Brand Lockup -->
+  <defs>
+    <linearGradient id="logo-mark-grad" x1="8" y1="6" x2="44" y2="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Left Mark (scaled into 44x44 space at x=4, y=4) -->
+  <g transform="translate(4, 4) scale(0.44)">
+    <!-- Hexagonal scaffold -->
+    <path d="M50 14 L83 33 L83 67 L50 86 L17 67 L17 33 Z" stroke="#334155" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- I vertical spine -->
+    <path d="M50 14 L50 86" stroke="url(#logo-mark-grad)" stroke-width="5" stroke-linecap="round"/>
+    <!-- Q loop -->
+    <path d="M50 50 L83 33 L83 67 L50 86 Z" stroke="url(#logo-mark-grad)" stroke-width="5" stroke-linejoin="round" fill="rgba(56, 189, 248, 0.08)"/>
+    <!-- Q insight tail vector -->
+    <path d="M72 75 L92 89" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"/>
+    <!-- Cross valence link -->
+    <path d="M17 33 L50 50" stroke="#64748b" stroke-width="3.5" stroke-linecap="round"/>
+
+    <!-- Nodes -->
+    <circle cx="50" cy="14" r="4.5" fill="#f8fafc"/>
+    <circle cx="83" cy="33" r="4" fill="#38bdf8"/>
+    <circle cx="83" cy="67" r="4" fill="#38bdf8"/>
+    <circle cx="50" cy="86" r="4.5" fill="#f8fafc"/>
+    <circle cx="17" cy="67" r="3.5" fill="#64748b"/>
+    <circle cx="17" cy="33" r="3.5" fill="#64748b"/>
+    <circle cx="92" cy="89" r="3.5" fill="#38bdf8"/>
+    <circle cx="50" cy="50" r="6" fill="#080c14" stroke="#38bdf8" stroke-width="3"/>
+    <circle cx="50" cy="50" r="2.5" fill="#38bdf8"/>
+  </g>
+
+  <!-- Wordmark Text -->
+  <text x="56" y="27" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#f8fafc" letter-spacing="-0.02em">Molecule<tspan font-weight="800" fill="#38bdf8">IQ</tspan></text>
+
+  <!-- Category & Promise Subtitle -->
+  <text x="57" y="41" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="7.5" font-weight="700" fill="#64748b" letter-spacing="0.22em">MOLECULAR INTELLIGENCE</text>
+</svg>

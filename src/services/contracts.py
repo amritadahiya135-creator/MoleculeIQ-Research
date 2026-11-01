@@ -53,6 +53,9 @@ class BatchCandidateRecord:
     druglikeness_score: Optional[float]
     similarity_score: Optional[float]
     overall_priority_score: Optional[float]
+    applicability_domain_status: Optional[str] = None
+    applicability_domain_score: Optional[float] = None
+    applicability_warning: Optional[str] = None
 
 
 @dataclass
