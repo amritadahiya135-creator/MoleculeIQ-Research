@@ -20,7 +20,7 @@
 
 ### Step 1: Clone Repository
 ```bash
-git clone https://github.com/amritadahiya135-creator/moleculeiq.git
+git clone https://github.com/amritadahiya135-creator/MoleculeIQ-Research.git
 cd moleculeiq
 ```
 

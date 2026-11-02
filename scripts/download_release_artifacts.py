@@ -11,7 +11,7 @@ This workflow ensures that:
 3. Every downloaded artifact is cryptographically verified against SHA-256 checksums.
 
 Usage:
-    python scripts/download_release_artifacts.py [--verify-only] [--tag v5.0.0] [--repo amritadahiya135-creator/moleculeiq]
+    python scripts/download_release_artifacts.py [--verify-only] [--tag v5.0.0] [--repo amritadahiya135-creator/MoleculeIQ-Research]
 """
 
 import os
@@ -27,7 +27,7 @@ from typing import Dict, List, Tuple
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CHECKSUMS_FILE = REPO_ROOT / "artifacts" / "checksums.sha256"
 DEFAULT_TAG = "v5.0.0"
-DEFAULT_REPO = "amritadahiya135-creator/moleculeiq"
+DEFAULT_REPO = "amritadahiya135-creator/MoleculeIQ-Research"
 
 logging.basicConfig(
     level=logging.INFO,

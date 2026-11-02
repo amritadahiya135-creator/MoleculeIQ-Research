@@ -68,7 +68,7 @@ Built on an auditable, layered monolithic architecture, MoleculeIQ unifies RDKit
 
 ### 1. Local Native Installation
 ```bash
-git clone https://github.com/amritadahiya135-creator/moleculeiq.git
+git clone https://github.com/amritadahiya135-creator/MoleculeIQ-Research.git
 cd moleculeiq
 python -m venv .venv
 # Activate: source .venv/bin/activate (Linux/macOS) or .venv\Scripts\activate (Windows)
