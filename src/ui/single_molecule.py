@@ -48,15 +48,15 @@ def generate_3d_mol_block(smiles: str) -> Optional[str]:
         return None
 
 
-def render_3dmol_viewer(mol_block: str, height: int = 310) -> None:
+def render_3dmol_viewer(mol_block: str, height: int = 380) -> None:
     """
-    Render an interactive, brand-coordinated 3D molecular conformer viewer using 3Dmol.js.
+    Render an advanced, brand-coordinated 3D molecular conformer viewer using 3Dmol.js.
     Features:
-    - Orbit control (drag left mouse button to rotate)
-    - Zoom (scroll wheel)
-    - Pan (right mouse button / two-finger drag)
-    - Spin toggle & Camera reset
-    - Midnight Navy canvas background matching the MoleculeIQ palette
+    - Display Modes: Ball-and-Stick, Stick, and Space-Filling (vdW Spheres)
+    - Interaction: Mouse-drag rotation, scroll zoom, right-drag pan
+    - Atom Inspection: Click any atom to highlight and display element, index, coordinates, formal charge
+    - Controls: Auto-Rotate toggle, Camera Reset, Selection Clear
+    - Observatory Black background (#080D16) with restrained scientific teal/cyan styling
     """
     escaped_block = (
         mol_block.replace("\\", "\\\\")
@@ -76,90 +76,264 @@ def render_3dmol_viewer(mol_block: str, height: int = 310) -> None:
           width: 100%;
           height: 100%;
           overflow: hidden;
-          background: #101B2D;
+          background: #080D16;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          user-select: none;
         }}
         #container {{
           position: relative;
           width: 100%;
           height: 100%;
+          background: #080D16;
         }}
         #viewer {{
           width: 100%;
           height: 100%;
         }}
-        #toolbar {{
+        #topbar {{
           position: absolute;
-          top: 8px;
-          right: 8px;
+          top: 10px;
+          left: 10px;
+          right: 10px;
           display: flex;
-          gap: 6px;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
           z-index: 20;
+          flex-wrap: wrap;
+          pointer-events: none;
+        }}
+        .button-group {{
+          display: flex;
+          gap: 4px;
+          background: rgba(11, 18, 32, 0.85);
+          border: 1px solid #1E314B;
+          border-radius: 6px;
+          padding: 3px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+          pointer-events: auto;
         }}
         .btn-3d {{
-          background: rgba(28, 43, 64, 0.90);
-          color: #F4F7FB;
-          border: 1px solid #27C7B8;
+          background: transparent;
+          color: #CBD5E1;
+          border: 1px solid transparent;
           border-radius: 4px;
-          padding: 3px 8px;
+          padding: 4px 9px;
           font-size: 11px;
           font-weight: 600;
+          font-family: 'IBM Plex Mono', ui-monospace, monospace;
           cursor: pointer;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.3);
           transition: all 0.15s ease-in-out;
+          white-space: nowrap;
         }}
         .btn-3d:hover {{
-          background: #27C7B8;
-          color: #101B2D;
+          background: #142236;
+          color: #39C6D8;
+          border-color: #24364D;
         }}
-        #attribution {{
+        .btn-3d.active {{
+          background: #4F9D96;
+          color: #080D16;
+          border-color: #4F9D96;
+          font-weight: 700;
+        }}
+        #atomCard {{
+          display: none;
+          position: absolute;
+          bottom: 30px;
+          left: 12px;
+          background: rgba(11, 18, 32, 0.94);
+          border: 1px solid #1E314B;
+          border-left: 3px solid #39C6D8;
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-family: 'IBM Plex Mono', ui-monospace, monospace;
+          color: #F3F6FA;
+          z-index: 25;
+          box-shadow: 0 6px 20px rgba(0,0,0,0.55);
+          min-width: 240px;
+          max-width: 320px;
+          backdrop-filter: blur(8px);
+        }}
+        #bottomControls {{
           position: absolute;
           bottom: 6px;
-          left: 10px;
-          color: #94A3B8;
+          left: 12px;
+          right: 12px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          color: #77889A;
           font-size: 10px;
+          font-family: 'IBM Plex Mono', monospace;
           pointer-events: none;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.03em;
         }}
       </style>
     </head>
     <body>
       <div id="container">
         <div id="viewer"></div>
-        <div id="toolbar">
-          <button id="spinBtn" class="btn-3d" onclick="toggleSpin()">Auto-Rotate: On</button>
-          <button class="btn-3d" onclick="resetView()">Reset View</button>
+
+        <div id="topbar">
+          <div class="button-group" title="Select Molecular Representation Mode">
+            <button id="btnBallStick" class="btn-3d active" onclick="setDisplayMode('ballstick')">Ball &amp; Stick</button>
+            <button id="btnStick" class="btn-3d" onclick="setDisplayMode('stick')">Stick</button>
+            <button id="btnSphere" class="btn-3d" onclick="setDisplayMode('sphere')">Space-Filling (vdW)</button>
+          </div>
+
+          <div class="button-group">
+            <button id="spinBtn" class="btn-3d" onclick="toggleSpin()">Auto-Rotate: On</button>
+            <button class="btn-3d" onclick="resetView()">Reset View</button>
+            <button id="clearSelBtn" class="btn-3d" onclick="clearSelection()" style="display:none; color: #39C6D8;">Clear Selection</button>
+          </div>
         </div>
-        <div id="attribution">3Dmol.js &bull; RDKit ETKDGv3 / MMFF94</div>
+
+        <div id="atomCard">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; border-bottom: 1px solid #1E314B; padding-bottom: 4px;">
+            <span id="atomTitle" style="font-size: 11px; font-weight: 700; color: #39C6D8;"></span>
+            <span onclick="clearSelection()" style="cursor: pointer; color: #8A99AD; font-size: 14px; line-height: 1; padding: 0 2px;">&times;</span>
+          </div>
+          <div id="atomDetails" style="font-size: 10px; color: #CBD5E1; line-height: 1.5;"></div>
+        </div>
+
+        <div id="bottomControls">
+          <div>Drag: Rotate &bull; Scroll: Zoom &bull; Right-Drag: Pan &bull; Click: Select Atom</div>
+          <div>3Dmol.js &bull; RDKit ETKDGv3 / MMFF94</div>
+        </div>
       </div>
+
       <script>
         var viewer = null;
         var spinning = true;
+        var currentMode = "ballstick";
+        var selectedAtom = null;
         var molData = `{escaped_block}`;
-        document.addEventListener("DOMContentLoaded", function() {{
-          var element = document.getElementById("viewer");
-          var config = {{ backgroundColor: "#101B2D" }};
-          viewer = $3Dmol.createViewer(element, config);
-          viewer.addModel(molData, "sdf");
-          viewer.setStyle({{}}, {{
-            stick: {{ radius: 0.14, colorscheme: "Jmol" }},
-            sphere: {{ scale: 0.28, colorscheme: "Jmol" }}
-          }});
-          viewer.zoomTo();
+
+        var ELEMENT_NAMES = {{
+          "H": "Hydrogen", "C": "Carbon", "N": "Nitrogen", "O": "Oxygen",
+          "F": "Fluorine", "P": "Phosphorus", "S": "Sulfur", "Cl": "Chlorine",
+          "Br": "Bromine", "I": "Iodine", "B": "Boron", "Na": "Sodium",
+          "K": "Potassium", "Ca": "Calcium", "Fe": "Iron", "Zn": "Zinc"
+        }};
+
+        function getStyleForMode(mode) {{
+          if (mode === "stick") {{
+            return {{ stick: {{ radius: 0.22, colorscheme: "Jmol" }} }};
+          }} else if (mode === "sphere") {{
+            return {{ sphere: {{ colorscheme: "Jmol" }} }};
+          }} else {{
+            return {{
+              stick: {{ radius: 0.14, colorscheme: "Jmol" }},
+              sphere: {{ scale: 0.28, colorscheme: "Jmol" }}
+            }};
+          }}
+        }}
+
+        function applyCurrentStyle() {{
+          if (!viewer) return;
+          viewer.setStyle({{}}, getStyleForMode(currentMode));
+          if (selectedAtom) {{
+            highlightAtom(selectedAtom);
+          }}
           viewer.render();
-          viewer.spin(true);
-        }});
+        }}
+
+        function setDisplayMode(mode) {{
+          currentMode = mode;
+          document.getElementById("btnBallStick").className = (mode === "ballstick" ? "btn-3d active" : "btn-3d");
+          document.getElementById("btnStick").className = (mode === "stick" ? "btn-3d active" : "btn-3d");
+          document.getElementById("btnSphere").className = (mode === "sphere" ? "btn-3d active" : "btn-3d");
+          applyCurrentStyle();
+        }}
+
+        function highlightAtom(atom) {{
+          if (!viewer) return;
+          viewer.removeAllShapes();
+          viewer.removeAllLabels();
+
+          var haloRadius = (currentMode === "sphere") ? 1.6 : 0.42;
+          viewer.addSphere({{
+            center: {{ x: atom.x, y: atom.y, z: atom.z }},
+            radius: haloRadius,
+            color: '#39C6D8',
+            alpha: 0.55,
+            wireframe: true
+          }});
+
+          var labelText = atom.elem + (atom.serial || (atom.index !== undefined ? (atom.index + 1) : ""));
+          viewer.addLabel(labelText, {{
+            position: {{ x: atom.x, y: atom.y, z: atom.z }},
+            backgroundColor: 'rgba(8, 13, 22, 0.90)',
+            backgroundOpacity: 0.9,
+            fontColor: '#39C6D8',
+            fontSize: 11,
+            font: 'IBM Plex Mono, monospace',
+            borderColor: '#4F9D96',
+            borderThickness: 1
+          }});
+          viewer.render();
+        }}
+
+        function showAtomDetails(atom) {{
+          var elemFull = ELEMENT_NAMES[atom.elem] || atom.elem;
+          var atomNum = atom.serial || (atom.index !== undefined ? (atom.index + 1) : "1");
+          document.getElementById("atomTitle").innerText = elemFull + " (" + atom.elem + ") &bull; Atom #" + atomNum;
+
+          var html = "<div><strong>Coordinates:</strong> X=" + atom.x.toFixed(3) + " &Aring;, Y=" + atom.y.toFixed(3) + " &Aring;, Z=" + atom.z.toFixed(3) + " &Aring;</div>";
+          html += "<div><strong>Formal Charge:</strong> " + (atom.formalCharge || 0) + " &nbsp;|&nbsp; <strong>Valence Bonds:</strong> " + (atom.bonds ? atom.bonds.length : "N/A") + "</div>";
+          document.getElementById("atomDetails").innerHTML = html;
+          document.getElementById("atomCard").style.display = "block";
+          document.getElementById("clearSelBtn").style.display = "inline-block";
+        }}
+
+        function onAtomClicked(atom) {{
+          if (!atom) return;
+          selectedAtom = atom;
+          highlightAtom(atom);
+          showAtomDetails(atom);
+        }}
+
+        function clearSelection() {{
+          selectedAtom = null;
+          if (viewer) {{
+            viewer.removeAllShapes();
+            viewer.removeAllLabels();
+            viewer.render();
+          }}
+          document.getElementById("atomCard").style.display = "none";
+          document.getElementById("clearSelBtn").style.display = "none";
+        }}
+
         function toggleSpin() {{
           if (!viewer) return;
           spinning = !spinning;
           viewer.spin(spinning);
           document.getElementById("spinBtn").innerText = spinning ? "Auto-Rotate: On" : "Auto-Rotate: Off";
         }}
+
         function resetView() {{
           if (!viewer) return;
+          clearSelection();
           viewer.zoomTo();
           viewer.render();
         }}
+
+        document.addEventListener("DOMContentLoaded", function() {{
+          var element = document.getElementById("viewer");
+          var config = {{ backgroundColor: "#080D16" }};
+          viewer = $3Dmol.createViewer(element, config);
+          viewer.addModel(molData, "sdf");
+          viewer.setStyle({{}}, getStyleForMode("ballstick"));
+
+          viewer.setClickable({{}}, true, function(atom) {{
+            onAtomClicked(atom);
+          }});
+
+          viewer.zoomTo();
+          viewer.render();
+          viewer.spin(true);
+        }});
       </script>
     </body>
     </html>
@@ -245,13 +419,26 @@ def build_tox21_endpoint_table_rows(t21: Any) -> List[Dict[str, Any]]:
 
 
 def render_molecule_svg(smiles: str, width: int = 420, height: int = 280) -> str:
-    """Generate high-contrast 2D SVG vector graphic for molecular structure."""
+    """Generate high-contrast transparent 2D SVG vector graphic for molecular structure in Observatory dark styling."""
     import base64
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         return ""
     d2d = rdMolDraw2D.MolDraw2DSVG(width, height)
-    d2d.drawOptions().padding = 0.08
+    opts = d2d.drawOptions()
+    opts.clearBackground = False
+    opts.setSymbolColour((243 / 255, 246 / 255, 250 / 255, 1.0))
+    opts.updateAtomPalette({
+        6: (243 / 255, 246 / 255, 250 / 255),    # C: Off-white
+        8: (224 / 255, 120 / 255, 120 / 255),    # O: Coral red
+        7: (114 / 255, 169 / 255, 232 / 255),    # N: Molecular blue
+        16: (217 / 255, 164 / 255, 65 / 255),    # S: Amber yellow
+        9: (87 / 255, 184 / 255, 139 / 255),     # F: Green
+        17: (87 / 255, 184 / 255, 139 / 255),    # Cl: Green
+        35: (217 / 255, 164 / 255, 65 / 255),    # Br: Amber
+        53: (142 / 255, 124 / 255, 255 / 255),   # I: Purple
+    })
+    opts.padding = 0.08
     d2d.DrawMolecule(mol)
     d2d.FinishDrawing()
     txt = d2d.GetDrawingText()
@@ -265,19 +452,19 @@ def render_molecule_svg(smiles: str, width: int = 420, height: int = 280) -> str
 
 
 def render_empty_state():
-    """Render an inviting, restrained empty state before molecule profiling."""
+    """Render an inviting, restrained empty state before molecule profiling in Observatory dark palette."""
     st.markdown(
         """
-        <div style="text-align: center; padding: 3rem 1.5rem; margin-top: 1rem; border: 1px dashed #D9E2EF; border-radius: 12px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(16, 27, 45, 0.04);">
+        <div style="text-align: center; padding: 3rem 1.5rem; margin-top: 1rem; border: 1px dashed #1E314B; border-radius: 12px; background: #0B1220; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);">
             <div style="font-size: 2.4rem; margin-bottom: 0.5rem;">🔬</div>
-            <h3 style="margin: 0 0 0.4rem 0; font-size: 1.35rem; color: #101B2D; font-weight: 700;">
+            <h3 style="margin: 0 0 0.4rem 0; font-size: 1.35rem; color: #F3F6FA; font-weight: 700; font-family: 'Manrope', sans-serif;">
                 No Molecule Analyzed
             </h3>
-            <p style="color: #64748B; font-size: 0.95rem; max-width: 620px; margin: 0 auto 1.5rem auto; line-height: 1.6;">
-                Enter any valid SMILES notation above or select an approved reference compound (e.g. Aspirin, Caffeine, or Atorvastatin), then click
-                <strong style="color: #27C7B8;">Run Full Analysis</strong> to begin multi-dimensional profiling.
+            <p style="color: #AAB7C5; font-size: 0.95rem; max-width: 620px; margin: 0 auto 1.5rem auto; line-height: 1.6;">
+                Enter any valid SMILES notation above or select an approved reference compound (e.g. Aspirin, Caffeine, or Paracetamol), then click
+                <strong style="color: #39C6D8;">Run Full Analysis</strong> to begin multi-dimensional profiling.
             </p>
-            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; font-size: 0.82rem; color: #64748B;">
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; font-size: 0.82rem; color: #8A99AD;">
                 <span>✓ Structure Validation</span>
                 <span>✓ Lipinski Descriptors</span>
                 <span>✓ ClinTox & 12 Tox21 Assays</span>
@@ -298,6 +485,9 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
         badge_variant="info",
     )
 
+    # Check for prefilled SMILES from landing page or launcher
+    prefilled_smiles = st.session_state.get("single_smiles_input")
+
     # Chemical Structure Input Card (Toolbar)
     with st.container():
         st.markdown("""<div class="mol-card" style="padding: 1.15rem 1.35rem; margin-bottom: 1.25rem;">""", unsafe_allow_html=True)
@@ -310,11 +500,12 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
                 index=0,
                 help="Select an approved reference drug to load its canonical SMILES automatically.",
             )
-            default_smiles = (
-                PRESET_MOLECULES[selected_preset]
-                if selected_preset != "-- Select Preset Compound --"
-                else "CC(=O)Oc1ccccc1C(=O)O"
-            )
+            if selected_preset != "-- Select Preset Compound --":
+                default_smiles = PRESET_MOLECULES[selected_preset]
+            elif prefilled_smiles:
+                default_smiles = prefilled_smiles
+            else:
+                default_smiles = "CC(=O)Oc1ccccc1C(=O)O"
 
         with col_custom:
             smiles_input = st.text_input(
@@ -323,9 +514,16 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
                 help="Simplified Molecular Input Line Entry System (e.g. Aspirin: CC(=O)Oc1ccccc1C(=O)O)",
             )
 
-        col_btn, col_info = st.columns([1, 2.8])
+        col_btn, col_clear, col_info = st.columns([1, 0.45, 2.35])
         with col_btn:
             run_analysis = st.button("Run Full Analysis", type="primary", use_container_width=True)
+        with col_clear:
+            clear_clicked = st.button("Clear", use_container_width=True)
+            if clear_clicked:
+                st.session_state.pop("single_mol_result", None)
+                st.session_state.pop("single_mol_analyzed_smiles", None)
+                st.session_state.pop("single_smiles_input", None)
+                st.rerun()
         with col_info:
             st.caption("ℹ️ Computes Lipinski descriptors, ClinTox probability, Tox21 assays, ChEMBL analogues, and TreeSHAP attributions.")
         st.markdown("""</div>""", unsafe_allow_html=True)
@@ -383,20 +581,21 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
     with col_hero_img:
         view_mode = st.radio(
             "Structure View Selection:",
-            ["Interactive 3D Conformer", "2D Connectivity Structure"],
+            ["🔬 Interactive 3D Conformer", "📐 2D Connectivity Structure"],
             index=0,
             horizontal=True,
+            key="single_mol_view_mode_toggle",
             label_visibility="collapsed",
         )
-        if view_mode == "Interactive 3D Conformer":
+        if "3D Conformer" in view_mode:
             mol_block = generate_3d_mol_block(res.validation.canonical_smiles)
             if mol_block:
                 st.markdown('<div class="mol-3d-canvas-wrapper">', unsafe_allow_html=True)
-                render_3dmol_viewer(mol_block, height=295)
+                render_3dmol_viewer(mol_block, height=380)
                 st.markdown('</div>', unsafe_allow_html=True)
                 st.markdown(
-                    """<div style="text-align: center; margin-top: 0.4rem; font-size: 0.72rem; color: #64748B; line-height: 1.35;">
-                    <strong>Interactive 3D Conformer:</strong> Drag to rotate &bull; Scroll to zoom &bull; Right-click to pan.<br>
+                    """<div style="text-align: center; margin-top: 0.4rem; font-size: 0.72rem; color: #8A99AD; line-height: 1.35;">
+                    <strong>Interactive 3D Conformer:</strong> Drag to rotate &bull; Scroll to zoom &bull; Right-drag to pan &bull; Click atom to inspect properties.<br>
                     <em>Scientific Notice: Computationally generated conformer (RDKit ETKDGv3 + MMFF94 force field). Energy-minimized in vacuo geometry; does not represent an experimentally confirmed in vivo biological binding conformation.</em>
                     </div>""",
                     unsafe_allow_html=True,
@@ -406,7 +605,7 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
                 if svg_data:
                     st.markdown(f'<div class="mol-structure-canvas">{svg_data}</div>', unsafe_allow_html=True)
                     st.markdown(
-                        """<div style="text-align: center; margin-top: 0.35rem; font-size: 0.74rem; color: #64748B;">RDKit 2D Coordinate Vector Depiction (3D conformer embedding unavailable for this structure)</div>""",
+                        """<div style="text-align: center; margin-top: 0.35rem; font-size: 0.74rem; color: #8A99AD;">RDKit 2D Coordinate Vector Depiction (3D conformer embedding unavailable for this structure)</div>""",
                         unsafe_allow_html=True,
                     )
         else:
@@ -414,9 +613,30 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
             if svg_data:
                 st.markdown(f'<div class="mol-structure-canvas">{svg_data}</div>', unsafe_allow_html=True)
                 st.markdown(
-                    """<div style="text-align: center; margin-top: 0.35rem; font-size: 0.74rem; color: #64748B;">RDKit 2D Coordinate Vector Depiction</div>""",
+                    """<div style="text-align: center; margin-top: 0.35rem; font-size: 0.74rem; color: #8A99AD;">RDKit 2D Coordinate Vector Depiction</div>""",
                     unsafe_allow_html=True,
                 )
+
+        # Structure Download Actions
+        col_d1, col_d2, col_d3, col_d4 = st.columns(4, gap="small")
+        mol_for_exp = Chem.MolFromSmiles(res.validation.canonical_smiles)
+        sdf_data = Chem.MolToMolBlock(mol_for_exp) if mol_for_exp else ""
+        pdb_data = Chem.MolToPDBBlock(mol_for_exp) if mol_for_exp else ""
+        with col_d1:
+            st.download_button("📥 SDF", data=sdf_data, file_name=f"{res.validation.formula}.sdf", mime="chemical/x-mdl-sdfile", use_container_width=True)
+        with col_d2:
+            st.download_button("📥 PDB", data=pdb_data, file_name=f"{res.validation.formula}.pdb", mime="chemical/x-pdb", use_container_width=True)
+        with col_d3:
+            d2d_exp = rdMolDraw2D.MolDraw2DSVG(400, 300)
+            if mol_for_exp:
+                d2d_exp.DrawMolecule(mol_for_exp)
+                d2d_exp.FinishDrawing()
+                svg_exp_text = d2d_exp.GetDrawingText()
+            else:
+                svg_exp_text = ""
+            st.download_button("📥 SVG", data=svg_exp_text, file_name=f"{res.validation.formula}.svg", mime="image/svg+xml", use_container_width=True)
+        with col_d4:
+            st.download_button("📥 Molfile", data=sdf_data, file_name=f"{res.validation.formula}.mol", mime="chemical/x-mdl-molfile", use_container_width=True)
 
     with col_hero_id:
         d = res.descriptors
@@ -442,10 +662,10 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
             f"""
             <div style="padding: 0.25rem 0;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                    <span style="font-size: 0.74rem; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">Structure Verified</span>
+                    <span style="font-size: 0.74rem; color: #8A99AD; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">Structure Verified</span>
                     <span class="mol-badge {lip_badge}">{lip_text}</span>
                 </div>
-                <h2 style="margin: 0 0 0.25rem 0; font-size: 2.15rem; color: #101B2D; font-weight: 800; letter-spacing: -0.02em;">
+                <h2 style="margin: 0 0 0.25rem 0; font-size: 2.15rem; color: #F3F6FA; font-weight: 800; letter-spacing: -0.02em; font-family: 'Manrope', sans-serif;">
                     {res.validation.formula}
                 </h2>
             </div>
@@ -458,11 +678,11 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
 
         st.markdown(
             f"""
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #D9E2EF; font-size: 0.82rem; margin-top: 0.5rem;">
-                <div><span style="color: #64748B;">Molecular Weight:</span><br><strong style="color: #101B2D; font-size: 0.95rem;">{mw_str}</strong></div>
-                <div><span style="color: #64748B;">Heavy Atoms:</span><br><strong style="color: #101B2D; font-size: 0.95rem;">{heavy_str}</strong></div>
-                <div><span style="color: #64748B;">LogP (Crippen):</span><br><strong style="color: #101B2D; font-size: 0.95rem;">{d.logp:.2f}</strong></div>
-                <div><span style="color: #64748B;">Polar Surface Area:</span><br><strong style="color: #101B2D; font-size: 0.95rem;">{d.tpsa:.1f} Å²</strong></div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #1E314B; font-size: 0.82rem; margin-top: 0.5rem;">
+                <div><span style="color: #8A99AD;">Molecular Weight:</span><br><strong style="color: #F3F6FA; font-size: 0.95rem;">{mw_str}</strong></div>
+                <div><span style="color: #8A99AD;">Heavy Atoms:</span><br><strong style="color: #F3F6FA; font-size: 0.95rem;">{heavy_str}</strong></div>
+                <div><span style="color: #8A99AD;">LogP (Crippen):</span><br><strong style="color: #F3F6FA; font-size: 0.95rem;">{d.logp:.2f}</strong></div>
+                <div><span style="color: #8A99AD;">Polar Surface Area:</span><br><strong style="color: #F3F6FA; font-size: 0.95rem;">{d.tpsa:.1f} Å²</strong></div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -484,7 +704,7 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
     # TAB 1: OVERVIEW & TRIAGE (Anti-Card-Wall Editorial Design)
     # -------------------------------------------------------------------------
     with tab_overview:
-        st.markdown("<h3 style='margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #101B2D;'>Exploratory Triage Summary</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #F3F6FA; font-family: \'Manrope\', sans-serif;'>Exploratory Triage Summary</h3>", unsafe_allow_html=True)
 
         # Render open editorial triage row (Zero Card Wall)
         render_triage_editorial_grid(res)
@@ -511,27 +731,38 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
             else:
                 ad_badge_html = '<span class="mol-badge mol-badge-neutral" style="font-size: 0.76rem;">APPLICABILITY DOMAIN UNAVAILABLE</span>'
 
+            if p.is_complete:
+                score_display = f"{p.overall_score:.1f}"
+                safety_display = f"{p.safety_score:.1f}"
+                safety_color = "#57B88B" if p.safety_score >= 50 else "#E07878"
+                bar_width = r_pct
+            else:
+                score_display = "N/A"
+                safety_display = "N/A (Model Unavailable)"
+                safety_color = "#8A99AD"
+                bar_width = 0.0
+
             st.markdown(
                 f"""
-                <div style="padding: 1rem 0; border-top: 1px solid #D9E2EF; margin-top: 1rem;">
+                <div style="padding: 1rem 0; border-top: 1px solid #1E314B; margin-top: 1rem;">
                     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
                         <div>
-                            <span style="font-size: 0.74rem; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">Exploratory Triage Index</span>
-                            <div style="font-size: 2.2rem; font-weight: 800; color: #27C7B8; letter-spacing: -0.02em;">
-                                {p.overall_score:.1f} <span style="font-size: 1.05rem; color: #64748B; font-weight: 500;">/ 100</span>
+                            <span style="font-size: 0.74rem; color: #8A99AD; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">Exploratory Triage Index</span>
+                            <div style="font-size: 2.2rem; font-weight: 800; color: #39C6D8; letter-spacing: -0.02em;">
+                                {score_display} <span style="font-size: 1.05rem; color: #8A99AD; font-weight: 500;">/ 100</span>
                             </div>
                         </div>
                         <div>
                             {ad_badge_html}
                         </div>
                     </div>
-                    <div style="width: 100%; height: 7px; background: #EDF2F7; border-radius: 4px; overflow: hidden; margin-bottom: 0.85rem;">
-                        <div style="width: {r_pct}%; height: 100%; background: linear-gradient(90deg, #27C7B8, #1BA699); border-radius: 4px;"></div>
+                    <div style="width: 100%; height: 7px; background: #142236; border-radius: 4px; overflow: hidden; margin-bottom: 0.85rem; border: 1px solid #1E314B;">
+                        <div style="width: {bar_width}%; height: 100%; background: linear-gradient(90deg, #4F9D96, #39C6D8); border-radius: 4px;"></div>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; font-size: 0.82rem;">
-                        <div><span style="color: #64748B;">Safety Component S (50%):</span> <strong style="color: {'#10B981' if p.safety_score >= 50 else '#EF4444'};">{p.safety_score:.1f}</strong></div>
-                        <div><span style="color: #64748B;">Drug-Likeness Component D (30%):</span> <strong style="color: #27C7B8;">{p.druglikeness_score:.0f}</strong></div>
-                        <div><span style="color: #64748B;">Reference Similarity M (20%):</span> <strong style="color: #8E7CFF;">{p.similarity_score:.1f}</strong></div>
+                        <div><span style="color: #8A99AD;">Safety Component S (50%):</span> <strong style="color: {safety_color};">{safety_display}</strong></div>
+                        <div><span style="color: #8A99AD;">Drug-Likeness Component D (30%):</span> <strong style="color: #4F9D96;">{p.druglikeness_score:.0f}</strong></div>
+                        <div><span style="color: #8A99AD;">Reference Similarity M (20%):</span> <strong style="color: #72A9E8;">{p.similarity_score:.1f}</strong></div>
                     </div>
                 </div>
                 """,
@@ -563,7 +794,7 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
         # Scientific & Regulatory Disclaimer
         st.markdown(
             """
-            <div style="background: #FFFFFF; border-left: 3px solid #E5A34D; border-top: 1px solid #D9E2EF; border-right: 1px solid #D9E2EF; border-bottom: 1px solid #D9E2EF; border-radius: 6px; padding: 0.75rem 1rem; margin-top: 1rem; font-size: 0.8rem; color: #334155; line-height: 1.5; box-shadow: 0 1px 3px rgba(16, 27, 45, 0.04);">
+            <div style="background: #0B1220; border-left: 3px solid #D9A441; border-top: 1px solid #1E314B; border-right: 1px solid #1E314B; border-bottom: 1px solid #1E314B; border-radius: 6px; padding: 0.75rem 1rem; margin-top: 1rem; font-size: 0.8rem; color: #CBD5E1; line-height: 1.5; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);">
                 <strong>Scientific & Regulatory Disclaimer:</strong> Research use only. Model outputs and the Exploratory Triage Index are computational estimates, not determinations of clinical safety, efficacy, or suitability for human use. Applicability-domain warnings indicate structural distance from the model's training data and do not independently establish toxicity.
             </div>
             """,
@@ -572,7 +803,7 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
 
         # Next Research Actions
         st.markdown("<div style='height: 0.75rem;'></div>", unsafe_allow_html=True)
-        st.markdown("<h4 style='margin: 0 0 0.5rem 0; font-size: 1.05rem; color: #101B2D;'>Next Research Actions</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='margin: 0 0 0.5rem 0; font-size: 1.05rem; color: #F3F6FA; font-family: \'Manrope\', sans-serif;'>Next Research Actions</h4>", unsafe_allow_html=True)
         act_col1, act_col2, act_col3 = st.columns(3)
 
         with act_col1:
@@ -603,7 +834,7 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
     # TAB 2: SAFETY & TOXICOLOGY
     # -------------------------------------------------------------------------
     with tab_toxicology:
-        st.markdown("<h3 style='margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #101B2D;'>Clinical Trial Toxicity (ClinTox)</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #F3F6FA; font-family: \'Manrope\', sans-serif;'>Clinical Trial Toxicity (ClinTox)</h3>", unsafe_allow_html=True)
 
         if res.clintox and res.clintox.status == "SUCCESS":
             p_tox = res.clintox.probability
@@ -617,8 +848,8 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
 
             st.markdown(
                 f"""
-                <div style="font-size: 0.82rem; color: #64748B; margin: 0.25rem 0 0.75rem 0;">
-                    Calibrated ClinTox Probability: <strong style="color: #101B2D;">{p_pct:.1f}%</strong> {uncal_str} &bull; Decision Threshold: 50.0%
+                <div style="font-size: 0.82rem; color: #8A99AD; margin: 0.25rem 0 0.75rem 0;">
+                    Calibrated ClinTox Probability: <strong style="color: #F3F6FA;">{p_pct:.1f}%</strong> {uncal_str} &bull; Decision Threshold: 50.0%
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -627,8 +858,8 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
             # Scientific Benchmark Interpretation Context
             st.markdown(
                 """
-                <div style="background: #FFFFFF; padding: 0.75rem 0.95rem; border-radius: 6px; border-left: 3px solid #27C7B8; border-top: 1px solid #D9E2EF; border-right: 1px solid #D9E2EF; border-bottom: 1px solid #D9E2EF; margin: 0.5rem 0; font-size: 0.84rem; color: #334155; line-height: 1.5; box-shadow: 0 1px 3px rgba(16, 27, 45, 0.04);">
-                    <strong style="color: #0F8075;">Scientific Benchmark Context:</strong><br>
+                <div style="background: #0B1220; padding: 0.75rem 0.95rem; border-radius: 6px; border-left: 3px solid #4F9D96; border-top: 1px solid #1E314B; border-right: 1px solid #1E314B; border-bottom: 1px solid #1E314B; margin: 0.5rem 0; font-size: 0.84rem; color: #CBD5E1; line-height: 1.5; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);">
+                    <strong style="color: #39C6D8;">Scientific Benchmark Context:</strong><br>
                     ClinTox models the probability of clinical trial failure attributed to toxicity (MoleculeNet benchmark).
                     A high prediction reflects clinical trial attrition risk in human cohorts (e.g. adverse gastrointestinal, hepatic, or cardiovascular termination criteria)
                     and does not imply that the compound is acutely toxic in everyday consumer contexts.
@@ -640,13 +871,13 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
             # Applicability Domain Verification
             ad_stat = getattr(res.clintox, "applicability_domain_status", "WITHIN_DOMAIN")
             ad_score = getattr(res.clintox, "applicability_score", 1.0)
-            ad_color = "#0F8075" if ad_stat == "WITHIN_DOMAIN" else ("#E5A34D" if ad_stat == "NEAR_BOUNDARY" else "#EF4444")
+            ad_color = "#39C6D8" if ad_stat == "WITHIN_DOMAIN" else ("#D9A441" if ad_stat == "NEAR_BOUNDARY" else "#E07878")
             ad_badge = "info" if ad_stat == "WITHIN_DOMAIN" else ("warning" if ad_stat == "NEAR_BOUNDARY" else "danger")
 
             st.markdown(
                 f"""
-                <div style="background: #FFFFFF; padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid #D9E2EF; margin: 0.5rem 0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(16, 27, 45, 0.04);">
-                    <span style="font-size: 0.82rem; color: #475569;">Applicability Domain: <strong style="color: {ad_color};">{ad_stat}</strong> (Nearest Tanimoto: {ad_score:.2f} | Boundary: 0.40)</span>
+                <div style="background: #0B1220; padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid #1E314B; margin: 0.5rem 0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);">
+                    <span style="font-size: 0.82rem; color: #CBD5E1;">Applicability Domain: <strong style="color: {ad_color};">{ad_stat}</strong> (Nearest Tanimoto: {ad_score:.2f} | Boundary: 0.40)</span>
                     <span class="mol-badge mol-badge-{ad_badge}">{ad_stat}</span>
                 </div>
                 """,
@@ -657,9 +888,12 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
                 st.warning(f"⚠️ {res.clintox.applicability_warning}")
 
             st.caption(f"Task Definition: `{res.clintox.task_definition}`")
+        else:
+            render_risk_gauge(None, None, decision_threshold=0.50, status="UNAVAILABLE")
+            st.warning("⚠️ **ClinTox Model Unavailable:** Clinical trial toxicity model artifacts are not loaded or failed verification. Toxicity predictions and risk gauge cannot be evaluated.")
 
         st.markdown("<div class='miq-divider'></div>", unsafe_allow_html=True)
-        st.markdown("<h3 style='margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #101B2D;'>Tox21 12-Pathway Assay Activation</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #F3F6FA; font-family: \'Manrope\', sans-serif;'>Tox21 12-Pathway Assay Activation</h3>", unsafe_allow_html=True)
 
         if res.tox21 and res.tox21.status == "SUCCESS":
             t21 = res.tox21
@@ -667,8 +901,8 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
 
             st.markdown(
                 f"""
-                <div style="font-size: 0.9rem; color: #334155; margin-bottom: 0.75rem;">
-                    Active In-Vitro Pathways: <strong style="color: {'#10B981' if active_cnt == 0 else ('#E5A34D' if active_cnt <= 2 else '#EF4444')};">{active_cnt} / {t21.total_endpoints}</strong>
+                <div style="font-size: 0.9rem; color: #CBD5E1; margin-bottom: 0.75rem;">
+                    Active In-Vitro Pathways: <strong style="color: {'#57B88B' if active_cnt == 0 else ('#D9A441' if active_cnt <= 2 else '#E07878')};">{active_cnt} / {t21.total_endpoints}</strong>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -677,7 +911,7 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
             col_nr, col_sr = st.columns(2, gap="medium")
 
             with col_nr:
-                st.markdown("<h4 style='margin: 0 0 0.5rem 0; font-size: 1rem; color: #0F8075;'>Nuclear Receptor (NR) Pathways</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='margin: 0 0 0.5rem 0; font-size: 1rem; color: #4F9D96;'>Nuclear Receptor (NR) Pathways</h4>", unsafe_allow_html=True)
                 nr_endpoints = [ep for ep in t21.endpoints.keys() if ep.startswith("NR")]
                 for ep in nr_endpoints:
                     pred = t21.endpoints[ep]
@@ -687,19 +921,19 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
 
                     st.markdown(
                         f"""
-                        <div style="background: #FFFFFF; border: 1px solid #D9E2EF; border-radius: 6px; padding: 0.45rem 0.65rem; margin-bottom: 0.35rem; box-shadow: 0 1px 2px rgba(16, 27, 45, 0.03);">
+                        <div style="background: #0B1220; border: 1px solid #1E314B; border-radius: 6px; padding: 0.45rem 0.65rem; margin-bottom: 0.35rem; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <strong style="font-size: 0.84rem; color: #101B2D;">{ep} &bull; {meta['name']}</strong>
+                                <strong style="font-size: 0.84rem; color: #F3F6FA;">{ep} &bull; {meta['name']}</strong>
                                 <span class="mol-badge mol-badge-{badge_type}" style="font-size: 0.7rem;">{status_text} ({pred.probability*100:.0f}%)</span>
                             </div>
-                            <div style="font-size: 0.74rem; color: #64748B; margin-top: 0.15rem;">{meta['desc']}</div>
+                            <div style="font-size: 0.74rem; color: #8A99AD; margin-top: 0.15rem;">{meta['desc']}</div>
                         </div>
                         """,
                         unsafe_allow_html=True,
                     )
 
             with col_sr:
-                st.markdown("<h4 style='margin: 0 0 0.5rem 0; font-size: 1rem; color: #5B48DF;'>Cellular Stress Response (SR) Pathways</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='margin: 0 0 0.5rem 0; font-size: 1rem; color: #72A9E8;'>Cellular Stress Response (SR) Pathways</h4>", unsafe_allow_html=True)
                 sr_endpoints = [ep for ep in t21.endpoints.keys() if not ep.startswith("NR")]
                 for ep in sr_endpoints:
                     pred = t21.endpoints[ep]
@@ -709,12 +943,12 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
 
                     st.markdown(
                         f"""
-                        <div style="background: #FFFFFF; border: 1px solid #D9E2EF; border-radius: 6px; padding: 0.45rem 0.65rem; margin-bottom: 0.35rem; box-shadow: 0 1px 2px rgba(16, 27, 45, 0.03);">
+                        <div style="background: #0B1220; border: 1px solid #1E314B; border-radius: 6px; padding: 0.45rem 0.65rem; margin-bottom: 0.35rem; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <strong style="font-size: 0.84rem; color: #101B2D;">{ep} &bull; {meta['name']}</strong>
+                                <strong style="font-size: 0.84rem; color: #F3F6FA;">{ep} &bull; {meta['name']}</strong>
                                 <span class="mol-badge mol-badge-{badge_type}" style="font-size: 0.7rem;">{status_text} ({pred.probability*100:.0f}%)</span>
                             </div>
-                            <div style="font-size: 0.74rem; color: #64748B; margin-top: 0.15rem;">{meta['desc']}</div>
+                            <div style="font-size: 0.74rem; color: #8A99AD; margin-top: 0.15rem;">{meta['desc']}</div>
                         </div>
                         """,
                         unsafe_allow_html=True,
@@ -730,12 +964,14 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
                     "not clinical risk. AD scores reflect maximum Tanimoto similarity against the endpoint's isolated training corpus "
                     "(Morgan r=2, 2048 bits; unvalidated thresholds)."
                 )
+        else:
+            st.warning("⚠️ **Tox21 Models Unavailable:** In-vitro assay prediction model artifacts are not loaded or failed verification. 12-endpoint activation profile cannot be evaluated.")
 
     # -------------------------------------------------------------------------
     # TAB 3: PROPERTIES & ANALOGUES
     # -------------------------------------------------------------------------
     with tab_properties:
-        st.markdown("<h3 style='margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #f8fafc;'>Physicochemical Profile & Lipinski Rules</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #F3F6FA; font-family: \'Manrope\', sans-serif;'>Physicochemical Profile & Lipinski Rules</h3>", unsafe_allow_html=True)
 
         if res.descriptors:
             d = res.descriptors
@@ -752,18 +988,18 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
             with p_col2:
                 st.markdown(
                     f"""
-                    <div style="background: #FFFFFF; border: 1px solid #D9E2EF; border-radius: 10px; padding: 1.15rem; box-shadow: 0 1px 3px rgba(16, 27, 45, 0.04);">
+                    <div style="background: #0B1220; border: 1px solid #1E314B; border-radius: 10px; padding: 1.15rem; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <h4 style="margin: 0; font-size: 1.05rem; color: #101B2D;">Lipinski Compliance</h4>
+                            <h4 style="margin: 0; font-size: 1.05rem; color: #F3F6FA; font-family: 'Manrope', sans-serif;">Lipinski Compliance</h4>
                             <span class="mol-badge {'mol-badge-success' if d.lipinski_pass else 'mol-badge-danger'}">
                                 {'Compliant' if d.lipinski_pass else f'{d.lipinski_violations} Violations'}
                             </span>
                         </div>
-                        <p style="font-size: 0.88rem; color: #334155; line-height: 1.55; margin: 0 0 0.75rem 0;">
+                        <p style="font-size: 0.88rem; color: #CBD5E1; line-height: 1.55; margin: 0 0 0.75rem 0;">
                             {'The compound satisfies all criteria of Lipinski’s Rule of 5, meeting standard physicochemical threshold ranges for oral drug-likeness heuristics.' if d.lipinski_pass else 'The compound violates one or more Lipinski rules, exceeding standard physicochemical threshold ranges for oral absorption heuristics.'}
                         </p>
-                        <div style="font-size: 0.78rem; color: #64748B; line-height: 1.45; border-top: 1px solid #D9E2EF; padding-top: 0.65rem;">
-                            <strong style="color: #334155;">Cheminformatics Note:</strong> HBA count is calculated using RDKit's physiological Lipinski rule, strictly excluding resonance-delocalized amide nitrogens.
+                        <div style="font-size: 0.78rem; color: #8A99AD; line-height: 1.45; border-top: 1px solid #1E314B; padding-top: 0.65rem;">
+                            <strong style="color: #CBD5E1;">Cheminformatics Note:</strong> HBA count is calculated using RDKit's physiological Lipinski rule, strictly excluding resonance-delocalized amide nitrogens.
                         </div>
                     </div>
                     """,
@@ -796,7 +1032,7 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
                 st.dataframe(pd.DataFrame(desc_data), use_container_width=True, hide_index=True)
 
         st.markdown("<div class='miq-divider'></div>", unsafe_allow_html=True)
-        st.markdown("<h3 style='margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #101B2D;'>Chemical Neighborhood (ChEMBL Library)</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #F3F6FA; font-family: \'Manrope\', sans-serif;'>Chemical Neighborhood (ChEMBL Library)</h3>", unsafe_allow_html=True)
 
         if res.similarity and res.similarity.status == "SUCCESS":
             matches = res.similarity.matches
@@ -811,20 +1047,20 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
 
                 st.markdown(
                     f"""
-                    <div style="background: #FFFFFF; border-left: 3px solid #8E7CFF; border-top: 1px solid #D9E2EF; border-right: 1px solid #D9E2EF; border-bottom: 1px solid #D9E2EF; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(16, 27, 45, 0.04);">
+                    <div style="background: #0B1220; border-left: 3px solid #39C6D8; border-top: 1px solid #1E314B; border-right: 1px solid #1E314B; border-bottom: 1px solid #1E314B; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <span style="font-size: 0.76rem; color: #5B48DF; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">Nearest Approved Reference Drug</span>
+                            <span style="font-size: 0.76rem; color: #39C6D8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">Nearest Approved Reference Drug</span>
                             <span class="mol-badge mol-badge-{sim_badge}">{sim_tier}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.5rem;">
-                            <h3 style="margin: 0; font-size: 1.35rem; color: #101B2D;">
-                                {top_match.name} <span style="font-size: 0.85rem; color: #64748B; font-weight: 400;">({top_match.reference_id})</span>
+                            <h3 style="margin: 0; font-size: 1.35rem; color: #F3F6FA;">
+                                {top_match.name} <span style="font-size: 0.85rem; color: #8A99AD; font-weight: 400;">({top_match.reference_id})</span>
                             </h3>
-                            <div style="font-size: 1.45rem; font-weight: 800; color: #5B48DF;">
+                            <div style="font-size: 1.45rem; font-weight: 800; color: #39C6D8;">
                                 Tanimoto: {top_match.similarity:.4f}
                             </div>
                         </div>
-                        <div style="font-size: 0.82rem; color: #475569; margin-top: 0.35rem;">
+                        <div style="font-size: 0.82rem; color: #CBD5E1; margin-top: 0.35rem;">
                             MW: <strong>{top_match.molecular_weight:.1f} Da</strong> &bull; Lipinski: <strong>{'Pass' if top_match.lipinski_pass else 'Fail'}</strong>
                         </div>
                     </div>
@@ -839,8 +1075,8 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
 
                 st.markdown(
                     """
-                    <div style="background: #FFFFFF; border: 1px solid #D9E2EF; border-radius: 6px; padding: 0.65rem 0.85rem; margin: 0.5rem 0; font-size: 0.8rem; color: #475569; line-height: 1.5; box-shadow: 0 1px 3px rgba(16, 27, 45, 0.04);">
-                        <strong style="color: #101B2D;">Reference Library Provenance & Methodological Disclosure:</strong><br>
+                    <div style="background: #0B1220; border: 1px solid #1E314B; border-radius: 6px; padding: 0.65rem 0.85rem; margin: 0.5rem 0; font-size: 0.8rem; color: #CBD5E1; line-height: 1.5; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);">
+                        <strong style="color: #F3F6FA;">Reference Library Provenance & Methodological Disclosure:</strong><br>
                         • <strong>Composition:</strong> The reference library contains <strong>1,396</strong> small-molecule records, comprising <strong>1,384</strong> records derived from the ClinTox FDA-approved slice and <strong>12</strong> ChEMBL curated anchor compounds.<br>
                         • <strong>Structural Resemblance:</strong> Tanimoto similarity (Morgan radius 2, 2048 bits) measures topological resemblance in fingerprint space; it does <em>not</em> imply shared biological mechanism, clinical efficacy, or safety profile.<br>
                         • <strong>Self-Match Notice:</strong> Query molecules that exist within the reference library will produce an exact self-match (Tanimoto = 1.0000).<br>
@@ -867,34 +1103,52 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
     # TAB 4: AI EXPLAINABILITY
     # -------------------------------------------------------------------------
     with tab_explain:
-        st.markdown("<h3 style='margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #101B2D;'>Why did the model predict this?</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #F3F6FA; font-family: \'Manrope\', sans-serif;'>Why did the model predict this?</h3>", unsafe_allow_html=True)
 
         if res.explanation and res.explanation.status == "SUCCESS":
             x_col1, x_col2 = st.columns([1, 1.2], gap="medium")
 
             with x_col1:
-                st.markdown("<h4 style='margin: 0 0 0.4rem 0; font-size: 1rem; color: #101B2D;'>Highlighted Atomic Environments</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='margin: 0 0 0.4rem 0; font-size: 1rem; color: #F3F6FA;'>Highlighted Atomic Environments</h4>", unsafe_allow_html=True)
                 st.caption("Atoms and radius bonds contributing most significantly to the model decision:")
+                st.markdown(
+                    """
+                    <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.65rem; font-size: 0.76rem;">
+                        <span style="display: inline-flex; align-items: center; gap: 0.35rem; color: #CBD5E1;">
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #E07878;"></span>
+                            Raises Predicted ClinTox Probability
+                        </span>
+                        <span style="display: inline-flex; align-items: center; gap: 0.35rem; color: #CBD5E1;">
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #57B88B;"></span>
+                            Lowers Predicted ClinTox Probability
+                        </span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
                 if res.explanation.highlighted_svg:
-                    st.markdown(f"""<div class="mol-structure-canvas">{res.explanation.highlighted_svg}</div>""", unsafe_allow_html=True)
+                    clean_svg = res.explanation.highlighted_svg
+                    clean_svg = re.sub(r"<rect[^>]*fill\s*:\s*#FFFFFF[^>]*/>", "", clean_svg, flags=re.IGNORECASE)
+                    clean_svg = re.sub(r"<rect[^>]*fill=['\"]#FFFFFF['\"][^>]*/>", "", clean_svg, flags=re.IGNORECASE)
+                    st.markdown(f"""<div class="mol-structure-canvas">{clean_svg}</div>""", unsafe_allow_html=True)
 
             with x_col2:
-                st.markdown("<h4 style='margin: 0 0 0.4rem 0; font-size: 1rem; color: #101B2D;'>Directional Fingerprint Influences</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='margin: 0 0 0.4rem 0; font-size: 1rem; color: #F3F6FA;'>Directional Fingerprint Influences</h4>", unsafe_allow_html=True)
                 st.caption("Active Morgan fingerprint bits and their directional impact on predicted ClinTox probability. Attributions describe contributions to the model prediction; they do not establish causal biological effects:")
 
                 for f in res.explanation.top_features[:5]:
                     is_risk_increasing = f.shap_value > 0
-                    bar_color = "#EF4444" if is_risk_increasing else "#10B981"
+                    bar_color = "#E07878" if is_risk_increasing else "#57B88B"
                     impact_label = "↑ Raises Predicted ClinTox Probability" if is_risk_increasing else "↓ Lowers Predicted ClinTox Probability"
                     badge_type = "danger" if is_risk_increasing else "success"
                     st.markdown(
                         f"""
-                        <div style="background: #FFFFFF; border: 1px solid #D9E2EF; border-radius: 6px; padding: 0.45rem 0.65rem; margin-bottom: 0.4rem; box-shadow: 0 1px 2px rgba(16, 27, 45, 0.03);">
+                        <div style="background: #0B1220; border: 1px solid #1E314B; border-radius: 6px; padding: 0.45rem 0.65rem; margin-bottom: 0.4rem; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-size: 0.84rem; color: #101B2D; font-weight: 600;">Morgan Bit #{f.bit_id} <span style="font-size: 0.74rem; color: #64748B;">(Radius: {f.radius})</span></span>
+                                <span style="font-size: 0.84rem; color: #F3F6FA; font-weight: 600;">Morgan Bit #{f.bit_id} <span style="font-size: 0.74rem; color: #8A99AD;">(Radius: {f.radius})</span></span>
                                 <span class="mol-badge mol-badge-{badge_type}" style="font-size: 0.7rem;">{impact_label}</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #64748B; margin-top: 0.2rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #8A99AD; margin-top: 0.2rem;">
                                 <span>Attribution: <strong style="color: {bar_color};">{f.shap_value:+.5f}</strong></span>
                                 <span>Atoms: {f.atom_indices}</span>
                             </div>
@@ -917,3 +1171,121 @@ def render_single_molecule_view(orchestrator: ScreeningOrchestrator):
 
             if hasattr(res.explanation, "disclaimer") and res.explanation.disclaimer:
                 st.caption(f"ℹ️ {res.explanation.disclaimer}")
+
+    # =========================================================================
+    # ADVANCED RESEARCH TOOLS: COMPARE TWO MOLECULES
+    # =========================================================================
+    st.markdown("<div style='height: 1.25rem;'></div>", unsafe_allow_html=True)
+    with st.expander("⚖️ Compare Two Molecules (Dual Side-by-Side Profiling)", expanded=False):
+        st.markdown(
+            """
+            <div style="font-size: 0.85rem; color: #AAB7C5; margin-bottom: 0.75rem;">
+                Compare the active molecule directly against another compound in chemical space.
+                Evaluates topological Tanimoto similarity, physicochemical parameter differences, and comparative toxicity estimates.
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        cmp_col1, cmp_col2 = st.columns(2, gap="medium")
+        with cmp_col1:
+            st.markdown(f"<strong style='color: #4F9D96;'>Molecule A (Active):</strong> {res.validation.formula}", unsafe_allow_html=True)
+            st.code(res.validation.canonical_smiles, language="text")
+            svg_a = render_molecule_svg(res.validation.canonical_smiles, width=320, height=190)
+            st.markdown(f'<div class="mol-structure-canvas">{svg_a}</div>', unsafe_allow_html=True)
+
+        with cmp_col2:
+            st.markdown("<strong style='color: #39C6D8;'>Molecule B (Reference / Comparison):</strong>", unsafe_allow_html=True)
+            cmp_preset = st.selectbox(
+                "Select Comparison Preset:",
+                ["-- Custom SMILES --", "Caffeine", "Paracetamol", "Ibuprofen", "Nicotine", "Metformin", "Aspirin"],
+                index=1,
+                key="cmp_preset_select",
+            )
+            if cmp_preset != "-- Custom SMILES --":
+                cmp_smiles_default = PRESET_MOLECULES.get(cmp_preset, "CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
+            else:
+                cmp_smiles_default = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
+            cmp_smiles = st.text_input("Comparison SMILES:", value=cmp_smiles_default, key="cmp_smiles_input")
+            clean_cmp_smiles = cmp_smiles.strip() if cmp_smiles else ""
+
+            if clean_cmp_smiles:
+                mol_b = Chem.MolFromSmiles(clean_cmp_smiles)
+                if mol_b:
+                    svg_b = render_molecule_svg(clean_cmp_smiles, width=320, height=190)
+                    st.markdown(f'<div class="mol-structure-canvas">{svg_b}</div>', unsafe_allow_html=True)
+                else:
+                    st.error("Invalid comparison SMILES structure.")
+                    mol_b = None
+            else:
+                mol_b = None
+
+        if mol_b is not None:
+            # Compute Tanimoto similarity between A and B
+            from rdkit.Chem import AllChem, DataStructs
+            mol_a = Chem.MolFromSmiles(res.validation.canonical_smiles)
+            fp_a = AllChem.GetMorganFingerprintAsBitVect(mol_a, 2, nBits=2048)
+            fp_b = AllChem.GetMorganFingerprintAsBitVect(mol_b, 2, nBits=2048)
+            tanimoto_ab = DataStructs.TanimotoSimilarity(fp_a, fp_b)
+
+            # Analyze molecule B descriptors
+            from src.chemistry.descriptors import calculate_descriptors
+            desc_b = calculate_descriptors(clean_cmp_smiles)
+
+            st.markdown(
+                f"""
+                <div style="background: #0B1220; border: 1px solid #1E314B; border-radius: 8px; padding: 0.85rem 1rem; margin: 1rem 0; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="font-size: 0.72rem; color: #8A99AD; text-transform: uppercase; font-weight: 700;">Topological Proximity</span>
+                        <div style="font-size: 1.35rem; font-weight: 800; color: #39C6D8;">Tanimoto: {tanimoto_ab:.4f}</div>
+                    </div>
+                    <div style="text-align: right; font-size: 0.8rem; color: #AAB7C5;">
+                        Morgan Radius 2, 2048-bit Fingerprint
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+            # Side-by-side comparative table
+            d_a = res.descriptors
+            cmp_table = {
+                "Property": ["Formula", "Molecular Weight", "LogP (Crippen)", "H-Bond Donors", "H-Bond Acceptors", "Rotatable Bonds", "TPSA", "Lipinski Pass"],
+                f"Molecule A ({res.validation.formula})": [
+                    res.validation.formula,
+                    f"{d_a.molecular_weight:.2f} Da" if d_a else "N/A",
+                    f"{d_a.logp:.2f}" if d_a else "N/A",
+                    str(d_a.hbond_donors) if d_a else "N/A",
+                    str(d_a.hbond_acceptors) if d_a else "N/A",
+                    str(d_a.rotatable_bonds) if d_a else "N/A",
+                    f"{d_a.tpsa:.2f} Å²" if d_a else "N/A",
+                    "Compliant" if (d_a and d_a.lipinski_pass) else "Non-Compliant",
+                ],
+                f"Molecule B ({cmp_preset if cmp_preset != '-- Custom SMILES --' else 'Custom'})": [
+                    Chem.rdMolDescriptors.CalcMolFormula(mol_b),
+                    f"{desc_b.molecular_weight:.2f} Da" if desc_b else "N/A",
+                    f"{desc_b.logp:.2f}" if desc_b else "N/A",
+                    str(desc_b.hbond_donors) if desc_b else "N/A",
+                    str(desc_b.hbond_acceptors) if desc_b else "N/A",
+                    str(desc_b.rotatable_bonds) if desc_b else "N/A",
+                    f"{desc_b.tpsa:.2f} Å²" if desc_b else "N/A",
+                    "Compliant" if (desc_b and desc_b.lipinski_pass) else "Non-Compliant",
+                ],
+            }
+            st.dataframe(pd.DataFrame(cmp_table), use_container_width=True, hide_index=True)
+
+    # =========================================================================
+    # ADVANCED RESEARCH TOOLS: RESEARCH ANNOTATIONS
+    # =========================================================================
+    with st.expander("📝 Research Notes & Dossier Annotations", expanded=False):
+        if "molecule_annotations" not in st.session_state:
+            st.session_state["molecule_annotations"] = {}
+        curr_notes = st.session_state["molecule_annotations"].get(res.validation.canonical_smiles, "")
+        user_notes = st.text_area(
+            "Record structural hypotheses, observed assay flags, or literature notes for this compound:",
+            value=curr_notes,
+            key=f"notes_area_{res.validation.canonical_smiles}",
+            height=100,
+        )
+        if st.button("Save Research Notes", key="save_notes_btn"):
+            st.session_state["molecule_annotations"][res.validation.canonical_smiles] = user_notes
+            st.success("✓ Research notes saved to session state.")

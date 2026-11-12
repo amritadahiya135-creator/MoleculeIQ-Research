@@ -22,7 +22,7 @@ import argparse
 import urllib.request
 import tarfile
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CHECKSUMS_FILE = REPO_ROOT / "artifacts" / "checksums.sha256"
@@ -37,8 +37,10 @@ logging.basicConfig(
 logger = logging.getLogger("download_release_artifacts")
 
 
-def load_checksum_manifest(manifest_path: Path = CHECKSUMS_FILE) -> Dict[str, str]:
+def load_checksum_manifest(manifest_path: Optional[Path] = None) -> Dict[str, str]:
     """Load expected SHA-256 hashes from artifacts/checksums.sha256."""
+    if manifest_path is None:
+        manifest_path = CHECKSUMS_FILE
     if not manifest_path.exists():
         logger.error(f"Checksum manifest not found: {manifest_path}")
         return {}
@@ -66,7 +68,7 @@ def compute_sha256(file_path: Path) -> str:
     return h.hexdigest().lower()
 
 
-def verify_all_local_artifacts(manifest_path: Path = CHECKSUMS_FILE) -> Tuple[bool, List[str], List[str]]:
+def verify_all_local_artifacts(manifest_path: Optional[Path] = None) -> Tuple[bool, List[str], List[str]]:
     """
     Check if all artifacts declared in the manifest exist locally and match SHA-256.
 
@@ -75,6 +77,8 @@ def verify_all_local_artifacts(manifest_path: Path = CHECKSUMS_FILE) -> Tuple[bo
     Tuple[bool, List[str], List[str]]
         (all_passed, missing_files, mismatched_files)
     """
+    if manifest_path is None:
+        manifest_path = CHECKSUMS_FILE
     checksums = load_checksum_manifest(manifest_path)
     if not checksums:
         return False, ["artifacts/checksums.sha256"], []
@@ -160,7 +164,7 @@ def extract_bundle(archive_path: Path, dest_dir: Path = REPO_ROOT) -> bool:
         return False
 
 
-def download_and_extract_bundle(repo: str, tag: str) -> bool:
+def download_and_extract_bundle(repo: str = DEFAULT_REPO, tag: str = DEFAULT_TAG) -> bool:
     """Download consolidated model archive from GitHub Release assets."""
     bundle_name = f"moleculeiq-models-{tag}.tar.gz"
     url = f"https://github.com/{repo}/releases/download/{tag}/{bundle_name}"
@@ -174,6 +178,44 @@ def download_and_extract_bundle(repo: str, tag: str) -> bool:
     if tmp_dest.exists():
         tmp_dest.unlink()
     return success
+
+
+def ensure_artifacts_hydrated(
+    repo: str = DEFAULT_REPO,
+    tag: str = DEFAULT_TAG,
+    manifest_path: Optional[Path] = None,
+) -> Tuple[bool, str]:
+    """
+    Check if local model artifacts exist and match checksums; if not, download
+    and safely extract the release bundle, then verify integrity.
+
+    Returns
+    -------
+    Tuple[bool, str]
+        (success, message)
+    """
+    if manifest_path is None:
+        manifest_path = CHECKSUMS_FILE
+    passed, missing, mismatched = verify_all_local_artifacts(manifest_path=manifest_path)
+    if passed:
+        return True, "All model artifacts verified locally."
+
+    logger.info(
+        f"Artifacts missing ({len(missing)}) or mismatched ({len(mismatched)}). "
+        f"Initiating release bundle download from {repo} (tag: {tag})..."
+    )
+    try:
+        success = download_and_extract_bundle(repo=repo, tag=tag)
+        if not success:
+            return False, f"Failed to download or extract model archive from {repo} ({tag})."
+    except Exception as exc:
+        logger.error(f"Model hydration error: {exc}")
+        return False, f"Exception during model hydration: {exc}"
+
+    passed_after, missing_after, mismatched_after = verify_all_local_artifacts(manifest_path=manifest_path)
+    if passed_after:
+        return True, "Model artifacts downloaded and verified successfully."
+    return False, f"Post-extraction verification failed: {len(missing_after)} missing, {len(mismatched_after)} mismatched."
 
 
 def main():

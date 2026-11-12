@@ -1178,7 +1178,7 @@ def render_model_insights_view():
 
             col_cm, col_meta = st.columns([1, 1.2], gap="medium")
             with col_cm:
-                st.markdown("<h4 style='margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #101B2D;'>Test Split Confusion Matrix</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #F3F6FA;'>Test Split Confusion Matrix</h4>", unsafe_allow_html=True)
                 cm = metrics.get("confusion_matrix", [[270, 1], [19, 3]])
                 df_cm = pd.DataFrame(
                     cm,
@@ -1193,8 +1193,8 @@ def render_model_insights_view():
                 st.markdown(
                     f"""
                     <div class="mol-card" style="padding: 1rem 1.25rem;">
-                        <h4 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #101B2D;'>Architecture & Training Configuration</h4>
-                        <div style="font-size: 0.88rem; color: #334155; line-height: 1.7;">
+                        <h4 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #F3F6FA;'>Architecture & Training Configuration</h4>
+                        <div style="font-size: 0.88rem; color: #CBD5E1; line-height: 1.7;">
                             <div>• <strong>Algorithm:</strong> <code>{meta.get('algorithm', 'RandomForestClassifier')}</code></div>
                             <div>• <strong>Ensemble Size:</strong> <code>{meta.get('n_estimators', 300)}</code> estimators</div>
                             <div>• <strong>Class Weighting:</strong> <code>{meta.get('class_weight', 'balanced')}</code></div>
@@ -1210,9 +1210,9 @@ def render_model_insights_view():
 
             st.markdown(
                 """
-                <div class="mol-card" style="border-left: 4px solid #27C7B8;">
-                    <strong style="color: #0F8075;">Statistical Note on Class Imbalance:</strong>
-                    <p style="color: #334155; font-size: 0.88rem; margin: 0.3rem 0 0 0; line-height: 1.5;">
+                <div class="mol-card" style="border-left: 4px solid #4F9D96;">
+                    <strong style="color: #39C6D8;">Statistical Note on Class Imbalance:</strong>
+                    <p style="color: #CBD5E1; font-size: 0.88rem; margin: 0.3rem 0 0 0; line-height: 1.5;">
                         In the ClinTox benchmark, toxic compounds represent only ~7.5% of samples. A trivial majority-class classifier
                         would achieve 92.5% standard accuracy by predicting "Non-Toxic" for every candidate. For this reason, standard accuracy is
                         intentionally excluded in favor of <strong>PR-AUC</strong> and <strong>Balanced Accuracy</strong>.
@@ -1431,36 +1431,36 @@ def render_model_insights_view():
                 <div class="mol-card" style="margin: 0;">
                     <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
                         <span style="font-size: 1.2rem;">🛡️</span>
-                        <h4 style="margin: 0; font-size: 1.05rem; color: #101B2D;">Benchmark Ground Truth</h4>
+                        <h4 style="margin: 0; font-size: 1.05rem; color: #F3F6FA;">Benchmark Ground Truth</h4>
                     </div>
-                    <p style="font-size: 0.88rem; color: #475569; line-height: 1.5; margin: 0;">
+                    <p style="font-size: 0.88rem; color: #AAB7C5; line-height: 1.5; margin: 0;">
                         The ClinTox dataset annotates clinical trial outcomes. A negative prediction indicates absence of documented clinical trial termination, NOT guaranteed cellular safety or absence of late-onset toxicity.
                     </p>
                 </div>
                 <div class="mol-card" style="margin: 0;">
                     <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
                         <span style="font-size: 1.2rem;">🧪</span>
-                        <h4 style="margin: 0; font-size: 1.05rem; color: #101B2D;">In Vitro vs. In Vivo Biology</h4>
+                        <h4 style="margin: 0; font-size: 1.05rem; color: #F3F6FA;">In Vitro vs. In Vivo Biology</h4>
                     </div>
-                    <p style="font-size: 0.88rem; color: #475569; line-height: 1.5; margin: 0;">
+                    <p style="font-size: 0.88rem; color: #AAB7C5; line-height: 1.5; margin: 0;">
                         Tox21 luminescence assays measure cellular pathway perturbations in immortalized cell lines. They do not simulate systemic absorption, hepatic metabolism, blood-brain barrier transport, or whole-organ clearance.
                     </p>
                 </div>
                 <div class="mol-card" style="margin: 0;">
                     <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
                         <span style="font-size: 1.2rem;">📊</span>
-                        <h4 style="margin: 0; font-size: 1.05rem; color: #101B2D;">Severe Class Imbalance</h4>
+                        <h4 style="margin: 0; font-size: 1.05rem; color: #F3F6FA;">Severe Class Imbalance</h4>
                     </div>
-                    <p style="font-size: 0.88rem; color: #475569; line-height: 1.5; margin: 0;">
+                    <p style="font-size: 0.88rem; color: #AAB7C5; line-height: 1.5; margin: 0;">
                         Severe minority class representation (~7.5% in ClinTox) requires cost-sensitive learning and strict PR-AUC optimization. Standard accuracy figures can be misleading in safety classification.
                     </p>
                 </div>
                 <div class="mol-card" style="margin: 0;">
                     <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
                         <span style="font-size: 1.2rem;">📐</span>
-                        <h4 style="margin: 0; font-size: 1.05rem; color: #101B2D;">Chemical Space & Domain Limits</h4>
+                        <h4 style="margin: 0; font-size: 1.05rem; color: #F3F6FA;">Chemical Space & Domain Limits</h4>
                     </div>
-                    <p style="font-size: 0.88rem; color: #475569; line-height: 1.5; margin: 0;">
+                    <p style="font-size: 0.88rem; color: #AAB7C5; line-height: 1.5; margin: 0;">
                         Models are trained on drug-like organic molecules (MW < 600 Da). Novel scaffolds with Tanimoto similarity < 0.40 to training data trigger domain warnings indicating uncertain extrapolation.
                     </p>
                 </div>

@@ -107,55 +107,84 @@ def render_literature_assistant_view(orchestrator: ScreeningOrchestrator):
         st.markdown("<div style='height: 1.25rem;'></div>", unsafe_allow_html=True)
         st.markdown("### Ranked Scientific Statements with Citation Traceability")
 
-        for idx, sent in enumerate(lit_res.ranked_sentences, start=1):
-            rel_color = "#10B981" if sent.relevance_score >= 0.45 else ("#27C7B8" if sent.relevance_score >= 0.25 else "#64748B")
-            score_val = sent.relevance_score
-            bon_val = getattr(sent, "conjunction_bonus", 0.0) or 0.0
-            cos_val = getattr(sent, "cosine_score", None)
-            if cos_val is None:
-                cos_val = round(score_val - bon_val, 4)
+        col_stream, col_inspector = st.columns([1.75, 1.15], gap="large")
 
-            if bon_val > 0.0:
-                badge_text = f"Score: {score_val:.3f} (Cosine: {cos_val:.3f} + Conjunction: +{bon_val:.3f})"
-            else:
-                badge_text = f"TF-IDF Cosine: {score_val:.3f}"
+        with col_stream:
+            for idx, sent in enumerate(lit_res.ranked_sentences, start=1):
+                rel_color = "#57B88B" if sent.relevance_score >= 0.45 else ("#4F9D96" if sent.relevance_score >= 0.25 else "#8A99AD")
+                score_val = sent.relevance_score
+                bon_val = getattr(sent, "conjunction_bonus", 0.0) or 0.0
+                cos_val = getattr(sent, "cosine_score", None)
+                if cos_val is None:
+                    cos_val = round(score_val - bon_val, 4)
 
-            # Polarity annotation resolution (Finding 1 fix)
-            pol_label = getattr(sent, "claim_polarity", None) or getattr(sent, "polarity", None) or "UNCERTAIN"
-            pol_exp = getattr(sent, "polarity_explanation", "") or ""
+                if bon_val > 0.0:
+                    badge_text = f"Score: {score_val:.3f} (Cosine: {cos_val:.3f} + Conjunction: +{bon_val:.3f})"
+                else:
+                    badge_text = f"TF-IDF Cosine: {score_val:.3f}"
 
-            if pol_label == "AFFIRMATIVE":
-                pol_badge_text = "Possible affirmative claim"
-                pol_badge_class = "mol-badge-info"
-            elif pol_label == "NEGATED":
-                pol_badge_text = "Negated wording"
-                pol_badge_class = "mol-badge-purple"
-            else:
-                pol_badge_text = "Polarity uncertain"
-                pol_badge_class = "mol-badge-neutral"
+                pol_label = getattr(sent, "claim_polarity", None) or getattr(sent, "polarity", None) or "UNCERTAIN"
+                pol_exp = getattr(sent, "polarity_explanation", "") or ""
 
-            polarity_badge_html = f'<span class="mol-badge {pol_badge_class}" style="font-size: 0.75rem; margin-right: 0.35rem;" title="{pol_exp}">{pol_badge_text}</span>'
+                if pol_label == "AFFIRMATIVE":
+                    pol_badge_text = "Possible affirmative claim"
+                    pol_badge_class = "mol-badge-info"
+                elif pol_label == "NEGATED":
+                    pol_badge_text = "Negated wording"
+                    pol_badge_class = "mol-badge-purple"
+                else:
+                    pol_badge_text = "Polarity uncertain"
+                    pol_badge_class = "mol-badge-neutral"
 
-            st.markdown(
-                f"""
-                <div class="mol-card-elevated" style="border-left: 4px solid {rel_color}; margin-bottom: 1rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.4rem;">
-                        <span style="font-weight: 700; color: #64748B; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Statement #{idx}</span>
-                        <div style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
-                            {polarity_badge_html}
-                            <span class="mol-badge mol-badge-info" style="font-size: 0.78rem;">
-                                {badge_text}
-                            </span>
+                polarity_badge_html = f'<span class="mol-badge {pol_badge_class}" style="font-size: 0.75rem; margin-right: 0.35rem;" title="{pol_exp}">{pol_badge_text}</span>'
+
+                st.markdown(
+                    f"""
+                    <div class="mol-card-elevated" style="border-left: 4px solid {rel_color}; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.4rem;">
+                            <span style="font-weight: 700; color: #8A99AD; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Statement #{idx}</span>
+                            <div style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                                {polarity_badge_html}
+                                <span class="mol-badge mol-badge-info" style="font-size: 0.78rem;">
+                                    {badge_text}
+                                </span>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.96rem; color: #F3F6FA; line-height: 1.6; font-style: italic; margin: 0.4rem 0 0.8rem 0;">
+                            "{sent.sentence}"
+                        </p>
+                        <div style="background: #142236; padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid #1E314B; font-size: 0.82rem; color: #AAB7C5;">
+                            <div style="color: #F3F6FA; font-weight: 600; margin-bottom: 0.25rem;">📄 {sent.article_title}</div>
+                            <div>
+                                <span><strong>Authors:</strong> {sent.authors} ({sent.year})</span> &nbsp;|&nbsp;
+                                <span><strong>PMID:</strong> <a href="{sent.source_url}" target="_blank" style="color: #39C6D8; text-decoration: underline; font-weight: 600;">{sent.pmid} ↗</a></span>
+                            </div>
                         </div>
                     </div>
-                    <p style="font-size: 1rem; color: #101B2D; line-height: 1.6; font-style: italic; margin: 0.4rem 0 0.8rem 0;">
-                        "{sent.sentence}"
-                    </p>
-                    <div style="background: #F4F7FB; padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid #D9E2EF; font-size: 0.82rem; color: #64748B;">
-                        <div style="color: #101B2D; font-weight: 600; margin-bottom: 0.25rem;">📄 {sent.article_title}</div>
-                        <div>
-                            <span><strong>Authors:</strong> {sent.authors} ({sent.year})</span> &nbsp;|&nbsp;
-                            <span><strong>PMID:</strong> <a href="{sent.source_url}" target="_blank" style="color: #0F8075; text-decoration: underline; font-weight: 600;">{sent.pmid} ↗</a></span>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+        with col_inspector:
+            st.markdown(
+                """
+                <div style="position: sticky; top: 1rem;">
+                    <div class="mol-card" style="padding: 1.15rem; margin-bottom: 1rem;">
+                        <div style="font-size: 0.72rem; font-weight: 700; color: #39C6D8; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-family: 'IBM Plex Mono', monospace;">
+                            PUBLICATION INSPECTOR
+                        </div>
+                        <h4 style="margin: 0 0 0.65rem 0; font-size: 1.1rem; color: #F3F6FA; font-family: 'Manrope', sans-serif;">
+                            Evidence & Source Verification
+                        </h4>
+                        <p style="font-size: 0.82rem; color: #AAB7C5; line-height: 1.5; margin-bottom: 0.85rem;">
+                            Statements are retrieved directly from the peer-reviewed National Center for Biotechnology Information (NCBI) PubMed index.
+                        </p>
+                        <div style="background: #142236; border: 1px solid #1E314B; border-radius: 6px; padding: 0.75rem; margin-bottom: 0.75rem; font-size: 0.8rem; color: #CBD5E1;">
+                            <div style="color: #8A99AD; font-size: 0.72rem; text-transform: uppercase; font-weight: 700; margin-bottom: 0.2rem;">AUTOMATED CLASSIFICATION NOTICE</div>
+                            Linguistic polarity labels ("Possible affirmative claim", "Negated wording", "Polarity uncertain") are heuristic text-mining annotations. They do not constitute pharmacological proof and require human source verification.
+                        </div>
+                        <div style="font-size: 0.78rem; color: #8A99AD; line-height: 1.45;">
+                            Click any PMID link on the left to inspect the primary publication in its entirety on NCBI PubMed.
                         </div>
                     </div>
                 </div>

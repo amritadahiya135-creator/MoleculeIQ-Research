@@ -1,6 +1,7 @@
 """Explainable AI engine via SHAP TreeExplainer and Morgan substructure mapping (Module M08)."""
 
 import os
+import re
 import logging
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional, Tuple, Set
@@ -205,11 +206,50 @@ class ClinToxExplainer:
             # Generate SVG visualization highlighting the contributing atoms
             svg_text: Optional[str] = None
             try:
+                # Map atoms to dominant SHAP attribution direction and intensity
+                atom_shap_weights: Dict[int, float] = {}
+                for bit_id, sv in active_shap[:top_k_bits]:
+                    envs = fp_res.bit_info.get(bit_id, [])
+                    for atom_idx, _ in envs:
+                        idx = int(atom_idx)
+                        if idx not in atom_shap_weights or abs(sv) > abs(atom_shap_weights[idx]):
+                            atom_shap_weights[idx] = sv
+
+                atom_colors: Dict[int, Tuple[float, float, float, float]] = {}
+                for idx in highlight_atoms:
+                    weight = atom_shap_weights.get(idx, 0.0)
+                    if weight > 0:
+                        # Risk-increasing feature: Warm Salmon Coral (#E07878)
+                        atom_colors[idx] = (224 / 255, 120 / 255, 120 / 255, 0.65)
+                    else:
+                        # Risk-decreasing feature: Scientific Emerald (#57B88B)
+                        atom_colors[idx] = (87 / 255, 184 / 255, 139 / 255, 0.65)
+
                 d2d = rdMolDraw2D.MolDraw2DSVG(width, height)
-                d2d.drawOptions().padding = 0.1
-                d2d.DrawMolecule(mol, highlightAtoms=list(highlight_atoms))
+                opts = d2d.drawOptions()
+                opts.padding = 0.08
+                opts.clearBackground = False  # Transparent background
+                opts.setSymbolColour((243 / 255, 246 / 255, 250 / 255, 1.0))
+                opts.updateAtomPalette({
+                    6: (243 / 255, 246 / 255, 250 / 255),    # C: Off white
+                    7: (57 / 255, 198 / 255, 216 / 255),    # N: Molecular Cyan
+                    8: (224 / 255, 120 / 255, 120 / 255),   # O: Salmon Coral
+                    9: (87 / 255, 184 / 255, 139 / 255),    # F: Green
+                    15: (217 / 255, 164 / 255, 65 / 255),   # P: Orange
+                    16: (217 / 255, 164 / 255, 65 / 255),   # S: Yellow
+                    17: (87 / 255, 184 / 255, 139 / 255),   # Cl: Green
+                    35: (217 / 255, 164 / 255, 65 / 255),   # Br: Amber
+                    53: (142 / 255, 124 / 255, 255 / 255),  # I: Purple
+                })
+
+                d2d.DrawMolecule(mol, highlightAtoms=list(highlight_atoms), highlightAtomColors=atom_colors)
                 d2d.FinishDrawing()
-                svg_text = d2d.GetDrawingText()
+                raw_svg = d2d.GetDrawingText()
+                raw_svg = re.sub(r"<\?xml.*?\?>", "", raw_svg)
+                raw_svg = re.sub(r"<!--[\s\S]*?-->", "", raw_svg)
+                raw_svg = re.sub(r"<rect[^>]*fill\s*:\s*#FFFFFF[^>]*/>", "", raw_svg, flags=re.IGNORECASE)
+                raw_svg = re.sub(r"<rect[^>]*fill=['\"]#FFFFFF['\"][^>]*/>", "", raw_svg, flags=re.IGNORECASE)
+                svg_text = raw_svg.strip()
             except Exception as draw_exc:
                 logger.warning(f"Could not render highlight SVG: {draw_exc}")
 

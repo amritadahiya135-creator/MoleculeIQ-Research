@@ -39,9 +39,9 @@ def render_batch_screening_view(orchestrator: ScreeningOrchestrator):
         with col_sample:
             st.markdown(
                 """
-                <div style="background: #FFFFFF; padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid #D9E2EF; box-shadow: 0 1px 3px rgba(16, 27, 45, 0.04);">
-                    <span style="font-size: 0.82rem; color: #101B2D; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Reference Demonstration Library</span>
-                    <p style="font-size: 0.8rem; color: #64748B; margin: 0.3rem 0 0.6rem 0; line-height: 1.45;">Test automated fault isolation with a curated CSV containing valid drugs & malformed rows.</p>
+                <div style="background: #0B1220; padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid #1E314B; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);">
+                    <span style="font-size: 0.82rem; color: #F3F6FA; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Reference Demonstration Library</span>
+                    <p style="font-size: 0.8rem; color: #AAB7C5; margin: 0.3rem 0 0.6rem 0; line-height: 1.45;">Test automated fault isolation with a curated CSV containing valid drugs & malformed rows.</p>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -94,9 +94,9 @@ def render_batch_screening_view(orchestrator: ScreeningOrchestrator):
             with col_info:
                 st.markdown(
                     f"""
-                    <div style="background: #FFFFFF; border: 1px solid #D9E2EF; border-radius: 6px; padding: 0.5rem 0.85rem; font-size: 0.88rem; color: #334155; margin-bottom: 0.5rem; box-shadow: 0 1px 2px rgba(16, 27, 45, 0.03);">
-                        ✓ Active Dataset: <strong style="color: #0F8075;">{input_source}</strong> &nbsp;|&nbsp;
-                        Total Compounds: <strong style="color: #10B981;">{len(df_input)}</strong>
+                    <div style="background: #0B1220; border: 1px solid #1E314B; border-radius: 6px; padding: 0.5rem 0.85rem; font-size: 0.88rem; color: #CBD5E1; margin-bottom: 0.5rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);">
+                        ✓ Active Dataset: <strong style="color: #39C6D8;">{input_source}</strong> &nbsp;|&nbsp;
+                        Total Compounds: <strong style="color: #57B88B;">{len(df_input)}</strong>
                     </div>
                     """,
                     unsafe_allow_html=True,
@@ -177,15 +177,29 @@ def render_batch_screening_view(orchestrator: ScreeningOrchestrator):
             )
         with m5:
             valid_df = batch_res.results_dataframe[batch_res.results_dataframe["Status"] == "Valid"]
-            low_tox_count = len(valid_df[valid_df["ClinTox_Toxic"] == False]) if "ClinTox_Toxic" in valid_df.columns else 0
-            render_metric_card(
-                "Model-Predicted ClinTox-Negative",
-                str(low_tox_count),
-                "Estimated P(Tox) < 0.50",
-                "#0F8075",
-                badge="Predicted Negative",
-                badge_variant="info",
+            has_clintox = (
+                "ClinTox_Toxic" in valid_df.columns
+                and not valid_df["ClinTox_Toxic"].dropna().empty
             )
+            if has_clintox:
+                low_tox_count = len(valid_df[valid_df["ClinTox_Toxic"] == False])
+                render_metric_card(
+                    "Model-Predicted ClinTox-Negative",
+                    str(low_tox_count),
+                    "Estimated P(Tox) < 0.50",
+                    "#0F8075",
+                    badge="Predicted Negative",
+                    badge_variant="info",
+                )
+            else:
+                render_metric_card(
+                    "Model-Predicted ClinTox-Negative",
+                    "N/A",
+                    "Model unavailable",
+                    "#64748B",
+                    badge="Unavailable",
+                    badge_variant="neutral",
+                )
 
         # Batch Applicability Domain Alert
         outside_count = len(valid_df[valid_df["Applicability_Domain_Status"] == "OUTSIDE_DOMAIN"]) if "Applicability_Domain_Status" in valid_df.columns else 0
@@ -211,7 +225,12 @@ def render_batch_screening_view(orchestrator: ScreeningOrchestrator):
             with f_col2:
                 filter_lipinski = st.checkbox("Only Lipinski Compliant Compounds", value=False)
             with f_col3:
-                filter_low_tox = st.checkbox("Only Model-Predicted ClinTox-Negative Compounds", value=False)
+                filter_low_tox = st.checkbox(
+                    "Only Model-Predicted ClinTox-Negative Compounds",
+                    value=False,
+                    disabled=not has_clintox,
+                    help="Disabled when ClinTox model is unavailable" if not has_clintox else None,
+                )
 
         # Apply filtering
         df_display = batch_res.results_dataframe.copy()
@@ -240,24 +259,32 @@ def render_batch_screening_view(orchestrator: ScreeningOrchestrator):
         # Scientific & Regulatory Disclaimer
         st.markdown(
             """
-            <div style="background: #FFFFFF; border-left: 3px solid #E5A34D; border-top: 1px solid #D9E2EF; border-right: 1px solid #D9E2EF; border-bottom: 1px solid #D9E2EF; border-radius: 6px; padding: 0.65rem 0.95rem; margin: 0.75rem 0; font-size: 0.8rem; color: #334155; line-height: 1.5; box-shadow: 0 1px 3px rgba(16, 27, 45, 0.04);">
+            <div style="background: #0B1220; border-left: 3px solid #D9A441; border-top: 1px solid #1E314B; border-right: 1px solid #1E314B; border-bottom: 1px solid #1E314B; border-radius: 6px; padding: 0.65rem 0.95rem; margin: 0.75rem 0; font-size: 0.8rem; color: #CBD5E1; line-height: 1.5; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);">
                 <strong>Scientific & Regulatory Disclaimer:</strong> Research use only. Model outputs and the Exploratory Triage Index are computational estimates, not determinations of clinical safety, efficacy, or suitability for human use. Applicability-domain warnings indicate structural distance from the model's training data and do not independently establish toxicity.
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        col_dl, _ = st.columns([1.5, 2])
-        with col_dl:
-            # Export Button (Sanitized against formula injection CWE-1236)
-            sanitized_df = sanitize_dataframe_for_csv(batch_res.results_dataframe)
+        col_dl_csv, col_dl_json, _ = st.columns([1.2, 1.2, 1.5])
+        sanitized_df = sanitize_dataframe_for_csv(batch_res.results_dataframe)
+        with col_dl_csv:
             csv_export = sanitized_df.to_csv(index=False)
             st.download_button(
-                label="💾 Download Full Enriched Results (CSV)",
+                label="💾 Download CSV",
                 data=csv_export,
                 file_name="moleculeiq_screening_results.csv",
                 mime="text/csv",
                 type="primary",
+                use_container_width=True,
+            )
+        with col_dl_json:
+            json_export = sanitized_df.to_json(orient="records", indent=2)
+            st.download_button(
+                label="💾 Download JSON",
+                data=json_export,
+                file_name="moleculeiq_screening_results.json",
+                mime="application/json",
                 use_container_width=True,
             )
 

@@ -1,14 +1,7 @@
-"""MoleculeIQ Design System — Tokens, Stylesheet, and Brand Identity.
+"""MoleculeIQ — Molecular Observatory Design System.
 
-Design Philosophy: Precision Scientific Research Instrument.
-Brand Palette:
-- Midnight Navy: #101B2D (Sidebar, dark surfaces, primary heading contrast)
-- Dark Surface:  #1C2B40 (Sidebar cards, borders, 3D canvas backdrop)
-- Scientific Teal: #27C7B8 (Primary actions, active states, key metrics)
-- Ice White:     #F4F7FB (Main app background, clean workspace)
-- Muted Violet:  #8E7CFF (Secondary model analysis, explainability, stress assays)
-- Cool Gray:     #D9E2EF (Hairline borders, dividers, subtle neutral fills)
-- Amber:         #E5A34D (Warnings, uncertainty, boundary zones)
+Tokens, Stylesheet, and Visual Architecture.
+Theme: Molecular Universe × Molecular Laboratory (Strict Non-Negotiable Dark Theme).
 """
 
 import streamlit as st
@@ -16,125 +9,282 @@ import streamlit as st
 # Design Tokens (Single Source of Truth)
 TOKENS = {
     "colors": {
-        "midnight_navy": "#101B2D",
-        "dark_surface": "#1C2B40",
-        "scientific_teal": "#27C7B8",
-        "scientific_teal_dark": "#1BA699",
-        "ice_white": "#F4F7FB",
-        "muted_violet": "#8E7CFF",
-        "cool_gray": "#D9E2EF",
-        "amber": "#E5A34D",
+        # Core Observatory Palette
+        "observatory_black": "#080D16",
+        "midnight_navy": "#0B1220",
+        "deep_slate": "#142236",
+        "elevated_slate": "#1B2B3D",
+        "border_slate": "#1E314B",
+        "border_subtle": "#24364D",
+        # Accents
+        "scientific_teal": "#4F9D96",
+        "scientific_teal_dark": "#3A7570",
+        "molecular_cyan": "#39C6D8",
+        # Neutrals
+        "off_white": "#F3F6FA",
+        "cool_grey": "#AAB7C5",
+        "muted_grey": "#77889A",
+        # Semantic
+        "success": "#57B88B",
+        "warning": "#D9A441",
+        "error": "#E07878",
+        "information": "#72A9E8",
         # Semantic Mappings
-        "bg_app": "#F4F7FB",
-        "bg_surface": "#FFFFFF",
-        "bg_surface_subtle": "#EDF2F7",
-        "bg_sidebar": "#101B2D",
-        "bg_sidebar_card": "#1C2B40",
-        "border_subtle": "#D9E2EF",
-        "border_medium": "#B8C9DF",
-        "border_sidebar": "#2A3B52",
-        "text_primary": "#101B2D",
-        "text_secondary": "#334155",
-        "text_muted": "#64748B",
-        "text_sidebar_primary": "#F4F7FB",
-        "text_sidebar_secondary": "#CBD5E1",
-        "text_sidebar_muted": "#94A3B8",
-        "status_success": "#10B981",
-        "status_warning": "#E5A34D",
-        "status_danger": "#EF4444",
-        "status_info": "#27C7B8",
-        "status_purple": "#8E7CFF",
+        "bg_app": "#080D16",
+        "bg_surface": "#0B1220",
+        "bg_surface_card": "#142236",
+        "bg_surface_elevated": "#1B2B3D",
+        "bg_sidebar": "#0B1220",
+        "text_primary": "#F3F6FA",
+        "text_secondary": "#AAB7C5",
+        "text_muted": "#77889A",
     },
     "typography": {
-        "font_family": '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-        "font_mono": 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+        "font_heading": "'Manrope', -apple-system, BlinkMacSystemFont, sans-serif",
+        "font_body": "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        "font_mono": "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
     },
     "layout": {
-        "max_width": "1240px",
-        "radius_base": "6px",
-        "radius_card": "8px",
-    }
+        "max_width": "1280px",
+        "radius_base": "8px",
+        "radius_card": "12px",
+        "radius_pill": "9999px",
+        "spacing_unit": "8px",
+    },
 }
 
 CUSTOM_CSS = """
 <style>
-/* Global App Background & Container Constraints */
-.stApp {
-    background-color: #F4F7FB;
-    color: #101B2D;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+
+/* Box Sizing & Root Layout */
+*, *::before, *::after {
+    box-sizing: border-box !important;
+}
+
+/* Global Reset & Dark App Viewport (Observatory Black) */
+html, body, .stApp {
+    background-color: #080D16 !important;
+    color: #F3F6FA !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
 }
 
 .main .block-container {
-    max-width: 1240px;
-    padding-top: 1.5rem;
-    padding-bottom: 3rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
+    max-width: 1280px;
+    width: 100%;
+    padding-top: 1.25rem;
+    padding-bottom: 3.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
     margin: 0 auto;
 }
 
-/* Sidebar Branding & Navigation Shell (Midnight Navy) */
+/* Eradicate unintended black rectangular backgrounds behind headings, markdown blocks, captions, and cards */
+h1, h2, h3, h4, h5, h6,
+.stHeading,
+div[data-testid="stHeadingWithActionElements"],
+[data-testid="stMarkdownContainer"],
+[data-testid="stMarkdownContainer"] h1,
+[data-testid="stMarkdownContainer"] h2,
+[data-testid="stMarkdownContainer"] h3,
+[data-testid="stMarkdownContainer"] h4,
+[data-testid="stMarkdownContainer"] h5,
+[data-testid="stMarkdownContainer"] h6,
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] span,
+[data-testid="stMarkdownContainer"] div,
+.stMarkdown,
+.stMarkdown > div,
+.stCaption,
+[data-testid="stCaptionContainer"] {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Card Heading & Content Background Isolation */
+.mol-card, .mol-card-elevated, .mol-card-dark {
+    box-sizing: border-box;
+}
+
+.mol-card h1, .mol-card h2, .mol-card h3, .mol-card h4, .mol-card h5, .mol-card h6,
+.mol-card-elevated h1, .mol-card-elevated h2, .mol-card-elevated h3, .mol-card-elevated h4,
+.mol-card-dark h1, .mol-card-dark h2, .mol-card-dark h3, .mol-card-dark h4 {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Headings with Manrope */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    color: #F3F6FA !important;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+}
+
+h1 {
+    font-weight: 800;
+}
+
+p, span, label, li {
+    color: #AAB7C5;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+strong, b {
+    color: #F3F6FA;
+}
+
+/* Monospace Elements */
+code, pre, .mono-text, .smiles-code-box {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
+}
+
+/* Sidebar Shell (Midnight Navy) with Unwrapped Navigation */
 [data-testid="stSidebar"] {
-    background-color: #101B2D !important;
-    border-right: 1px solid #1C2B40;
+    background-color: #0B1220 !important;
+    border-right: 1px solid #1E314B !important;
+    width: 310px !important;
+    min-width: 290px !important;
 }
 
 [data-testid="stSidebar"] * {
-    color: #CBD5E1;
+    color: #AAB7C5;
 }
 
 .sidebar-category {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 700;
-    color: #94A3B8;
+    color: #77889A;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     margin-top: 1.25rem;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.45rem;
     padding-left: 0.25rem;
 }
 
+[data-testid="stSidebar"] .stRadio > div {
+    gap: 0.25rem;
+}
+
 [data-testid="stSidebar"] .stRadio label {
-    font-size: 0.92rem;
+    font-size: 0.88rem;
     font-weight: 500;
-    color: #CBD5E1 !important;
-    padding: 0.4rem 0.65rem;
-    border-radius: 6px;
+    color: #AAB7C5 !important;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     transition: all 0.15s ease-in-out;
 }
 
 [data-testid="stSidebar"] .stRadio label:hover {
-    background-color: rgba(28, 43, 64, 0.8);
-    color: #F4F7FB !important;
+    background-color: #142236;
+    color: #F3F6FA !important;
 }
 
 [data-testid="stSidebar"] .stRadio [aria-checked="true"] + div label,
 [data-testid="stSidebar"] .stRadio [data-checked="true"] label {
-    color: #27C7B8 !important;
-    font-weight: 700;
+    background-color: rgba(79, 157, 150, 0.15) !important;
+    color: #39C6D8 !important;
+    font-weight: 600;
+    border: 1px solid rgba(79, 157, 150, 0.35);
 }
 
-/* Typography Hierarchy in Main Workspace */
-h1, h2, h3, h4, h5, h6 {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: #101B2D !important;
-    letter-spacing: -0.02em;
-    font-weight: 700;
+/* Observatory Header Component */
+.observatory-header-bar {
+    padding: 0.5rem 0 1rem 0;
+    border-bottom: 1px solid #1E314B;
+    margin-bottom: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 0.75rem;
 }
 
-p, span, label {
-    color: #334155;
+.observatory-breadcrumbs {
+    font-size: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #77889A;
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
 }
 
-/* Scientific Triage Row (Anti-Card Wall Layout) */
+.observatory-breadcrumbs a, .observatory-breadcrumbs span.active {
+    color: #4F9D96;
+}
+
+/* Scientific Boundary Banner (Dark Theme) */
+.observatory-boundary-banner {
+    background: #0B1220;
+    border-left: 3px solid #4F9D96;
+    border-top: 1px solid #1E314B;
+    border-right: 1px solid #1E314B;
+    border-bottom: 1px solid #1E314B;
+    padding: 0.75rem 1.15rem;
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Editorial & Research Card Structures */
+.mol-card {
+    background: #142236;
+    border: 1px solid #1E314B;
+    border-radius: 12px;
+    padding: 1.25rem 1.4rem;
+    margin-bottom: 1.15rem;
+    color: #F3F6FA;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    transition: border-color 0.2s ease;
+}
+
+.mol-card:hover {
+    border-color: #24364D;
+}
+
+.mol-card-elevated {
+    background: #1B2B3D;
+    border: 1px solid #24364D;
+    border-radius: 12px;
+    padding: 1.35rem 1.5rem;
+    margin-bottom: 1.15rem;
+    color: #F3F6FA;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.mol-card-dark {
+    background: #0B1220;
+    border: 1px solid #1E314B;
+    border-radius: 12px;
+    padding: 1.25rem 1.4rem;
+    margin-bottom: 1.15rem;
+    color: #F3F6FA;
+}
+
+/* Research Triage Row (Dark Observatory Grid) */
 .miq-triage-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1rem;
-    padding: 1rem 0;
-    border-top: 1px solid #D9E2EF;
-    border-bottom: 1px solid #D9E2EF;
+    grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+    gap: 0.85rem;
+    padding: 0.85rem 0;
+    border-top: 1px solid #1E314B;
+    border-bottom: 1px solid #1E314B;
     margin: 1.25rem 0;
 }
 
@@ -142,272 +292,311 @@ p, span, label {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background: #FFFFFF;
-    border: 1px solid #D9E2EF;
-    border-radius: 8px;
-    padding: 0.85rem 1rem;
-    box-shadow: 0 1px 3px rgba(16, 27, 45, 0.04);
+    background: #142236;
+    border: 1px solid #1E314B;
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .miq-triage-label {
-    font-size: 0.72rem;
+    font-size: 0.70rem;
     font-weight: 700;
-    color: #64748B;
+    color: #77889A;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     margin-bottom: 0.35rem;
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .miq-triage-value {
-    font-size: 1.55rem;
+    font-size: 1.65rem;
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.15;
-    margin-bottom: 0.2rem;
-    color: #101B2D;
+    margin-bottom: 0.25rem;
+    color: #F3F6FA;
+    font-family: 'Manrope', sans-serif;
 }
 
 .miq-triage-desc {
-    font-size: 0.76rem;
-    color: #64748B;
+    font-size: 0.74rem;
+    color: #AAB7C5;
     line-height: 1.35;
 }
 
-/* Editorial Framing Panels */
-.mol-card {
-    background: #FFFFFF;
-    border: 1px solid #D9E2EF;
-    border-radius: 8px;
-    padding: 1.25rem 1.4rem;
-    margin-bottom: 1.15rem;
-    box-shadow: 0 1px 3px rgba(16, 27, 45, 0.04);
-}
-
-.mol-card-elevated {
-    background: #FFFFFF;
-    border: 1px solid #B8C9DF;
-    border-radius: 8px;
-    padding: 1.25rem 1.4rem;
-    margin-bottom: 1.15rem;
-    box-shadow: 0 4px 12px rgba(16, 27, 45, 0.06);
-}
-
-.mol-card-dark {
-    background: #101B2D;
-    border: 1px solid #1C2B40;
-    border-radius: 8px;
-    padding: 1.25rem 1.4rem;
-    margin-bottom: 1.15rem;
-    color: #F4F7FB;
-}
-
-/* 2D Molecular Canvas */
+/* 2D Molecular Structure Vector Canvas (Dark Slate) */
 .mol-structure-canvas {
-    background: #FFFFFF;
-    border-radius: 8px;
-    border: 1px solid #D9E2EF;
+    background: #0B1220;
+    border-radius: 12px;
+    border: 1px solid #1E314B;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
-    box-shadow: 0 2px 8px rgba(16, 27, 45, 0.04);
+    padding: 1.25rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     transition: border-color 0.2s ease;
 }
 
 .mol-structure-canvas:hover {
-    border-color: #27C7B8;
+    border-color: #4F9D96;
 }
 
 /* 3D Molecular Conformer Viewer Canvas */
 .mol-3d-canvas-wrapper {
-    background: #101B2D;
-    border-radius: 8px;
-    border: 1px solid #1C2B40;
+    background: #080D16;
+    border-radius: 12px;
+    border: 1px solid #1E314B;
     overflow: hidden;
-    box-shadow: 0 4px 16px rgba(16, 27, 45, 0.12);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
 }
 
-/* Badges */
+/* Badges & Status Indicators */
 .mol-badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.2rem 0.55rem;
+    padding: 0.22rem 0.60rem;
     border-radius: 9999px;
-    font-size: 0.72rem;
+    font-size: 0.70rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .mol-badge-success {
-    background-color: rgba(16, 185, 129, 0.12);
-    color: #065F46;
-    border: 1px solid rgba(16, 185, 129, 0.35);
+    background-color: rgba(87, 184, 139, 0.15);
+    color: #57B88B;
+    border: 1px solid rgba(87, 184, 139, 0.4);
 }
 
 .mol-badge-warning {
-    background-color: rgba(229, 163, 77, 0.15);
-    color: #9A6010;
-    border: 1px solid rgba(229, 163, 77, 0.4);
+    background-color: rgba(217, 164, 65, 0.15);
+    color: #D9A441;
+    border: 1px solid rgba(217, 164, 65, 0.4);
 }
 
 .mol-badge-danger {
-    background-color: rgba(239, 68, 68, 0.12);
-    color: #991B1B;
-    border: 1px solid rgba(239, 68, 68, 0.35);
+    background-color: rgba(224, 120, 120, 0.15);
+    color: #E07878;
+    border: 1px solid rgba(224, 120, 120, 0.4);
 }
 
 .mol-badge-info, .mol-badge-teal {
-    background-color: rgba(39, 199, 184, 0.15);
-    color: #0F8075;
-    border: 1px solid rgba(39, 199, 184, 0.4);
+    background-color: rgba(79, 157, 150, 0.15);
+    color: #4F9D96;
+    border: 1px solid rgba(79, 157, 150, 0.4);
 }
 
-.mol-badge-purple, .mol-badge-violet {
+.mol-badge-cyan {
+    background-color: rgba(57, 198, 216, 0.15);
+    color: #39C6D8;
+    border: 1px solid rgba(57, 198, 216, 0.4);
+}
+
+.mol-badge-purple {
     background-color: rgba(142, 124, 255, 0.15);
-    color: #5B48DF;
-    border: 1px solid rgba(142, 124, 255, 0.35);
+    color: #8E7CFF;
+    border: 1px solid rgba(142, 124, 255, 0.4);
 }
 
 .mol-badge-neutral {
-    background-color: #EDF2F7;
-    color: #475569;
-    border: 1px solid #D9E2EF;
+    background-color: #142236;
+    color: #AAB7C5;
+    border: 1px solid #1E314B;
 }
 
-/* Custom Tab Bar */
+/* Custom Streamlit Tabs (Observatory Dark) */
 .stTabs [data-baseweb="tab-list"] {
-    gap: 0.4rem;
-    background-color: #EDF2F7;
-    padding: 0.3rem 0.4rem;
-    border-radius: 8px;
-    border: 1px solid #D9E2EF;
-    margin-bottom: 1.25rem;
+    gap: 0.5rem;
+    background-color: #0B1220 !important;
+    padding: 0.35rem 0.45rem;
+    border-radius: 10px;
+    border: 1px solid #1E314B;
+    margin-bottom: 1.35rem;
 }
 
 .stTabs [data-baseweb="tab"] {
-    height: 2.5rem;
-    border-radius: 6px;
-    color: #475569;
+    height: 2.6rem;
+    border-radius: 8px;
+    color: #AAB7C5 !important;
     font-weight: 600;
-    font-size: 0.90rem;
-    padding: 0 1.15rem;
+    font-size: 0.88rem;
+    padding: 0 1.25rem;
     border: none;
     background-color: transparent;
     transition: all 0.15s ease-in-out;
 }
 
 .stTabs [data-baseweb="tab"]:hover {
-    color: #101B2D;
-    background-color: rgba(255, 255, 255, 0.6);
+    color: #F3F6FA !important;
+    background-color: rgba(20, 34, 54, 0.7);
 }
 
 .stTabs [aria-selected="true"] {
-    background-color: #FFFFFF !important;
-    color: #101B2D !important;
-    border: 1px solid #D9E2EF !important;
-    border-bottom: 2px solid #27C7B8 !important;
-    box-shadow: 0 1px 4px rgba(16, 27, 45, 0.05);
+    background-color: #142236 !important;
+    color: #39C6D8 !important;
+    border: 1px solid #24364D !important;
+    border-bottom: 2px solid #4F9D96 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Button Refinement */
+/* Primary & Secondary Buttons */
 .stButton > button {
     font-weight: 600;
-    border-radius: 6px;
-    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    padding: 0.5rem 1.15rem;
+    min-height: 2.5rem;
     transition: all 0.15s ease;
-    border: 1px solid #D9E2EF;
-    background-color: #FFFFFF;
-    color: #101B2D;
-    white-space: nowrap;
+    border: 1px solid #1E314B;
+    background-color: #142236;
+    color: #F3F6FA;
+    font-size: 0.90rem;
 }
 
 .stButton > button:hover {
-    border-color: #27C7B8;
-    color: #0F8075;
+    border-color: #4F9D96;
+    color: #39C6D8;
+    background-color: #1B2B3D;
+    transform: translateY(-1px);
 }
 
 .stButton > button[kind="primary"] {
-    background: #27C7B8;
-    border: 1px solid #1BA699;
-    color: #101B2D !important;
+    background: linear-gradient(135deg, #4F9D96 0%, #3A7570 100%) !important;
+    border: 1px solid #4F9D96 !important;
+    color: #080D16 !important;
     font-weight: 700;
-    box-shadow: 0 2px 4px rgba(39, 199, 184, 0.25);
+    box-shadow: 0 4px 14px rgba(79, 157, 150, 0.35);
 }
 
 .stButton > button[kind="primary"]:hover {
-    background: #1BA699;
-    color: #FFFFFF !important;
-    border-color: #16877C;
+    background: linear-gradient(135deg, #39C6D8 0%, #4F9D96 100%) !important;
+    color: #080D16 !important;
+    border-color: #39C6D8 !important;
+    box-shadow: 0 6px 18px rgba(57, 198, 216, 0.45);
     transform: translateY(-1px);
 }
 
 /* Hairline Section Divider */
 .miq-divider {
-    border-top: 1px solid #D9E2EF;
-    margin: 1.35rem 0;
-}
-
-/* Range Track Indicator */
-.range-track-container {
-    margin: 0.4rem 0 0.8rem 0;
-}
-
-.range-track-bar {
-    width: 100%;
-    height: 6px;
-    background: #EDF2F7;
-    border: 1px solid #D9E2EF;
-    border-radius: 3px;
-    position: relative;
-}
-
-.range-track-fill {
-    height: 100%;
-    border-radius: 3px;
+    border-top: 1px solid #1E314B;
+    margin: 1.75rem 0;
 }
 
 /* Monospace SMILES Box */
 .smiles-code-box {
-    background: #EDF2F7;
-    border: 1px solid #D9E2EF;
-    border-radius: 6px;
-    padding: 0.45rem 0.75rem;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.82rem;
-    color: #101B2D;
+    background: #0B1220;
+    border: 1px solid #1E314B;
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.84rem;
+    color: #39C6D8;
     word-break: break-all;
 }
 
-/* Streamlit Inputs & DataFrames styling */
+/* Streamlit Inputs, Dropdowns & Textareas */
 [data-baseweb="input"] {
-    background-color: #FFFFFF !important;
-    border-color: #D9E2EF !important;
+    background-color: #0B1220 !important;
+    border-color: #1E314B !important;
+    color: #F3F6FA !important;
+    border-radius: 8px !important;
+}
+
+[data-baseweb="input"] input {
+    color: #F3F6FA !important;
 }
 
 [data-baseweb="select"] {
-    background-color: #FFFFFF !important;
+    background-color: #0B1220 !important;
+    color: #F3F6FA !important;
+}
+
+[data-baseweb="select"] * {
+    background-color: #0B1220 !important;
+    color: #F3F6FA !important;
+}
+
+textarea {
+    background-color: #0B1220 !important;
+    color: #F3F6FA !important;
+    border-color: #1E314B !important;
+}
+
+/* Expanders */
+div[data-testid="stExpander"] {
+    background-color: #0B1220 !important;
+    border: 1px solid #1E314B !important;
+    border-radius: 10px !important;
+}
+
+div[data-testid="stExpander"] summary {
+    color: #F3F6FA !important;
+    font-weight: 600;
+}
+
+/* Alerts & Notifications */
+div[data-testid="stAlert"] {
+    border-radius: 10px !important;
+    background-color: #142236 !important;
+    border: 1px solid #1E314B !important;
+    color: #F3F6FA !important;
+}
+
+/* Metric Display */
+div[data-testid="stMetricValue"] {
+    color: #F3F6FA !important;
+    font-family: 'Manrope', sans-serif !important;
+    font-weight: 800 !important;
+}
+
+/* Tables and DataFrames (Prevent viewport overflow) */
+[data-testid="stDataFrame"], .stTable {
+    max-width: 100% !important;
+    overflow-x: auto !important;
 }
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: #F4F7FB;
+    background: #080D16;
 }
 ::-webkit-scrollbar-thumb {
-    background: #D9E2EF;
+    background: #1E314B;
     border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #27C7B8;
+    background: #4F9D96;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+    .main .block-container {
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main .block-container {
+        padding-left: 0.85rem !important;
+        padding-right: 0.85rem !important;
+        padding-top: 0.75rem !important;
+    }
+    .miq-triage-grid {
+        grid-template-columns: 1fr !important;
+    }
+    [data-testid="stSidebar"] {
+        width: 100% !important;
+    }
 }
 </style>
 """
 
 
 def apply_theme():
-    """Inject MoleculeIQ design system stylesheet into Streamlit app."""
+    """Inject MoleculeIQ Molecular Observatory design system stylesheet."""
     st.markdown(CUSTOM_CSS, unsafe_allow_html=True)

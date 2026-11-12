@@ -41,3 +41,49 @@ def test_generate_3d_mol_block_deterministic():
     assert block1 is not None
     assert block2 is not None
     assert block1 == block2, "Conformer generation should be deterministic under seed=42"
+
+
+def test_render_3dmol_viewer_features_and_controls(monkeypatch):
+    """Verify that render_3dmol_viewer produces compliant HTML with all required 3Dmol features."""
+    from unittest.mock import MagicMock
+    from src.ui.single_molecule import render_3dmol_viewer
+    import streamlit.components.v1 as components
+
+    mock_html = MagicMock()
+    monkeypatch.setattr(components, "html", mock_html)
+
+    aspirin_smiles = "CC(=O)Oc1ccccc1C(=O)O"
+    mol_block = generate_3d_mol_block(aspirin_smiles)
+    assert mol_block is not None
+
+    render_3dmol_viewer(mol_block, height=380)
+
+    assert mock_html.called
+    html_arg = mock_html.call_args[0][0]
+    height_arg = mock_html.call_args[1].get("height") or mock_html.call_args[0][1]
+    assert height_arg == 380
+
+    # 1. 3Dmol.js Library and Background
+    assert "3Dmol-min.js" in html_arg
+    assert "#080D16" in html_arg
+
+    # 2. Display Modes: Ball-and-Stick, Stick, Space-Filling (vdW)
+    assert "Ball &amp; Stick" in html_arg
+    assert "Stick" in html_arg
+    assert "Space-Filling (vdW)" in html_arg
+    assert "ballstick" in html_arg
+    assert "sphere" in html_arg
+
+    # 3. Interactive Atom Selection & Inspection HUD
+    assert "setClickable" in html_arg
+    assert "onAtomClicked" in html_arg
+    assert "highlightAtom" in html_arg
+    assert "atomCard" in html_arg
+    assert "clearSelection" in html_arg
+    assert "#39C6D8" in html_arg  # Cyan selection highlight
+
+    # 4. Camera & Animation Controls
+    assert "toggleSpin" in html_arg
+    assert "resetView" in html_arg
+    assert "Auto-Rotate" in html_arg
+

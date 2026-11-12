@@ -13,6 +13,8 @@ venv/
 # Scratch and temporary directories
 scratch/
 .DS_Store
+full_user_prompt.txt
+prompt_dump.txt
 
 # Distribution packages & release tarballs
 dist/
